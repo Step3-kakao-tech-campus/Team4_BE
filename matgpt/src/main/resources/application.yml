@@ -9,12 +9,29 @@ spring:
     activate:
       on-profile: common
 
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: "biznstgic3@gmail.com"
+  password: "smhljpwmnuxosjtm"
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+
 logging:
   level:
     root: INFO
 
 server:
   port: 8080
+
+jwt:
+  secret: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWw
+
+
 ---
 spring:
   config:
