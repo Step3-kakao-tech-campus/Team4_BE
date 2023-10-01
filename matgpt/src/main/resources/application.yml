@@ -1,4 +1,7 @@
 spring:
+  config:
+    import:
+      - classpath:/secret/application-secret.yml
   profiles:
     group:
       dev: common, dev
