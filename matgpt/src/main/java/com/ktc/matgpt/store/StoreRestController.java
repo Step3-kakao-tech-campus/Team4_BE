@@ -22,15 +22,7 @@ public class StoreRestController {
 
     @GetMapping("/stores")
     public ResponseEntity<?> findAll() {
-        List<Store> store = storeService.findAll();
-
-        List<StoreResponse> responseDTOs = store.stream()
-                .map(s -> StoreResponse.builder()
-                        .storeId(s.getId())
-                        .storeName(s.getStoreName())
-                        .build())
-                .collect(Collectors.toList());
-
+        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAll();
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }
