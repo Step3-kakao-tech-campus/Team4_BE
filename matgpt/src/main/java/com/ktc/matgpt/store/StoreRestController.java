@@ -19,7 +19,6 @@ public class StoreRestController {
     private final StoreService storeService;
 
 
-
     @GetMapping("/stores")
     public ResponseEntity<?> findAll() {
         List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAll();
@@ -29,13 +28,8 @@ public class StoreRestController {
 
     @GetMapping("/stores/{id}")
     public ResponseEntity<?> find(@PathVariable(value = "id", required = true) Long id) {
-        Store store = storeService.findById(id);
-
-        StoreResponse.builder()
-                .storeId(store.getId())
-                .storeName(store.getStoreName())
-                .build();
-        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(new StoreResponse(store.getId(), store.getStoreName()));
+        StoreResponse.FindByIdStoreDTO responseDTO = storeService.findById(id);
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTO);
         return ResponseEntity.ok(apiResult);
     }
 
