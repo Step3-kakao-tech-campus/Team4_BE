@@ -1,15 +1,13 @@
 package com.ktc.matgpt.store;
 
 
+import com.ktc.matgpt.store.entity.Category;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.text.DateFormat;
-import java.text.DecimalFormat;
 
 @Entity
 @Builder
@@ -27,27 +25,41 @@ public class Store {
     private String storeName;
 
     @Column(nullable = false)
-    private DecimalFormat avgCostPerPerson;
+    private String number;
 
     @Column(nullable = false)
-    private String avgVisitCount;
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
 
     @Column(nullable = false)
-    private String category;
+    private String detailedCategory;
 
     @Column(nullable = false)
     private String openingTime;
+
     @Column(nullable = false)
     private String closingTime;
 
-    @Column(nullable = true)
+    @Column
+    private String breakTime;
+
+    @Column(nullable = false)
+    private String latitude;
+
+    @Column(nullable = false)
+    private String longitude;
+
+    @Column
+    private double avgCostPerPerson;
+
+    @Column
+    private int avgVisitCount;
+
+    @Column
     private String storeImg;
-
-    @Column(nullable = false)
-    private Long latitude;
-
-    @Column(nullable = false)
-    private Long longtitude;
 
     @Column(nullable = false)
     private int numsOfReview;
@@ -57,3 +69,4 @@ public class Store {
 
 
 }
+
