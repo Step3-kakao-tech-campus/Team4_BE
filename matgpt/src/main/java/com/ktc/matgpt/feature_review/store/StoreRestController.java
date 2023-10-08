@@ -17,7 +17,7 @@ public class StoreRestController {
     private final StoreService storeService;
 
     @GetMapping("/stores/{id}")
-    public ResponseEntity<?> find(@PathVariable(value = "id", required = true) Long id) {
+    public ResponseEntity<?> findByStoreID(@PathVariable(value = "id", required = true) Long id) {
         Store store = storeService.findById(id);
 
         StoreResponse.builder()
