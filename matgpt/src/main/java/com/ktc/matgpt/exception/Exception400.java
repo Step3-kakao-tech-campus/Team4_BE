@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.errors.exception;
+package com.ktc.matgpt.exception;
 
 import com.ktc.matgpt.feature_review.utils.ApiUtils;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.ktc.matgpt.feature_review.tag;
 
-import com.ktc.matgpt.feature_review.errors.exception.Exception500;
+import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.food.Food;
 import com.ktc.matgpt.feature_review.image.Image;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;

@@ -2,7 +2,7 @@ package com.ktc.matgpt.feature_review.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.ktc.matgpt.feature_review.errors.exception.Exception500;
+import com.ktc.matgpt.exception.Exception500;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

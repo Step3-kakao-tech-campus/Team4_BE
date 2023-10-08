@@ -1,6 +1,6 @@
-package com.ktc.matgpt.feature_review.errors;
+package com.ktc.matgpt.exception;
 
-import com.ktc.matgpt.feature_review.errors.exception.*;
+import com.ktc.matgpt.exception.*;
 import com.ktc.matgpt.feature_review.utils.ApiUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<?> handleCustomException(CustomException e) {
+        return new ResponseEntity<>(e.body(), e.status());
+    }
 
     @ExceptionHandler(Exception400.class)
     public ResponseEntity<?> badRequest(Exception400 e){

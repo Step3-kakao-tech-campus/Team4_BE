@@ -1,9 +1,8 @@
 package com.ktc.matgpt.feature_review.image;
 
-import com.ktc.matgpt.feature_review.errors.exception.Exception500;
+import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import com.ktc.matgpt.feature_review.review.entity.Review;
-import jdk.jfr.Registered;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

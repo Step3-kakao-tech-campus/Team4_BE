@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "store")
-public class Store {
+@Table(name = "mockstore")
+public class MockStore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
