@@ -1,6 +1,6 @@
-package com.ktc.matgpt.feature_review.errors;
+package com.ktc.matgpt.exception;
 
-import com.ktc.matgpt.feature_review.errors.exception.Exception400;
+import com.ktc.matgpt.exception.Exception400;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

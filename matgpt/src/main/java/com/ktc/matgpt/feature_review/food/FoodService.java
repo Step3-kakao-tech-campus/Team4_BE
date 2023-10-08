@@ -1,7 +1,7 @@
 package com.ktc.matgpt.feature_review.food;
 
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
-import com.ktc.matgpt.feature_review.errors.exception.Exception500;
+import com.ktc.matgpt.exception.Exception500;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

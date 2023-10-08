@@ -1,8 +1,7 @@
 package com.ktc.matgpt.feature_review.review;
 
-import com.ktc.matgpt.feature_review.errors.exception.Exception400;
+import com.ktc.matgpt.exception.Exception400;
 import com.ktc.matgpt.feature_review.food.Food;
-import com.ktc.matgpt.feature_review.food.FoodJPARepository;
 import com.ktc.matgpt.feature_review.food.FoodService;
 import com.ktc.matgpt.feature_review.image.ImageService;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
@@ -11,16 +10,14 @@ import com.ktc.matgpt.feature_review.review.dto.ReviewResponse;
 import com.ktc.matgpt.feature_review.review.entity.Review;
 import com.ktc.matgpt.feature_review.s3.S3Service;
 import com.ktc.matgpt.feature_review.tag.Tag;
-import com.ktc.matgpt.feature_review.errors.exception.Exception500;
+import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.image.ImageJPARepository;
-import com.ktc.matgpt.feature_review.review.ReviewJPARepository;
 import com.ktc.matgpt.feature_review.tag.TagJPARepository;
-import com.ktc.matgpt.feature_review.store.Store;
+import com.ktc.matgpt.feature_review.store.MockStore;
 import com.ktc.matgpt.feature_review.tag.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -46,10 +43,10 @@ public class ReviewService {
     final static Long YEAR = MONTH*12;
 
     @Transactional
-    public Long create(Store store, ReviewRequest.CreateDTO requestDTO/*, MultipartFile file*/) {
+    public Long create(MockStore mockStore, ReviewRequest.CreateDTO requestDTO/*, MultipartFile file*/) {
         int visitCount = requestDTO.getPeopleCount();
         Review review = Review.builder()
-                .store(store)
+                .mockStore(mockStore)
                 .content(requestDTO.getContent())
                 .rating(requestDTO.getRating())
                 .peopleCount(requestDTO.getPeopleCount())

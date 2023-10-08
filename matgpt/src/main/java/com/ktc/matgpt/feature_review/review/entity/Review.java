@@ -1,6 +1,6 @@
 package com.ktc.matgpt.feature_review.review.entity;
 
-import com.ktc.matgpt.feature_review.store.Store;
+import com.ktc.matgpt.feature_review.store.MockStore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +10,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,7 +26,7 @@ public class Review {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Store store;//
+    private MockStore mockStore;//
 
 //    @Column(nullable = false)
 //    private Long userId;
@@ -56,9 +55,9 @@ public class Review {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Review(Store store, /*Long userId,*/ String content, int rating,
+    public Review(MockStore mockStore, /*Long userId,*/ String content, int rating,
                   int peopleCount, int totalPrice, int costPerPerson/*, LocalDateTime relativeTime*/) {
-        this.store = store;
+        this.mockStore = mockStore;
 //        this.userId = userId;
         this.content = content;
         this.rating = rating;
