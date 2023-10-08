@@ -57,5 +57,12 @@ public class ReviewRequest {
     }
 
 
+    @Getter
+    @ToString
+    public static class UpdateDTO {
+        @NonNull
+        private String content;
+    }
+
 
 }

@@ -74,6 +74,15 @@ public class ReviewService {
         return review.getId();
     }
 
+    @Transactional
+    public void update(Long reviewId, ReviewRequest.UpdateDTO requestDTO) {
+        Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
+                () -> new Exception400("존재하지 않는 리뷰입니다.")
+        );
+        review.updateContent(requestDTO.getContent());
+    }
+
+
 
 //    relativeTime : [sec, min, hour, day, week, month, year] ago
     private List<Long> getRelativeTime(LocalDateTime time) {

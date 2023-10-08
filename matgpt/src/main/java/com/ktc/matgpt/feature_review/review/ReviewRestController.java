@@ -40,5 +40,14 @@ public class ReviewRestController {
         return ResponseEntity.ok(apiResult);
     }
 
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<?> update(@PathVariable(value = "reviewId", required = true) Long reviewId,
+                                    @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO) {
 
+        reviewService.update(reviewId, requestDTO);
+        String msg = "review-" + reviewId + " updated";
+
+        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
+        return ResponseEntity.ok(apiResult);
+    }
 }
