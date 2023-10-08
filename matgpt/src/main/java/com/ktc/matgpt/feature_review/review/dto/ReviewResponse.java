@@ -67,5 +67,26 @@ public class ReviewResponse {
     }
 
 
+    @Getter
+    @ToString
+    public static class FindAllByStoreIdDTO {
+        private Long reviewId;
+        private List<String> imageUrls;
+        private String content;
+        private int rating;
+        private LocalDateTime createdAt;
+        private boolean isUpdated = false;
+        private List<Long> relativeTime;    // [sec, min, hour, day, week, month, year] ago
 
+        public FindAllByStoreIdDTO(Review review, List<Long> relativeTime, List<String> imageUrls) {
+            this.reviewId = review.getId();
+            this.imageUrls = imageUrls;
+            this.content = review.getContent();
+            this.rating = review.getRating();
+            this.createdAt = review.getCreatedAt();
+            this.relativeTime = relativeTime;
+
+            if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+        }
+    }
 }

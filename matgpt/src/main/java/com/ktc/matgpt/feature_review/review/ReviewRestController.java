@@ -40,6 +40,15 @@ public class ReviewRestController {
         return ResponseEntity.ok(apiResult);
     }
 
+    @GetMapping("")
+    public ResponseEntity<?> findAllByStoreId(@PathVariable(value = "storeId", required = true) Long storeId) {
+
+        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId);
+
+        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
+
     @PutMapping("/{reviewId}")
     public ResponseEntity<?> update(@PathVariable(value = "reviewId", required = true) Long reviewId,
                                     @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO) {

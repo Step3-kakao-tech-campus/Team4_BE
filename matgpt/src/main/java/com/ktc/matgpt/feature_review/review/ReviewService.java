@@ -105,6 +105,22 @@ public class ReviewService {
     }
 
 
+    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId) {
+
+        List<Review> reviews = reviewJPARepository.findAllByStoreId(storeId);
+        if (reviews.isEmpty()) throw new Exception400("음식점에 등록된 리뷰가 없습니다.");
+
+        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = new ArrayList<>();
+
+        for (Review review : reviews) {
+            List<String> imageUrls = imageJPARepository.findAllImagesByReviewId(review.getId());
+            List<Long> relativeTime = getRelativeTime(review.getCreatedAt());
+            responseDTOs.add(new ReviewResponse.FindAllByStoreIdDTO(review, relativeTime, imageUrls));
+        }
+        return responseDTOs;
+    }
+
+
 
 //    relativeTime : [sec, min, hour, day, week, month, year] ago
     private List<Long> getRelativeTime(LocalDateTime time) {
