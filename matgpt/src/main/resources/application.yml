@@ -31,22 +31,6 @@ logging:
 server:
   port: 8080
 
-cloud:
-  aws:
-    s3:
-      bucket: matgpt-dev
-    credentials:
-      access-key: AKIA2LSNSSCK2FZNYA63
-      secret-key: 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
-    region:
-      static: ap-northeast-2
-      auto: false
-    stack:
-      auto: false
-
-jwt:
-  secret: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWw
-
 
 ---
 spring:
