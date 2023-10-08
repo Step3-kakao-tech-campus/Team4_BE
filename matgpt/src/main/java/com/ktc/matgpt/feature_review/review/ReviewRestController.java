@@ -50,4 +50,13 @@ public class ReviewRestController {
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
         return ResponseEntity.ok(apiResult);
     }
+
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<?> findById(@PathVariable(value = "reviewId", required = true) Long reviewId) {
+
+        ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findByReviewId(reviewId);
+
+        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTO);
+        return ResponseEntity.ok(apiResult);
+    }
 }

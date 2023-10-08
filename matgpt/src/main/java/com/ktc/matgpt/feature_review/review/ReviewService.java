@@ -83,6 +83,28 @@ public class ReviewService {
     }
 
 
+    public ReviewResponse.FindByReviewIdDTO findByReviewId(Long reviewId) {
+
+        Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
+                () -> new Exception400("존재하지 않는 리뷰입니다.")
+        );
+
+        List<Image> images = imageJPARepository.findAllByReviewId(reviewId);
+        if (images.isEmpty()) throw new Exception400("존재하지 않는 이미지입니다.");
+        List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = new ArrayList<>();
+
+        for (Image image : images) {
+            List<Tag> tags = tagJPARepository.findAllByImageId(image.getId());
+            if (tags.isEmpty()) throw new Exception400("존재하지 않는 태그입니다.");
+            imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
+        }
+
+        List<Long> relativeTime = getRelativeTime(review.getCreatedAt());
+
+        return new ReviewResponse.FindByReviewIdDTO(review, relativeTime, imageDTOs);
+    }
+
+
 
 //    relativeTime : [sec, min, hour, day, week, month, year] ago
     private List<Long> getRelativeTime(LocalDateTime time) {
