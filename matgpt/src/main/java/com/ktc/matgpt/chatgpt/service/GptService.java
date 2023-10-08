@@ -1,10 +1,8 @@
 package com.ktc.matgpt.chatgpt.service;
 
-import com.ktc.matgpt.chatgpt.dto.FinishReason;
-import com.ktc.matgpt.chatgpt.dto.GptRequest;
-import com.ktc.matgpt.chatgpt.dto.GptResponse;
-import com.ktc.matgpt.chatgpt.dto.ReviewsToGptRequestConverter;
-import com.ktc.matgpt.chatgpt.factory.Review;
+import com.ktc.matgpt.chatgpt.dto.*;
+import com.ktc.matgpt.chatgpt.exception.ApiException;
+import com.ktc.matgpt.chatgpt.factory.MockReview;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -15,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -23,18 +20,25 @@ import java.util.concurrent.TimeoutException;
 @RequiredArgsConstructor
 public class GptService {
 
-    public static final int API_RESPONSE_TIMEOUT_SECONDS = 10;
+    public static final int API_RESPONSE_TIMEOUT_SECONDS = 20;
 
     private final WebClient webClient;
 
-    public String generateReviewSummary(List<Review> reviews) throws TimeoutException {
-        GptRequest requestBody = ReviewsToGptRequestConverter.convert(reviews);
+    public String generateReviewSummary(List<MockReview> mockReviews) {
+        GptRequest requestBody = ReviewsToGptRequestConverter.convert(mockReviews);
         GptResponse gptResponse = getGptResponse(requestBody);
 
         return gptResponse.getContent();
     }
 
-    private GptResponse getGptResponse(GptRequest requestBody) throws TimeoutException {
+    public String generateOrderPromptWithCountry(String country) {
+        GptRequest requestBody = CountryToGptRequestConverter.convert(country);
+        GptResponse gptResponse = getGptResponse(requestBody);
+
+        return gptResponse.getContent();
+    }
+
+    private GptResponse getGptResponse(GptRequest requestBody) {
         GptResponse response = webClient
                 .post()
                 .bodyValue(requestBody)
@@ -45,8 +49,14 @@ public class GptService {
                 .onErrorReturn(TimeoutException.class, getFallbackValue())
                 .block();
 
-        Objects.requireNonNull(response, "[ChatGPT API] No Response");
-        response.validate();
+        if (response == null || response.choices() == null || response.choices().isEmpty()) {
+            throw new ApiException.ContentNotFoundException();
+        }
+
+        if (FinishReason.TIMEOUT == response.getFinishReason()) {
+            throw new ApiException.TimeoutException();
+        }
+
         response.log();
 
         return response;
@@ -58,6 +68,7 @@ public class GptService {
     }
 
     private Mono<? extends Throwable> handleError(ClientResponse clientResponse) {
-        return Mono.error(new RuntimeException("[ChatGPT API] Error Occured : " + clientResponse.statusCode()));
+        log.info("[ChatGPT API] Error Occured : " + clientResponse.statusCode());
+        return Mono.error(new ApiException.UnknownFinishReasonException());
     }
 }

@@ -5,8 +5,6 @@ import com.ktc.matgpt.chatgpt.utils.UnixTimeConverter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeoutException;
 
 @Slf4j
 public record GptResponse(int created, List<Choice> choices, Usage usage) {
@@ -27,19 +25,6 @@ public record GptResponse(int created, List<Choice> choices, Usage usage) {
 
     public FinishReason getFinishReason() {
         return this.choices().get(0).finishReason();
-    }
-
-    public void validate() throws TimeoutException {
-        this.checkFinishReason();
-        if (this.choices() == null || this.choices().isEmpty()) {
-            throw new NoSuchElementException("[ChatGPT API] No Response");
-        }
-    }
-
-    public void checkFinishReason() throws TimeoutException {
-        if (this.getFinishReason() == FinishReason.TIMEOUT) {
-            throw new TimeoutException("[ChatGPT API] Response Timeout");
-        }
     }
 
     public void log() {
