@@ -8,10 +8,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import java.util.Arrays;
+
+@EnableJpaAuditing
 @SpringBootApplication
 public class MatgptApplication {
 
