@@ -1,8 +1,11 @@
 package com.ktc.matgpt.chatgpt.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.ktc.matgpt.chatgpt.exception.ApiException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 public enum FinishReason {
     STOP("stop"),
@@ -25,6 +28,8 @@ public enum FinishReason {
                 return finishReason;
             }
         }
-        throw new IllegalArgumentException("[ChatGPT API] Unknown finish reason: " + value);
+
+        log.info("[ChatGPT API] UnknownFinishReason : " + value);
+        throw new ApiException.UnknownFinishReasonException();
     }
 }
