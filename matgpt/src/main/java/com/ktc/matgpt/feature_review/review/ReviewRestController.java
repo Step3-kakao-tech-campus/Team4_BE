@@ -23,7 +23,7 @@ public class ReviewRestController {
 
     @CrossOrigin
     @PostMapping("")        // request를 이미지 파일이 아닌 이미지 url으로 받음
-    public ResponseEntity<?> create(@PathVariable(value = "storeId", required = true) Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO
+    public ResponseEntity<?> create(@PathVariable Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO
             /*@RequestPart("key") ReviewRequest.CreateDTO requestDTO, @RequestPart(value = "file", required = false) MultipartFile file*/) {
 
         MockStore mockStore = mockStoreService.findById(storeId);
@@ -35,7 +35,7 @@ public class ReviewRestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> findAllByStoreId(@PathVariable(value = "storeId", required = true) Long storeId) {
+    public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId) {
 
         List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId);
 
@@ -44,7 +44,7 @@ public class ReviewRestController {
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<?> update(@PathVariable(value = "reviewId", required = true) Long reviewId,
+    public ResponseEntity<?> update(@PathVariable Long reviewId,
                                     @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO) {
 
         reviewService.update(reviewId, requestDTO);
@@ -55,7 +55,7 @@ public class ReviewRestController {
     }
 
     @GetMapping("/{reviewId}")
-    public ResponseEntity<?> findById(@PathVariable(value = "reviewId", required = true) Long reviewId) {
+    public ResponseEntity<?> findById(@PathVariable Long reviewId) {
 
         ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findByReviewId(reviewId);
 
