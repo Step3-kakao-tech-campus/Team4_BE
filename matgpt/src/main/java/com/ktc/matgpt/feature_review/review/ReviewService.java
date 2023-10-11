@@ -16,6 +16,7 @@ import com.ktc.matgpt.feature_review.tag.TagJPARepository;
 import com.ktc.matgpt.feature_review.store.MockStore;
 import com.ktc.matgpt.feature_review.tag.TagService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @RequiredArgsConstructor
 @Service
@@ -34,6 +36,7 @@ public class ReviewService {
     private final FoodService foodService;
     private final TagService tagService;
     private final TagJPARepository tagJPARepository;
+    private final MessageSourceAccessor messageSourceAccessor;
 
     final static Long MIN = 60L;
     final static Long HOUR = MIN*60;
@@ -96,7 +99,7 @@ public class ReviewService {
             imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
         }
 
-        List<Long> relativeTime = getRelativeTime(review.getCreatedAt());
+        String relativeTime = getRelativeTime(review.getCreatedAt());
 
         return new ReviewResponse.FindByReviewIdDTO(review, relativeTime, imageDTOs);
     }
@@ -111,29 +114,31 @@ public class ReviewService {
 
         for (Review review : reviews) {
             List<String> imageUrls = imageJPARepository.findAllImagesByReviewId(review.getId());
-            List<Long> relativeTime = getRelativeTime(review.getCreatedAt());
+            if (imageUrls.isEmpty()) throw new Exception400("리뷰에 등록된 이미지가 없습니다.");
+
+            String relativeTime = getRelativeTime(review.getCreatedAt());
             responseDTOs.add(new ReviewResponse.FindAllByStoreIdDTO(review, relativeTime, imageUrls));
         }
         return responseDTOs;
     }
 
 
-
-//    relativeTime : [sec, min, hour, day, week, month, year] ago
-    private List<Long> getRelativeTime(LocalDateTime time) {
+    private String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
         List<Long> relativeTime = new ArrayList<>();
         Long seconds = duration.getSeconds();
+        Locale country = Locale.KOREA;  // 임시로 한국 설정, user.getCountry()로 받아오도록 수정 필요
 
-        if (seconds<MIN) relativeTime.add(0, seconds);
-        else if (seconds<HOUR) relativeTime.add(1, seconds/MIN);
-        else if (seconds<DAY) relativeTime.add(2, seconds/HOUR);
-        else if (seconds<WEEK) relativeTime.add(3, seconds/DAY);
-        else if (seconds<MONTH) relativeTime.add(4, seconds/WEEK);
-        else if (seconds<YEAR) relativeTime.add(5, seconds/MONTH);
-        else relativeTime.add(6, seconds/YEAR);
+        String msg;
+        if (seconds<MIN) msg = seconds + messageSourceAccessor.getMessage("sec", country);
+        else if (seconds<HOUR) msg = seconds/MIN + messageSourceAccessor.getMessage("min", country);
+        else if (seconds<DAY) msg = seconds/HOUR + messageSourceAccessor.getMessage("hour", country);
+        else if (seconds<WEEK) msg = seconds/DAY + messageSourceAccessor.getMessage("day", country);
+        else if (seconds<MONTH) msg = seconds/WEEK + messageSourceAccessor.getMessage("week", country);
+        else if (seconds<YEAR) msg = seconds/MONTH + messageSourceAccessor.getMessage("month", country);
+        else msg = seconds/YEAR + messageSourceAccessor.getMessage("year", country);
 
-        return relativeTime;
+        return msg + " " + messageSourceAccessor.getMessage("ago", country);
     }
 
 

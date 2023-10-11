@@ -23,8 +23,8 @@ public class ReviewResponse {
         private int totalPrice;     // 범위로 받게 된다면 enum PriceRange 타입 이용
         private int costPerPerson;
         private boolean isUpdated = false;
-        private List<Long> relativeTime;    // [sec, min, hour, day, week, month, year] ago
-        public FindByReviewIdDTO(Review review, List<Long> relativeTime, List<ImageDTO> reviewImages) {
+        private String relativeTime;
+        public FindByReviewIdDTO(Review review, String relativeTime, List<ImageDTO> reviewImages) {
             this.reviewId = review.getId();
             this.reviewImages = reviewImages;
             this.content = review.getContent();
@@ -76,9 +76,9 @@ public class ReviewResponse {
         private int rating;
         private LocalDateTime createdAt;
         private boolean isUpdated = false;
-        private List<Long> relativeTime;    // [sec, min, hour, day, week, month, year] ago
+        private String relativeTime;
 
-        public FindAllByStoreIdDTO(Review review, List<Long> relativeTime, List<String> imageUrls) {
+        public FindAllByStoreIdDTO(Review review, String relativeTime, List<String> imageUrls) {
             this.reviewId = review.getId();
             this.imageUrls = imageUrls;
             this.content = review.getContent();
