@@ -1,5 +1,6 @@
 package com.ktc.matgpt.feature_review.food;
 
+import com.ktc.matgpt.feature_review.review.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 //@AllArgsConstructor
 //@Builder
 @Table(name = "food_tb")
-public class Food {
+public class Food extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

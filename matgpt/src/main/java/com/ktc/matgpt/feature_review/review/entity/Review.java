@@ -13,13 +13,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+
 @Getter
 @NoArgsConstructor
 //@AllArgsConstructor
 //@Builder
 @Table(name = "review_tb")
-public class Review {
+public class Review extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;//
@@ -45,14 +45,6 @@ public class Review {
 
     @Column(nullable = false, updatable = false)
     private int costPerPerson;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 
     @Builder
     public Review(Store store, /*Long userId,*/ String content, int rating,
