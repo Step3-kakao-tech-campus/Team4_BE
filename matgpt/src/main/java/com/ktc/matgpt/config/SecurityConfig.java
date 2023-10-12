@@ -1,5 +1,7 @@
 package com.ktc.matgpt.config;
 
+import com.ktc.matgpt.security.jwt.JwtAccessDeniedHandler;
+import com.ktc.matgpt.security.jwt.JwtAuthenticationEntryPoint;
 import com.ktc.matgpt.security.jwt.JwtAuthenticationFilter;
 import com.ktc.matgpt.security.oauth2.MatgptOAuth2Provider;
 import com.ktc.matgpt.security.oauth2.MatgptOAuth2UserService;
@@ -36,6 +38,9 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oauthSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oauthFailureHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    // Handler 추가
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
@@ -91,8 +96,24 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 authorizeCustomizer -> authorizeCustomizer
                         .requestMatchers(antMatcher("/h2-console/**")).permitAll()
+                       // .requestMatchers(antMatcher("/stores/{storeId}/reviews")).authenticated()   // review 인증
                         .anyRequest().permitAll() // TODO
         );
+//---------------------------------------------
+        http.exceptionHandling(
+                exceptionHandler -> exceptionHandler.accessDeniedHandler(
+                        (request, response, accessDeniedException) ->
+                            jwtAccessDeniedHandler.handle(request, response, accessDeniedException)
+                )
+        );
+
+        http.exceptionHandling(
+                exceptionHandler -> exceptionHandler.authenticationEntryPoint(
+                        (request, response, authException) ->
+                            jwtAuthenticationEntryPoint.commence(request, response, authException)
+                )
+        );
+//---------------------------------------------
 
         http.sessionManagement(
                 sessionCustomizer -> sessionCustomizer
