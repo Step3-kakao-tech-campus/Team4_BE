@@ -1,6 +1,6 @@
 package com.ktc.matgpt.feature_review.review.entity;
 
-import com.ktc.matgpt.feature_review.store.MockStore;
+import com.ktc.matgpt.store.Store;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class Review {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private MockStore mockStore;//
+    private Store store;//
 
 //    @Column(nullable = false)
 //    private Long userId;
@@ -55,9 +55,9 @@ public class Review {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Review(MockStore mockStore, /*Long userId,*/ String content, int rating,
+    public Review(Store store, /*Long userId,*/ String content, int rating,
                   int peopleCount, int totalPrice, int costPerPerson/*, LocalDateTime relativeTime*/) {
-        this.mockStore = mockStore;
+        this.store = store;
 //        this.userId = userId;
         this.content = content;
         this.rating = rating;

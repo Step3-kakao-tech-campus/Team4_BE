@@ -13,8 +13,8 @@ import com.ktc.matgpt.feature_review.tag.Tag;
 import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.image.ImageJPARepository;
 import com.ktc.matgpt.feature_review.tag.TagJPARepository;
-import com.ktc.matgpt.feature_review.store.MockStore;
 import com.ktc.matgpt.feature_review.tag.TagService;
+import com.ktc.matgpt.store.Store;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -46,10 +46,10 @@ public class ReviewService {
     final static Long YEAR = MONTH*12;
 
     @Transactional
-    public Long create(MockStore mockStore, ReviewRequest.CreateDTO requestDTO/*, MultipartFile file*/) {
+    public Long create(Store store, ReviewRequest.CreateDTO requestDTO/*, MultipartFile file*/) {
         int visitCount = requestDTO.getPeopleCount();
         Review review = Review.builder()
-                .mockStore(mockStore)
+                .store(store)
                 .content(requestDTO.getContent())
                 .rating(requestDTO.getRating())
                 .peopleCount(requestDTO.getPeopleCount())

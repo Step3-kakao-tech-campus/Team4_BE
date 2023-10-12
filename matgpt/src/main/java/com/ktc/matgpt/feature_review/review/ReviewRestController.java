@@ -3,9 +3,9 @@ package com.ktc.matgpt.feature_review.review;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import com.ktc.matgpt.feature_review.review.dto.ReviewResponse;
 import com.ktc.matgpt.feature_review.s3.S3Service;
-import com.ktc.matgpt.feature_review.store.MockStore;
-import com.ktc.matgpt.feature_review.store.MockStoreService;
 import com.ktc.matgpt.feature_review.utils.ApiUtils;
+import com.ktc.matgpt.store.Store;
+import com.ktc.matgpt.store.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 public class ReviewRestController {
     private final ReviewService reviewService;
-    private final MockStoreService mockStoreService;
+    private final StoreService storeService;
     private final S3Service s3Service;
 
     @CrossOrigin
@@ -26,8 +26,8 @@ public class ReviewRestController {
     public ResponseEntity<?> create(@PathVariable Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO
             /*@RequestPart("key") ReviewRequest.CreateDTO requestDTO, @RequestPart(value = "file", required = false) MultipartFile file*/) {
 
-        MockStore mockStore = mockStoreService.findById(storeId);
-        Long createdId = reviewService.create(mockStore, requestDTO/*, file*/);
+        Store store = storeService.findEntityById(storeId);
+        Long createdId = reviewService.create(store, requestDTO/*, file*/);
         String msg = "review-" + createdId + "(of store-" + storeId + ") created";
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
