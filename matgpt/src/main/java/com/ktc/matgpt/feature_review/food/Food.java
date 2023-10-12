@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -23,12 +22,21 @@ public class Food {
     @Column
     private String foodDescription;
 
+    @Column
+    private int reviewCount;
+
     @Column(nullable = false)
     private double averageRating;
 
     @Builder
-    public Food(String foodName, double averageRating) {
+    public Food(String foodName, int reviewCount, double averageRating) {
         this.foodName = foodName;
+        this.reviewCount = reviewCount;
+        this.averageRating = averageRating;
+    }
+
+    public void update(int reviewCount, double averageRating) {
+        this.reviewCount = reviewCount;
         this.averageRating = averageRating;
     }
 }
