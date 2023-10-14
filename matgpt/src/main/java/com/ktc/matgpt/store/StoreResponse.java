@@ -54,10 +54,10 @@ public class StoreResponse {
             this.address = store.getAddress();
             this.openingTime = store.getOpeningTime();
             this.closingTime = store.getClosingTime();
-            if( !(store.getBreakTime() == null)  ) this.breakTime = store.getBreakTime();
+            this.breakTime = store.getBreakTime();
             this.avgCostPerPerson = store.getAvgCostPerPerson();
             this.avgVisitCount = store.getAvgVisitCount();
-            if( !(store.getStoreImg()==null)  )this.storeImg = store.getStoreImg();
+            this.storeImg = store.getStoreImg();
             this.numsOfReview = store.getNumsOfReview();
             this.ratingAvg = store.getRatingAvg();
 
