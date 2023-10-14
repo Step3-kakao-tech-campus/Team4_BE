@@ -2,10 +2,12 @@ package com.ktc.matgpt.store;
 
 
 
+import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 public class StoreRestController {
     private final StoreService storeService;
     private static final int PAGE_DEFAULT_SIZE = 5;
-
+    private static final int MY_PAGE_DEFAULT_SIZE = 4;
 
     @GetMapping("/stores")
     public ResponseEntity<?> findAllByPage(@RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -29,6 +31,19 @@ public class StoreRestController {
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }
+
+//    @GetMapping("/stores/myLike")
+//    public ResponseEntity<?> findAllMyLikeByPage(@AuthenticationPrincipal UserPrincipal userPrincipal , @RequestParam(value = "cursor", defaultValue = "5") Long cursor){
+//
+//
+//    }
+//
+//    @GetMapping("/stores/recentVisit")
+//    public ResponseEntity<?> findAllMyRecentVisitByPage(@AuthenticationPrincipal UserPrincipal userPrincipal , @RequestParam(value = "cursor", defaultValue = "5") Long cursor){
+//
+//
+//
+//    }
 
 
 //    @GetMapping("/stores/dis")
