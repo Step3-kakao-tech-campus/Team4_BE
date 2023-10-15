@@ -76,11 +76,17 @@ public class ReviewService {
         return review.getId();
     }
 
+
     @Transactional
-    public void update(Long reviewId, ReviewRequest.UpdateDTO requestDTO) {
+    public void update(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
         Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
-                () -> new Exception400("존재하지 않는 리뷰입니다.")
+                () -> new Exception400("reviewId-" + reviewId + ": 존재하지 않는 리뷰입니다. 수정할 수 없습니다.")
         );
+
+        if (review.getUserId() != userId) {
+            throw new Exception400("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
+        }
+
         review.updateContent(requestDTO.getContent());
     }
 

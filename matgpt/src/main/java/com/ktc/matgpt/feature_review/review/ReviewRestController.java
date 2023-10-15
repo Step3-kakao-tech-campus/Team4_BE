@@ -50,17 +50,22 @@ public class ReviewRestController {
         return ResponseEntity.ok(apiResult);
     }
 
+
+
+    // 리뷰 수정
     @PutMapping("/{reviewId}")
     public ResponseEntity<?> update(@PathVariable Long reviewId,
-                                    @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO) {
-
-        reviewService.update(reviewId, requestDTO);
+                                    @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO,
+                                    @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        reviewService.update(reviewId, userPrincipal.getId(), requestDTO);
         String msg = "review-" + reviewId + " updated";
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
         return ResponseEntity.ok(apiResult);
     }
 
+    // 개별 리뷰 상세조회
     @GetMapping("/{reviewId}")
     public ResponseEntity<?> findById(@PathVariable Long reviewId) {
         ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findByReviewId(reviewId);
