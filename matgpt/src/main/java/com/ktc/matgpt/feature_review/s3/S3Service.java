@@ -25,9 +25,13 @@ public class S3Service {
         try {
             amazonS3.putObject(bucket, filename, multipartFile.getInputStream(), metadata);
         } catch (Exception e) {
-            throw new Exception500("이미지 업로드 실패");
+            throw new Exception500("이미지 업로드 실패");   // 예외처리 수정하기
         }
 
         return amazonS3.getUrl(bucket, filename).toString();
+    }
+
+    public void deleteImage(String originalFilename)  {
+        amazonS3.deleteObject(bucket, originalFilename);
     }
 }

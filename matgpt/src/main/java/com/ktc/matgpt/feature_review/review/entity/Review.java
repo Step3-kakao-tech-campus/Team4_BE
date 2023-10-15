@@ -1,41 +1,35 @@
 package com.ktc.matgpt.feature_review.review.entity;
 
-import com.ktc.matgpt.feature_review.store.MockStore;
+import com.ktc.matgpt.store.Store;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor
 //@AllArgsConstructor
 //@Builder
 @Table(name = "review_tb")
-public class Review {
+public class Review extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;//
+    private Long id;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private MockStore mockStore;//
+    private Store store;//
 
-//    @Column(nullable = false)
-//    private Long userId;
+    @Column(nullable = false)
+    private Long userId;
 
     @Column(nullable = false)
     private String content;
 
     @Column(nullable = false, updatable = false)
-    private int rating;
+    private double rating;
 
     @Column(nullable = false, updatable = false)
     private int peopleCount;
@@ -46,19 +40,14 @@ public class Review {
     @Column(nullable = false, updatable = false)
     private int costPerPerson;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private int recommendCount = 0;
 
     @Builder
-    public Review(MockStore mockStore, /*Long userId,*/ String content, int rating,
-                  int peopleCount, int totalPrice, int costPerPerson/*, LocalDateTime relativeTime*/) {
-        this.mockStore = mockStore;
-//        this.userId = userId;
+    public Review(Store store, Long userId, String content, double rating,
+                  int peopleCount, int totalPrice, int costPerPerson) {
+        this.store = store;
+        this.userId = userId;
         this.content = content;
         this.rating = rating;
         this.peopleCount = peopleCount;
@@ -70,6 +59,6 @@ public class Review {
         this.content = content;
     }
 
-
-
+    public void plusRecommendCount() { this.recommendCount++; }
+    public void minusRecommendCount() { this.recommendCount--; }
 }
