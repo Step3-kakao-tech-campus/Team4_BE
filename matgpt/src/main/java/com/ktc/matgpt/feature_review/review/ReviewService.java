@@ -91,6 +91,8 @@ public class ReviewService {
                 () -> new Exception400("존재하지 않는 리뷰입니다.")
         );
 
+        ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO = getReviewerDTO(review);
+
         List<Image> images = imageJPARepository.findAllByReviewId(reviewId);
         if (images.isEmpty()) throw new Exception400("존재하지 않는 이미지입니다.");
         List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = new ArrayList<>();
@@ -100,10 +102,9 @@ public class ReviewService {
             if (tags.isEmpty()) throw new Exception400("존재하지 않는 태그입니다.");
             imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
         }
-
         String relativeTime = getRelativeTime(review.getCreatedAt());
 
-        return new ReviewResponse.FindByReviewIdDTO(review, relativeTime, imageDTOs);
+        return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime);
     }
 
 
