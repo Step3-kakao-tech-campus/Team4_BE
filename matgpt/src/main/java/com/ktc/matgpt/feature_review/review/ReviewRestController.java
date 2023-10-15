@@ -26,11 +26,11 @@ public class ReviewRestController {
 
     @CrossOrigin
     @PostMapping("")        // request를 이미지 파일이 아닌 이미지 url으로 받음
-    public ResponseEntity<?> create(@PathVariable Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO
+    public ResponseEntity<?> create(@PathVariable Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO, @AuthenticationPrincipal UserPrincipal userPrincipal
             /*@RequestPart("key") ReviewRequest.CreateDTO requestDTO, @RequestPart(value = "file", required = false) MultipartFile file*/) {
 
         Store store = storeService.findEntityById(storeId);
-        Long createdId = reviewService.create(store, requestDTO/*, file*/);
+        Long createdId = reviewService.create(userPrincipal.getId(), store, requestDTO/*, file*/);
         String msg = "review-" + createdId + "(of store-" + storeId + ") created";
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
