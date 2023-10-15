@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -38,6 +39,7 @@ public class ReviewService {
     private final FoodService foodService;
     private final TagService tagService;
     private final TagJPARepository tagJPARepository;
+    private final UserRepository userRepository;
     private final MessageSourceAccessor messageSourceAccessor;
 
     final static Long MIN = 60L;
@@ -48,9 +50,10 @@ public class ReviewService {
     final static Long YEAR = MONTH*12;
 
     @Transactional
-    public Long create(Store store, ReviewRequest.CreateDTO requestDTO/*, MultipartFile file*/) {
+    public Long create(Long userId, Store store, ReviewRequest.CreateDTO requestDTO/*, MultipartFile file*/) {
         int visitCount = requestDTO.getPeopleCount();
         Review review = Review.builder()
+                .userId(userId)
                 .store(store)
                 .content(requestDTO.getContent())
                 .rating(requestDTO.getRating())
@@ -58,12 +61,8 @@ public class ReviewService {
                 .totalPrice(requestDTO.getTotalPrice())
                 .costPerPerson(requestDTO.getTotalPrice() / visitCount)
                 .build();
-        try {
-            reviewJPARepository.save(review);
-        } catch (Exception e) {
-            throw new Exception500("리뷰 저장 실패");
-        }
-        
+        reviewJPARepository.save(review);
+
         for (ReviewRequest.CreateDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
 //            String imageUrl = s3Service.save(imageDTO.getImage());
             Image image = imageService.save(imageDTO, review/*, imageUrl*/);
