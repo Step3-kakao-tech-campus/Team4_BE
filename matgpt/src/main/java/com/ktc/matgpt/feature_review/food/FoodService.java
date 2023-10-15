@@ -30,23 +30,15 @@ public class FoodService {
         Optional<Food> foodPS = foodJPARepository.findByFoodName(tagDTO.getName());
         if (!foodPS.isEmpty()) {
             Food food = foodPS.get();
-            int reviewCount = food.getReviewCount() + 1;
-            double avgRating = (food.getAverageRating() * food.getReviewCount() + tagDTO.getRating()) / reviewCount;
-            food.update(reviewCount, avgRating);
+            food.updatePlus(tagDTO.getRating());
             return food;
         }
-
         Food food = Food.builder()
                 .foodName(tagDTO.getName())
                 .reviewCount(1)
                 .averageRating(tagDTO.getRating())
                 .build();
-
-        try {
-            foodJPARepository.save(food);
-        } catch (Exception e) {
-            throw new Exception500("음식메뉴 저장 실패");
-        }
+        foodJPARepository.save(food);
 
         return food;
     }

@@ -35,9 +35,13 @@ public class Food extends BaseTimeEntity {
         this.reviewCount = reviewCount;
         this.averageRating = averageRating;
     }
+    public void updatePlus(double addRating) {
+        reviewCount++;
+        averageRating = (averageRating * reviewCount + addRating) / reviewCount;
+    }
 
-    public void update(int reviewCount, double averageRating) {
-        this.reviewCount = reviewCount;
-        this.averageRating = averageRating;
+    public void updateMinus(double subRating) {
+        averageRating = (reviewCount*averageRating - subRating) / (reviewCount-1);
+        reviewCount--;
     }
 }
