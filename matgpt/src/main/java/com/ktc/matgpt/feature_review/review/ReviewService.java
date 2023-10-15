@@ -141,6 +141,21 @@ public class ReviewService {
     }
 
 
+
+    private ReviewResponse.FindByReviewIdDTO.ReviewerDTO getReviewerDTO(Review review) {
+        Optional<User> user = userRepository.findById(review.getUserId());
+        if (user.isEmpty()) throw new Exception500("리뷰 작성자 정보를 불러올 수 없습니다.");
+
+        ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO =
+                ReviewResponse.FindByReviewIdDTO.ReviewerDTO.builder()
+                        .userName(user.get().getName())
+                        .profileImage("기본 프로필 이미지")   // User Entity에 profileImage 필드가 없음
+                        .email(user.get().getEmail())
+                        .build();
+        return reviewerDTO;
+    }
+
+
     private String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
         Long seconds = duration.getSeconds();
