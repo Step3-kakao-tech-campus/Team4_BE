@@ -42,6 +42,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final MessageSourceAccessor messageSourceAccessor;
 
+    private final int DEFAULT_PAGE_SIZE = 5;
     final static Long MIN = 60L;
     final static Long HOUR = MIN*60;
     final static Long DAY = HOUR*24;
@@ -106,16 +107,18 @@ public class ReviewService {
     }
 
 
-    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId) {
+    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, double cursorRating) {
 
-        List<Review> reviews = reviewJPARepository.findAllByStoreId(storeId);
-        if (reviews.isEmpty()) throw new Exception400("음식점에 등록된 리뷰가 없습니다.");
+        List<Review> reviews = (sortBy.equals("latest"))
+                ? reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE)
+                : reviewJPARepository.findAllByStoreIdAndOrderByRatingDesc(storeId, cursorId, cursorRating, DEFAULT_PAGE_SIZE);
+
+        if (reviews.isEmpty()) throw new Exception400("storeId-" + storeId + ": 음식점에 등록된 리뷰가 없습니다.");
 
         List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = new ArrayList<>();
-
         for (Review review : reviews) {
             List<String> imageUrls = imageJPARepository.findAllImagesByReviewId(review.getId());
-            if (imageUrls.isEmpty()) throw new Exception400("리뷰에 등록된 이미지가 없습니다.");
+            if (imageUrls.isEmpty()) throw new Exception400("reviewId-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
 
             String relativeTime = getRelativeTime(review.getCreatedAt());
             responseDTOs.add(new ReviewResponse.FindAllByStoreIdDTO(review, relativeTime, imageUrls));
