@@ -94,18 +94,19 @@ public class ReviewService {
     public ReviewResponse.FindByReviewIdDTO findByReviewId(Long reviewId) {
 
         Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
-                () -> new Exception400("존재하지 않는 리뷰입니다.")
+                () -> new Exception400("reviewId-" + reviewId + ": 리뷰를 찾을 수 없습니다.")
         );
 
         ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO = getReviewerDTO(review);
 
         List<Image> images = imageJPARepository.findAllByReviewId(reviewId);
-        if (images.isEmpty()) throw new Exception400("존재하지 않는 이미지입니다.");
+        if (images.isEmpty()) throw new Exception400("reviewId-" + reviewId + ": 리뷰에 등록된 이미지가 없습니다.");
+
         List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = new ArrayList<>();
 
         for (Image image : images) {
             List<Tag> tags = tagJPARepository.findAllByImageId(image.getId());
-            if (tags.isEmpty()) throw new Exception400("존재하지 않는 태그입니다.");
+            if (tags.isEmpty()) throw new Exception400("imageId-" + image.getId() + ": 이미지에 등록된 태그가 없습니다.");
             imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
         }
         String relativeTime = getRelativeTime(review.getCreatedAt());
@@ -170,7 +171,7 @@ public class ReviewService {
 
     private ReviewResponse.FindByReviewIdDTO.ReviewerDTO getReviewerDTO(Review review) {
         Optional<User> user = userRepository.findById(review.getUserId());
-        if (user.isEmpty()) throw new Exception500("리뷰 작성자 정보를 불러올 수 없습니다.");
+        if (user.isEmpty()) throw new Exception400("리뷰 작성자 정보를 불러올 수 없습니다. 현재 등록되지 않은 사용자입니다.");
 
         ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO =
                 ReviewResponse.FindByReviewIdDTO.ReviewerDTO.builder()
