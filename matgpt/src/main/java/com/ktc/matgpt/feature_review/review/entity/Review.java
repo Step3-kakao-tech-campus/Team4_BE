@@ -6,14 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Entity
-
 @Getter
 @NoArgsConstructor
 //@AllArgsConstructor
@@ -22,20 +16,20 @@ import java.time.LocalDateTime;
 public class Review extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;//
+    private Long id;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;//
 
-//    @Column(nullable = false)
-//    private Long userId;
+    @Column(nullable = false)
+    private Long userId;
 
     @Column(nullable = false)
     private String content;
 
     @Column(nullable = false, updatable = false)
-    private int rating;
+    private double rating;
 
     @Column(nullable = false, updatable = false)
     private int peopleCount;
@@ -46,11 +40,14 @@ public class Review extends BaseTimeEntity {
     @Column(nullable = false, updatable = false)
     private int costPerPerson;
 
+    @Column(nullable = false)
+    private int recommendCount = 0;
+
     @Builder
-    public Review(Store store, /*Long userId,*/ String content, int rating,
-                  int peopleCount, int totalPrice, int costPerPerson/*, LocalDateTime relativeTime*/) {
+    public Review(Store store, Long userId, String content, double rating,
+                  int peopleCount, int totalPrice, int costPerPerson) {
         this.store = store;
-//        this.userId = userId;
+        this.userId = userId;
         this.content = content;
         this.rating = rating;
         this.peopleCount = peopleCount;
@@ -62,6 +59,6 @@ public class Review extends BaseTimeEntity {
         this.content = content;
     }
 
-
-
+    public void plusRecommendCount() { this.recommendCount++; }
+    public void minusRecommendCount() { this.recommendCount--; }
 }
