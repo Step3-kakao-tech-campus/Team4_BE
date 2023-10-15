@@ -115,4 +115,32 @@ public class ReviewResponse {
             if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
         }
     }
+
+    @Getter
+    @ToString
+    public static class FindAllByUserIdDTO {
+        private Long reviewId;
+        private double rating;
+        private String content;
+        private LocalDateTime createdAt;
+        private String storeImage;
+        private String storeName;
+
+        private List<String> imageUrls;
+        private String relativeTime;
+        private boolean isUpdated = false;
+
+
+        public FindAllByUserIdDTO(Review review, String relativeTime, List<String> imageUrls) {
+            this.reviewId = review.getId();
+            this.rating = review.getRating();
+            this.content = review.getContent();
+            this.createdAt = review.getCreatedAt();
+            this.storeImage = review.getStore().getStoreImg();
+            this.storeName = review.getStore().getStoreName();
+            this.imageUrls = imageUrls;
+            this.relativeTime = relativeTime;
+            if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+        }
+    }
 }

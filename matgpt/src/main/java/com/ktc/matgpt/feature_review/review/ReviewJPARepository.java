@@ -34,4 +34,19 @@ public interface ReviewJPARepository extends JpaRepository<Review, Long> {
             "LIMIT :size")
     List<Review> findAllByStoreIdAndOrderByRatingDesc(Long storeId, Long cursorId, double cursorRating, int size);
 
+
+    @Query(nativeQuery = true, value = "select * FROM review_tb r " +
+            "WHERE user_id = :userId " +
+            "ORDER BY id DESC " +
+            "LIMIT :size " +
+            "OFFSET (:pageNum-1) * :size")
+    List<Review> findAllByUserIdAndOrderByIdDesc(Long userId, int pageNum, int size);
+
+    @Query(nativeQuery = true, value = "select * FROM review_tb r " +
+            "WHERE user_id = :userId " +
+            "ORDER BY rating DESC, id DESC " +
+            "LIMIT :size " +
+            "OFFSET (:pageNum-1) * :size")
+    List<Review> findAllByUserIdAndOrderByRatingDesc(Long userId, int pageNum, int size);
+
 }

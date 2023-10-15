@@ -128,6 +128,26 @@ public class ReviewService {
     }
 
 
+    public List<ReviewResponse.FindAllByUserIdDTO> findAllByUserId(Long userId, String sortBy, int pageNum) {
+        List<Review> reviews = (sortBy.equals("latest"))
+                ? reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, pageNum, DEFAULT_PAGE_SIZE)
+                : reviewJPARepository.findAllByUserIdAndOrderByRatingDesc(userId, pageNum, DEFAULT_PAGE_SIZE);
+
+        if (reviews.isEmpty()) throw new Exception400("회원이 작성한 리뷰가 없습니다.");
+
+        List<ReviewResponse.FindAllByUserIdDTO> responseDTOs = new ArrayList<>();
+
+        for (Review review : reviews) {
+            List<String> imageUrls = imageJPARepository.findAllImagesByReviewId(review.getId());
+            if (imageUrls.isEmpty()) throw new Exception400("reviewId-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
+
+            String relativeTime = getRelativeTime(review.getCreatedAt());
+            responseDTOs.add(new ReviewResponse.FindAllByUserIdDTO(review, relativeTime, imageUrls));
+        }
+        return responseDTOs;
+    }
+
+
     @Transactional
     public void delete(Long reviewId, Long userId) {
         Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
