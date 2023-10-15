@@ -28,6 +28,7 @@ public class TokenProvider {
     private static final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
+    private static final String USER_EMAIL = "email";
     private static final String BEARER_TYPE = "Bearer";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;  // 7일
@@ -41,19 +42,27 @@ public class TokenProvider {
     }
 
     public TokenDto.Response generateToken(Authentication authentication) {
+
+        // 권한들 가져오기
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         long now = (new Date()).getTime();
 
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
         UserPrincipal userPrincipal = (UserPrincipal)authentication.getPrincipal();
+
         Claims claims = Jwts.claims();
         // TODO: principal -> claims 다 넣기
-        claims.put("email", userPrincipal.getEmail());
+        claims.put(AUTHORITIES_KEY, authorities);
+        claims.put(USER_EMAIL, userPrincipal.getEmail());
 
         String accessToken = Jwts.builder()
             //jwt 내에 들어가는 정보를 커스텀 가능합니다.
-            .setSubject(authentication.getName())       // payload "sub": "name"
+            .setSubject(userPrincipal.getEmail())       // payload "sub": "name"
             .setClaims(claims)                          // payload "auth": "ROLE_USER"
             .setExpiration(accessTokenExpiresIn)        // payload "exp": 1516239022 (예시)
             .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
@@ -69,6 +78,7 @@ public class TokenProvider {
 
         log.debug("생성된 토큰: {}", accessToken);
         log.debug("만료 시간: {}", accessTokenExpiresIn);
+
 
         return TokenDto.Response.builder()
             .grantType(BEARER_TYPE)
@@ -93,8 +103,10 @@ public class TokenProvider {
                 .collect(Collectors.toList());
 
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        UserDetails principal = new UserPrincipal(claims.get("email").toString(), authorities);
+
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
+
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return authentication;
     }

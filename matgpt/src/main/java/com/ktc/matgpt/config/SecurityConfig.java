@@ -96,6 +96,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 authorizeCustomizer -> authorizeCustomizer
                         .requestMatchers(antMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(antMatcher("/auth/**")).permitAll()
                        // .requestMatchers(antMatcher("/stores/{storeId}/reviews")).authenticated()   // review 인증
                         .anyRequest().permitAll() // TODO
         );
