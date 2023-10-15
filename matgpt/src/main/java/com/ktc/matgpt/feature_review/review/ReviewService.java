@@ -1,20 +1,22 @@
 package com.ktc.matgpt.feature_review.review;
 
 import com.ktc.matgpt.exception.Exception400;
+import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.food.Food;
 import com.ktc.matgpt.feature_review.food.FoodService;
+import com.ktc.matgpt.feature_review.image.Image;
+import com.ktc.matgpt.feature_review.image.ImageJPARepository;
 import com.ktc.matgpt.feature_review.image.ImageService;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
-import com.ktc.matgpt.feature_review.image.Image;
 import com.ktc.matgpt.feature_review.review.dto.ReviewResponse;
 import com.ktc.matgpt.feature_review.review.entity.Review;
 import com.ktc.matgpt.feature_review.s3.S3Service;
 import com.ktc.matgpt.feature_review.tag.Tag;
-import com.ktc.matgpt.exception.Exception500;
-import com.ktc.matgpt.feature_review.image.ImageJPARepository;
 import com.ktc.matgpt.feature_review.tag.TagJPARepository;
 import com.ktc.matgpt.feature_review.tag.TagService;
 import com.ktc.matgpt.store.Store;
+import com.ktc.matgpt.user.entity.User;
+import com.ktc.matgpt.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -123,9 +125,21 @@ public class ReviewService {
     }
 
 
+    @Transactional
+    public void delete(Long reviewId, Long userId) {
+        Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
+                () -> new Exception400("reveiw-" + reviewId + ": 존재하지 않는 리뷰입니다. 삭제할 수 없습니다.")
+        );
+        if (review.getUserId() != userId) {
+            throw new Exception400("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
+        }
+        imageService.deleteAll(reviewId);
+        reviewJPARepository.deleteById(reviewId);
+    }
+
+
     private String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
-        List<Long> relativeTime = new ArrayList<>();
         Long seconds = duration.getSeconds();
         Locale country = Locale.KOREA;  // 임시로 한국 설정, user.getCountry()로 받아오도록 수정 필요
 
@@ -140,6 +154,4 @@ public class ReviewService {
 
         return msg + " " + messageSourceAccessor.getMessage("ago", country);
     }
-
-
 }

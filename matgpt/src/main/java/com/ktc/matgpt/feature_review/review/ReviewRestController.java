@@ -62,4 +62,13 @@ public class ReviewRestController {
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTO);
         return ResponseEntity.ok(apiResult);
     }
+
+    // 리뷰 삭제 (s3삭제 구현 필요)
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        reviewService.delete(reviewId, userPrincipal.getId());
+
+        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(null);
+        return ResponseEntity.ok(apiResult);
+    }
 }
