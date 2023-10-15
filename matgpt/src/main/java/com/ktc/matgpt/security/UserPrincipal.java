@@ -12,18 +12,12 @@ import java.util.*;
 
 @Getter
 public class UserPrincipal implements OAuth2User, UserDetails {
-    private final Long id;
     //name은 여기서 생성
     private final String email;
-    private final Gender gender;
-    private final AgeGroup ageGroup;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, Gender gender, AgeGroup ageGroup, Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
+    public UserPrincipal(String email, Collection<? extends GrantedAuthority> authorities) {
         this.email = email;
-        this.gender = gender;
-        this.ageGroup = ageGroup;
         this.authorities = authorities;
     }
 
@@ -33,10 +27,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                 singletonList(new SimpleGrantedAuthority("ROLE_GUEST"));
 
         return new UserPrincipal(
-                user.getId(),
                 user.getEmail(),
-                user.getGender(),
-                user.getAgeGroup(),
                 authorities
         );
     }
@@ -55,7 +46,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public String getPassword() {
-        return String.valueOf(id);
+        return null;
     }
 
     @Override
@@ -81,8 +72,8 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     //For AuthenticatedPrincipal
     @Override
     public String getName() {
-        return String.valueOf(id);
-    }
+        return email;}
+
     @Override
     public Map<String, Object> getAttributes() {
         return new HashMap<>();
