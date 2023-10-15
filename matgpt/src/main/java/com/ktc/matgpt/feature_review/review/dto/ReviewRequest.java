@@ -16,7 +16,7 @@ public class ReviewRequest {
         @NonNull
         private String content;
         @NonNull
-        private int rating;
+        private double rating;
         @Min(1)
         private int peopleCount;
         @NonNull
@@ -24,7 +24,7 @@ public class ReviewRequest {
         private int totalPrice;     // 범위로 받게 된다면 enum PriceRange 타입 이용
 
         public CreateDTO(List<ImageDTO> reviewImages, String content,
-                         int rating, int peopleCount, int totalPrice) {
+                         double rating, int peopleCount, int totalPrice) {
             this.reviewImages = reviewImages;
             this.content = content;
             this.rating = rating;

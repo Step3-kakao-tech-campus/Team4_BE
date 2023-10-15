@@ -1,10 +1,10 @@
 package com.ktc.matgpt.feature_review.food;
 
+import com.ktc.matgpt.feature_review.review.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -12,7 +12,7 @@ import org.hibernate.annotations.ColumnDefault;
 //@AllArgsConstructor
 //@Builder
 @Table(name = "food_tb")
-public class Food {
+public class Food extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,12 +23,25 @@ public class Food {
     @Column
     private String foodDescription;
 
+    @Column
+    private int reviewCount;
+
     @Column(nullable = false)
     private double averageRating;
 
     @Builder
-    public Food(String foodName, double averageRating) {
+    public Food(String foodName, int reviewCount, double averageRating) {
         this.foodName = foodName;
+        this.reviewCount = reviewCount;
         this.averageRating = averageRating;
+    }
+    public void updatePlus(double addRating) {
+        reviewCount++;
+        averageRating = (averageRating * reviewCount + addRating) / reviewCount;
+    }
+
+    public void updateMinus(double subRating) {
+        averageRating = (reviewCount*averageRating - subRating) / (reviewCount-1);
+        reviewCount--;
     }
 }
