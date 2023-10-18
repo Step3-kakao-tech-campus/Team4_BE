@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface StoreJPARepository extends JpaRepository<Store,Long> {
 
+    Optional<Store> findById(Long id);
 
     @Query(value ="SELECT s.id, s.storeName, s.category, s.ratingAvg, s.numsOfReview,ST_Distance_Sphere(POINT(:longitude, :latitude),POINT(s.latitude, s.longitude)) AS distance FROM Store s ", nativeQuery = true)
     List<Store> findNearestStoresWithDistance(double latitude, double longitude);
