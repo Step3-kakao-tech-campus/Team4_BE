@@ -29,7 +29,7 @@ public class ReviewRestController {
     public ResponseEntity<?> create(@PathVariable Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO, @AuthenticationPrincipal UserPrincipal userPrincipal
             /*@RequestPart("key") ReviewRequest.CreateDTO requestDTO, @RequestPart(value = "file", required = false) MultipartFile file*/) {
 
-        Store store = storeService.findEntityById(storeId);
+        Store store = storeService.findById(storeId);
         Long createdId = reviewService.create(userPrincipal.getId(), store, requestDTO/*, file*/);
         String msg = "review-" + createdId + "(of store-" + storeId + ") created";
 
