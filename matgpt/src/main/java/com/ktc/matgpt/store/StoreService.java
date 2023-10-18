@@ -24,18 +24,25 @@ public class StoreService {
         return responseDTOs;
     }
 
-
-
-//    public List<StoreResponse.FindAllStoreDTO> findAllByDistance(double latitude, double longitude) {
-//        List<Store> stores = storeJPARepository.findNearestStoresWithDistance(latitude,longitude);
-//        List<StoreResponse.FindAllStoreDTO> responseDTOs = stores.stream()
-//                .map(s -> new StoreResponse.FindAllStoreDTO(s))
-//                .collect(Collectors.toList());
-//        return responseDTOs;
-//    }
-
+    //인기 많은 음식점 보기 (리뷰많은순정렬)
     @Transactional(readOnly = true)
-    public List<StoreResponse.FindAllStoreDTO> findAllByPage(String sort,Long cursor, Pageable pageable) {
+    public List<StoreResponse.FindAllStoreDTO> findAllByPopular(Long cursor, Pageable pageable) {
+
+        List<Store> stores =  getStoreListByReviews(cursor,pageable,"");
+
+        List<StoreResponse.FindAllStoreDTO> responseDTOs = stores.stream()
+                .map(s -> new StoreResponse.FindAllStoreDTO(s))
+                .collect(Collectors.toList());
+        return responseDTOs;
+    }
+
+
+
+
+    //음식점 검색
+    @Transactional(readOnly = true)
+    public  List<StoreResponse.FindAllStoreDTO> findBySearch(String searchQuery,String sort, Long cursor, Pageable pageable) {
+
 
         List<Store> stores = null;
         if (sort.equals("id")){
@@ -43,7 +50,7 @@ public class StoreService {
         } else if ( sort.equals("rating")) {
             stores = getStoreListByStar(cursor,pageable);
         } else if ( sort.equals("review")) {
-            stores = getStoreListByReviews(cursor,pageable);
+            stores = getStoreListByReviews(cursor,pageable,searchQuery);
         }
 
         List<StoreResponse.FindAllStoreDTO> responseDTOs = stores.stream()
@@ -51,6 +58,7 @@ public class StoreService {
                 .collect(Collectors.toList());
         return responseDTOs;
     }
+
 
     private List<Store> getStoreListById(Long id, Pageable page) {
         return id.equals(0L)
@@ -64,10 +72,10 @@ public class StoreService {
                 : storeJPARepository.findAllByStarLessThanIdDesc(id,page);
     }
 
-    private List<Store> getStoreListByReviews(Long id, Pageable page) {
+    private List<Store> getStoreListByReviews(Long id, Pageable page, String search) {
         return id.equals(0L)
-                ? storeJPARepository.findAllByReviews(page)
-                : storeJPARepository.findAllByReviewsLessThanIdDesc(id,page);
+                ? storeJPARepository.findAllByReviews(search,page)
+                : storeJPARepository.findAllByReviewsLessThanIdDesc(search,id,page);
     }
 
 

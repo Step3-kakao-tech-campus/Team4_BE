@@ -36,10 +36,10 @@ public class StoreRestController {
     }
 
 
-    @GetMapping("/stores")
-    public ResponseEntity<?> findAllByPage(@RequestParam(value = "sort", defaultValue = "id") String sort,
-                                           @RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
-        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAllByPage(sort,cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
+    //인기 많은 음식점 - 리뷰 갯수 순
+    @GetMapping("/stores/popular")
+    public ResponseEntity<?> findAllPopular(@RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
+        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAllByPopular(cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }

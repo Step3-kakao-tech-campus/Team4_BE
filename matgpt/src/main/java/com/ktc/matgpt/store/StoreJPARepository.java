@@ -36,10 +36,10 @@ public interface StoreJPARepository extends JpaRepository<Store,Long> {
     List<Store> findByIdLessThanOrderByIdDesc(Long id, Pageable page);
 
     //리뷰 많은 순으로 가게 불러오기
-    @Query("SELECT s FROM Store s ORDER BY s.numsOfReview DESC, s.id ")
-    List<Store> findAllByReviews(Pageable page);
+    @Query("SELECT s FROM Store s WHERE s.name LIKE %:search% ORDER BY s.numsOfReview DESC, s.id ")
+    List<Store> findAllByReviews(@Param("search")String search,  Pageable page);
 
     //리뷰 많은 순으로 가게 불러오기 with cursor id
-    @Query("SELECT s FROM Store s WHERE s.id < :id ORDER by s.numsOfReview DESC, s.id  ")
-    List<Store> findAllByReviewsLessThanIdDesc(@Param("id")Long id, Pageable page);
+    @Query("SELECT s FROM Store s WHERE s.id < :id AND s.name LIKE %:search% ORDER by s.numsOfReview DESC, s.id  ")
+    List<Store> findAllByReviewsLessThanIdDesc(@Param("search")String search,@Param("id")Long id, Pageable page);
 }
