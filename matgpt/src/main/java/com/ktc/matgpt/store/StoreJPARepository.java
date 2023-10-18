@@ -20,20 +20,21 @@ public interface StoreJPARepository extends JpaRepository<Store,Long> {
 
 
     //별점 높은 순으로 가게 불러오기
-    @Query("SELECT s FROM Store s ORDER BY s.ratingAvg DESC , s.id")
-    List<Store> findAllByStar(Pageable page);
+    @Query("SELECT s FROM Store s WHERE s.name LIKE %:search% ORDER BY s.ratingAvg DESC , s.id")
+    List<Store> findAllByStar(@Param("search")String search,Pageable page);
 
     //별점 높은 순으로 가게 불러오기 with cursor id
-    @Query("SELECT s FROM Store s WHERE s.id < :id ORDER by s.ratingAvg DESC, s.id ")
-    List<Store> findAllByStarLessThanIdDesc(@Param("id")Long id, Pageable page);
+    @Query("SELECT s FROM Store s WHERE s.id < :id AND s.name LIKE %:search% ORDER by s.ratingAvg DESC, s.id ")
+    List<Store> findAllByStarLessThanIdDesc(@Param("search")String search,@Param("id")Long id, Pageable page);
 
 
     //id 내림차순으로 가게 불러오기
-    @Query("SELECT s FROM Store s ORDER by s.id DESC ")
-    List<Store> findAllById(Pageable page);
+    @Query("SELECT s FROM Store s WHERE s.name LIKE %:search% ORDER by s.id DESC ")
+    List<Store> findAllById(@Param("search")String search,Pageable page);
 
     //id 내림차순으로 가게 불러오기 with cursor id
-    List<Store> findByIdLessThanOrderByIdDesc(Long id, Pageable page);
+    @Query("SELECT s FROM Store s WHERE s.id < :id AND s.name LIKE %:search% ORDER by  s.id  ")
+    List<Store> findByIdLessThanOrderByIdDesc(@Param("search")String search,Long id, Pageable page);
 
     //리뷰 많은 순으로 가게 불러오기
     @Query("SELECT s FROM Store s WHERE s.name LIKE %:search% ORDER BY s.numsOfReview DESC, s.id ")

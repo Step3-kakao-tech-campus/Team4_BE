@@ -60,7 +60,17 @@ public class StoreRestController {
     }
 
 
-
+    //음식점 검색
+    @GetMapping("/stores")
+    public ResponseEntity<?> Search( @RequestParam(value ="lati") double latitude ,
+                                     @RequestParam(value = "longi") double longitude ,
+                                     @RequestParam(value = "sort", defaultValue = "id") String sort,
+                                     @RequestParam(value = "cursor", defaultValue = "6") Long cursor,
+                                     @RequestParam(value="q") String searchQuery ) {
+        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findBySearch(searchQuery,sort,cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
 
 
 

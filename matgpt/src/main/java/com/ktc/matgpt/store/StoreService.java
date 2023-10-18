@@ -46,9 +46,9 @@ public class StoreService {
 
         List<Store> stores = null;
         if (sort.equals("id")){
-            stores = getStoreListById(cursor,pageable);
+            stores = getStoreListById(cursor,pageable,searchQuery);
         } else if ( sort.equals("rating")) {
-            stores = getStoreListByStar(cursor,pageable);
+            stores = getStoreListByStar(cursor,pageable,searchQuery);
         } else if ( sort.equals("review")) {
             stores = getStoreListByReviews(cursor,pageable,searchQuery);
         }
@@ -60,16 +60,16 @@ public class StoreService {
     }
 
 
-    private List<Store> getStoreListById(Long id, Pageable page) {
+    private List<Store> getStoreListById(Long id, Pageable page , String search) {
         return id.equals(0L)
-                ? storeJPARepository.findAllById(page)
-                : storeJPARepository.findByIdLessThanOrderByIdDesc(id,page);
+                ? storeJPARepository.findAllById(search,page)
+                : storeJPARepository.findByIdLessThanOrderByIdDesc(search,id,page);
 
     }
-    private List<Store> getStoreListByStar(Long id, Pageable page) {
+    private List<Store> getStoreListByStar(Long id, Pageable page, String search) {
         return id.equals(0L)
-                ? storeJPARepository.findAllByStar(page)
-                : storeJPARepository.findAllByStarLessThanIdDesc(id,page);
+                ? storeJPARepository.findAllByStar(search,page)
+                : storeJPARepository.findAllByStarLessThanIdDesc(search,id,page);
     }
 
     private List<Store> getStoreListByReviews(Long id, Pageable page, String search) {
@@ -77,6 +77,7 @@ public class StoreService {
                 ? storeJPARepository.findAllByReviews(search,page)
                 : storeJPARepository.findAllByReviewsLessThanIdDesc(search,id,page);
     }
+
 
 
     public Store findById(Long id) {
