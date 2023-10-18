@@ -44,27 +44,24 @@ public class StoreRestController {
         return ResponseEntity.ok(apiResult);
     }
 
-//    @GetMapping("/stores/myLike")
-//    public ResponseEntity<?> findAllMyLikeByPage(@AuthenticationPrincipal UserPrincipal userPrincipal , @RequestParam(value = "cursor", defaultValue = "5") Long cursor){
-//
-//
-//    }
-//
-//    @GetMapping("/stores/recentVisit")
-//    public ResponseEntity<?> findAllMyRecentVisitByPage(@AuthenticationPrincipal UserPrincipal userPrincipal , @RequestParam(value = "cursor", defaultValue = "5") Long cursor){
-//
-//
-//
-//    }
+    //최근 리뷰가 달린 음식점
+    @GetMapping("/stores/recent")
+    public ResponseEntity<?> findAllRecent(@RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
+        //리뷰에서 가져와야함
+        return ResponseEntity.ok(null);
+    }
+
+    //비슷한 사용자들이 좋아하는 음식점
+    @GetMapping("/stores/similar")
+    public ResponseEntity<?> findAllSimilar(@RequestParam(value = "cursor", defaultValue = "6") Long cursor , @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<StoreResponse.FindAllStoreDTO> responseDTOs = null;
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
 
 
-//    @GetMapping("/stores/dis")
-//    public ResponseEntity<?> findAllbyDis( @RequestParam("user_latitude") double latitude,
-//                                           @RequestParam("user_longitude") double longitude) {
-//        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAllByDistance(latitude,longitude);
-//        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
-//        return ResponseEntity.ok(apiResult);
-//    }
+
+
 
 
     @GetMapping("/stores/{id}")
