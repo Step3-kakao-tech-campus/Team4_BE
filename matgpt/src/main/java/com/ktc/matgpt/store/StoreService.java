@@ -16,14 +16,14 @@ public class StoreService {
 
     private final StoreJPARepository storeJPARepository;
 
-
-    public List<StoreResponse.FindAllStoreDTO> findAll() {
-        List<Store> stores = storeJPARepository.findAll();
+    public List<StoreResponse.FindAllStoreDTO> findAllByDistance(double latitude, double longitude) {
+        List<Store> stores = storeJPARepository.findNearestStoresWithDistance(latitude,longitude);
         List<StoreResponse.FindAllStoreDTO> responseDTOs = stores.stream()
                 .map(s -> new StoreResponse.FindAllStoreDTO(s))
                 .collect(Collectors.toList());
         return responseDTOs;
     }
+
 
 
 //    public List<StoreResponse.FindAllStoreDTO> findAllByDistance(double latitude, double longitude) {
