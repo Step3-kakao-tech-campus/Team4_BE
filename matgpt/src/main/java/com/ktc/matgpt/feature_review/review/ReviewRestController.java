@@ -74,7 +74,8 @@ public class ReviewRestController {
         return ResponseEntity.ok(apiResult);
     }
 
-    // 리뷰 삭제 (s3삭제 구현 필요)
+    // TODO: s3 삭제 구현
+    // 리뷰 삭제
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         reviewService.delete(reviewId, userPrincipal.getId());
