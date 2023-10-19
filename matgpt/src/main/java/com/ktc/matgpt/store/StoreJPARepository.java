@@ -13,7 +13,6 @@ public interface StoreJPARepository extends JpaRepository<Store,Long> {
 
     Optional<Store> findById(Long id);
 
-
     //사용자의 위치와 음식점 거리가 가까운 순으로 음식점 불러오기
     @Query(value ="SELECT *,ST_Distance_Sphere(POINT(:latitude, :longitude),POINT(latitude, longitude)) AS distance FROM store_tb ", nativeQuery = true)
     List<Store> findNearestStoresWithDistance(double latitude, double longitude);

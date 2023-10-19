@@ -1,6 +1,5 @@
-package com.ktc.matgpt.feature_review.store;
+package com.ktc.matgpt.store.entity;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,13 +11,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "mockstore")
-public class MockStore {
+@Table(name = "sub_category_tb", indexes = @Index(columnList = "categoryId"))
+public class SubCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String storeName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoryId")
+    private Category category;
+
+    private String name;
+
 }

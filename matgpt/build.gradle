@@ -50,6 +50,8 @@ dependencies {
 
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
@@ -61,4 +63,8 @@ tasks.named('test') {
 bootRun {
     String activeProfile = "dev"
     systemProperty "spring.profiles.active", activeProfile
+}
+
+tasks.withType(JavaCompile){
+    options.encoding = "UTF-8"
 }
