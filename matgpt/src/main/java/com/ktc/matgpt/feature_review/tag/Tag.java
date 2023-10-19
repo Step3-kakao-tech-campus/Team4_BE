@@ -30,13 +30,13 @@ public class Tag {
     @Column(nullable = false)
     private String menu_name;
 
-    @Column(nullable = false)
+    @Column
     private double menu_rating;
 
-    @Column(nullable = false)
+    @Column
     private int location_x;
 
-    @Column(nullable = false)
+    @Column
     private int location_y;
 
     @Builder
