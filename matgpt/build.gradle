@@ -59,3 +59,7 @@ bootRun {
     String activeProfile = "dev"
     systemProperty "spring.profiles.active", activeProfile
 }
+
+tasks.withType(JavaCompile){
+    options.encoding = "UTF-8"
+}
