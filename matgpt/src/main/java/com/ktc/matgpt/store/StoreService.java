@@ -71,7 +71,14 @@ public class StoreService {
     }
 
 
-    public StoreResponse.FindByIdStoreDTO findById(Long id) {
+    public Store findById(Long id) {
+        Store store = storeJPARepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다.")
+        );
+        return store;
+    }
+
+    public StoreResponse.FindByIdStoreDTO getStoreDtoById(Long id) {
         Store storePS = storeJPARepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다.")
         );

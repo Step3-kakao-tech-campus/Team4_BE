@@ -1,5 +1,6 @@
 package com.ktc.matgpt.store;
 import com.ktc.matgpt.store.entity.Category;
+import com.ktc.matgpt.store.entity.SubCategory;
 import jakarta.validation.constraints.Null;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,10 +18,10 @@ public class StoreResponse {
         private double ratingAvg;
         private int numsOfReview;
 
-        public FindAllStoreDTO(Store store){
+        public FindAllStoreDTO(Store store) {
             this.storeId = store.getId();
-            this.storeName = store.getStoreName();
-            this.category = store.getCategory();
+            this.storeName = store.getName();
+            this.category = store.getSubCategory().getCategory();
             this.ratingAvg = store.getRatingAvg();
             this.numsOfReview = store.getNumsOfReview();
         }
@@ -28,41 +29,34 @@ public class StoreResponse {
 
     @Getter
     @Setter
-    public static class FindByIdStoreDTO{
+    public static class FindByIdStoreDTO {
 
         private Long storeId;
         private String storeName;
         private Category category;
-        private String detailedCategory;
-        private String number;
+        private SubCategory subCategory;
+        private String phoneNumber;
         private String address;
-        private String openingTime;
-        private String closingTime;
-        private String breakTime;
+        private String businessHours;
         private double avgCostPerPerson;
         private int avgVisitCount;
         private String storeImg;
         private int numsOfReview;
         private double ratingAvg;
 
-        public FindByIdStoreDTO(Store store){
+        public FindByIdStoreDTO(Store store) {
             this.storeId = store.getId();
-            this.storeName = store.getStoreName();
-            this.category = store.getCategory();
-            this.detailedCategory = store.getDetailedCategory();
-            this.number = store.getNumber();
+            this.storeName = store.getName();
+            this.category = store.getSubCategory().getCategory();
+            this.subCategory = store.getSubCategory();
+            this.phoneNumber = store.getPhoneNumber();
             this.address = store.getAddress();
-            this.openingTime = store.getOpeningTime();
-            this.closingTime = store.getClosingTime();
-            this.breakTime = store.getBreakTime();
+            this.businessHours = store.getBusinessHours();
             this.avgCostPerPerson = store.getAvgCostPerPerson();
             this.avgVisitCount = store.getAvgVisitCount();
             this.storeImg = store.getStoreImg();
             this.numsOfReview = store.getNumsOfReview();
             this.ratingAvg = store.getRatingAvg();
-
         }
     }
-
-
 }
