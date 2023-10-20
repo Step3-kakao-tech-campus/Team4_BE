@@ -1,7 +1,6 @@
 package com.ktc.matgpt.feature_review.review;
 
 import com.ktc.matgpt.exception.Exception400;
-import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.food.Food;
 import com.ktc.matgpt.feature_review.food.FoodService;
 import com.ktc.matgpt.feature_review.image.Image;
@@ -19,15 +18,15 @@ import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -134,6 +133,15 @@ public class ReviewService {
         return responseDTOs;
     }
 
+    public List<Review> findByStoreIdAndSummaryType(Long storeId, String summaryType, int limit) {
+        Pageable pageable = switch (summaryType) {
+            case "BEST" -> PageRequest.of(0, limit, Sort.by(Sort.Order.desc("rating")));
+            case "WORST" -> PageRequest.of(0, limit, Sort.by(Sort.Order.asc("rating")));
+            default -> throw new IllegalArgumentException("Invalid summaryType: " + summaryType);
+        };
+
+        return reviewJPARepository.findByStoreId(storeId, pageable);
+    }
 
     public List<ReviewResponse.FindAllByUserIdDTO> findAllByUserId(Long userId, String sortBy, int pageNum) {
         List<Review> reviews = (sortBy.equals("latest"))
