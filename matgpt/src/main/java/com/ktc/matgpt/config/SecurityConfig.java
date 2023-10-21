@@ -97,6 +97,8 @@ public class SecurityConfig {
                 authorizeCustomizer -> authorizeCustomizer
                         .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                         .requestMatchers(antMatcher("/auth/**")).permitAll()
+                        .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
+                        .requestMatchers(antMatcher("/v3/api-docs/")).permitAll()
                        // .requestMatchers(antMatcher("/stores/{storeId}/reviews")).authenticated()   // review 인증
                         .anyRequest().permitAll() // TODO
         );
