@@ -137,7 +137,7 @@ public class ReviewResponse {
             this.content = review.getContent();
             this.createdAt = review.getCreatedAt();
             this.storeImage = review.getStore().getStoreImg();
-            this.storeName = review.getStore().getStoreName();
+            this.storeName = review.getStore().getName();
             this.imageUrls = imageUrls;
             this.relativeTime = relativeTime;
             if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;

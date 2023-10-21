@@ -57,7 +57,7 @@ public class StoreRestController {
 
     @GetMapping("/stores/{id}")
     public ResponseEntity<?> findById(@PathVariable(value = "id", required = true) Long id) {
-        StoreResponse.FindByIdStoreDTO responseDTO = storeService.findById(id);
+        StoreResponse.FindByIdStoreDTO responseDTO = storeService.getStoreDtoById(id);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTO);
         return ResponseEntity.ok(apiResult);
     }
