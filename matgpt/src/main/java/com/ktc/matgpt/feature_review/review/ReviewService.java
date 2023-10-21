@@ -18,8 +18,9 @@ import com.ktc.matgpt.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,6 +146,15 @@ public class ReviewService {
         return responseDTOs;
     }
 
+    public List<Review> findByStoreIdAndSummaryType(Long storeId, String summaryType, int limit) {
+        Pageable pageable = switch (summaryType) {
+            case "BEST" -> PageRequest.of(0, limit, Sort.by(Sort.Order.desc("rating")));
+            case "WORST" -> PageRequest.of(0, limit, Sort.by(Sort.Order.asc("rating")));
+            default -> throw new IllegalArgumentException("Invalid summaryType: " + summaryType);
+        };
+
+        return reviewJPARepository.findByStoreId(storeId, pageable);
+    }
 
     public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, int pageNum) {
         Page<Review> reviews = (sortBy.equals("latest"))
