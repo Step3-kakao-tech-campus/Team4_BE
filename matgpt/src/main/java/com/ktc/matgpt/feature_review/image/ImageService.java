@@ -1,18 +1,17 @@
 package com.ktc.matgpt.feature_review.image;
 
-import com.ktc.matgpt.exception.Exception400;
-import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import com.ktc.matgpt.feature_review.review.entity.Review;
 import com.ktc.matgpt.feature_review.s3.S3Service;
-import com.ktc.matgpt.feature_review.tag.TagJPARepository;
 import com.ktc.matgpt.feature_review.tag.TagService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ImageService {
@@ -34,7 +33,10 @@ public class ImageService {
     @Transactional
     public void deleteAll(Long reviewId) {
         List<Image> images = imageJPARepository.findAllByReviewId(reviewId);
-        if (images.isEmpty()) throw new Exception500("reviewId" + reviewId + "해당 리뷰에 등록된 이미지가 없습니다.");
+        if (images.isEmpty()) {
+            log.info("review-" + reviewId + ": 해당 리뷰에 삭제할 이미지가 없습니다.");
+            return;
+        }
 
         for (Image image : images) {
             tagService.deleteAll(image.getId());

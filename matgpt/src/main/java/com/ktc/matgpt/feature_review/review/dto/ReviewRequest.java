@@ -11,15 +11,11 @@ public class ReviewRequest {
     @Getter
     @ToString
     public static class CreateDTO {
-        @NonNull
         private List<ImageDTO> reviewImages;
-        @NonNull
         private String content;
-        @NonNull
         private double rating;
         @Min(1)
         private int peopleCount;
-        @NonNull
         @Min(0)
         private int totalPrice;     // 범위로 받게 된다면 enum PriceRange 타입 이용
 
@@ -38,19 +34,14 @@ public class ReviewRequest {
         public static class ImageDTO {
 //            private MultipartFile image;
             private String imageUrl;
-            @NonNull
             private List<TagDTO> tags;
 
             @Getter
             @ToString
             public static class TagDTO {
-                @NonNull
                 private String name;
-                @NonNull
                 private int location_x;
-                @NonNull
                 private int location_y;
-                @NonNull
                 private double rating;
             }
         }
@@ -60,7 +51,6 @@ public class ReviewRequest {
     @Getter
     @ToString
     public static class UpdateDTO {
-        @NonNull
         private String content;
     }
 
