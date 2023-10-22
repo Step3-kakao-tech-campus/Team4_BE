@@ -8,6 +8,7 @@ import com.ktc.matgpt.store.StoreResponse;
 import com.ktc.matgpt.store.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,7 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 0 4 * * SUN")
     public void callChatGPTApi() {
 
-        List<StoreResponse.FindAllStoreDTO> stores = storeService.findAll();
+        List<StoreResponse.FindAllStoreDTO> stores = storeService.findAllByPopular(0L, PageRequest.of(0, 10));
 
         for (StoreResponse.FindAllStoreDTO store: stores) {
 
