@@ -4,6 +4,7 @@ import com.ktc.matgpt.feature_review.image.Image;
 import com.ktc.matgpt.feature_review.review.entity.Review;
 import com.ktc.matgpt.feature_review.tag.Tag;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -118,29 +119,43 @@ public class ReviewResponse {
 
     @Getter
     @ToString
-    public static class FindAllByUserIdDTO {
-        private Long reviewId;
-        private double rating;
-        private String content;
-        private LocalDateTime createdAt;
-        private String storeImage;
-        private String storeName;
+    public static class FindPageByUserIdDTO {
+        List<FindByUserIdDTO> reviews;
+        private int totalPageCount;
+        private int currentReviewCount;
+        private boolean hasNextPage;
+        public FindPageByUserIdDTO(List<FindByUserIdDTO> reviewDTOs, Page<Review> reviewPage) {
+            this.reviews = reviewDTOs;
+            this.totalPageCount = reviewPage.getTotalPages();
+            this.currentReviewCount = reviewPage.getNumberOfElements();
+            this.hasNextPage = reviewPage.hasNext();
+        }
 
-        private List<String> imageUrls;
-        private String relativeTime;
-        private boolean isUpdated = false;
+        @Getter
+        @ToString
+        public static class FindByUserIdDTO {
+            private Long reviewId;
+            private double rating;
+            private String content;
+            private LocalDateTime createdAt;
+            private String storeImage;
+            private String storeName;
+            private List<String> imageUrls;
+            private String relativeTime;
+            private boolean isUpdated = false;
 
 
-        public FindAllByUserIdDTO(Review review, String relativeTime, List<String> imageUrls) {
-            this.reviewId = review.getId();
-            this.rating = review.getRating();
-            this.content = review.getContent();
-            this.createdAt = review.getCreatedAt();
-            this.storeImage = review.getStore().getStoreImg();
-            this.storeName = review.getStore().getStoreName();
-            this.imageUrls = imageUrls;
-            this.relativeTime = relativeTime;
-            if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+            public FindByUserIdDTO(Review review, String relativeTime, List<String> imageUrls) {
+                this.reviewId = review.getId();
+                this.rating = review.getRating();
+                this.content = review.getContent();
+                this.createdAt = review.getCreatedAt();
+                this.storeImage = review.getStore().getStoreImg();
+                this.storeName = review.getStore().getName();
+                this.imageUrls = imageUrls;
+                this.relativeTime = relativeTime;
+                if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.ktc.matgpt.security.jwt;
 
+import com.ktc.matgpt.exception.InvalidTokenException;
 import com.ktc.matgpt.security.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -12,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -28,6 +28,7 @@ public class TokenProvider {
     private static final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
+    private static final String USER_ID = "id";
     private static final String USER_EMAIL = "email";
     private static final String BEARER_TYPE = "Bearer";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
@@ -58,6 +59,7 @@ public class TokenProvider {
         Claims claims = Jwts.claims();
         // TODO: principal -> claims 다 넣기
         claims.put(AUTHORITIES_KEY, authorities);
+        claims.put(USER_ID, userPrincipal.getId());
         claims.put(USER_EMAIL, userPrincipal.getEmail());
 
         String accessToken = Jwts.builder()
@@ -93,17 +95,23 @@ public class TokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            throw new InvalidTokenException("권한 정보가 없는 토큰입니다.");
         }
+
 
         // 클레임에서 권한 정보 가져오기
         Collection<? extends GrantedAuthority> authorities =
-            Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+
+        // 클레임에서 Long 타입 userId 가져오기
+        Long userId = Long.valueOf(claims.get(USER_ID).toString());
+
 
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new UserPrincipal(claims.get("email").toString(), authorities);
+        UserDetails principal = new UserPrincipal(userId,claims.get(USER_EMAIL).toString(), authorities);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
 
