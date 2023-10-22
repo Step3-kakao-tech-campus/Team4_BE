@@ -1,16 +1,18 @@
 package com.ktc.matgpt.chatgpt.controller;
 
 import com.ktc.matgpt.chatgpt.annotation.Timer;
+import com.ktc.matgpt.chatgpt.factory.MockReview;
+import com.ktc.matgpt.chatgpt.factory.ReviewFactory;
 import com.ktc.matgpt.chatgpt.service.GptService;
-import com.ktc.matgpt.feature_review.utils.ApiUtils;
-import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.store.Store;
-import com.ktc.matgpt.store.StoreService;
+import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,31 +20,33 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class GptRestController {
 
+    public static final int REVIEW_COUNT = 5;
+
     private final GptService gptService;
-    private final StoreService storeService;
 
     @Timer
-    @PostMapping("/store/{storeId}/review")
-    public ResponseEntity<?> generateReviewSummary(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                   @PathVariable Long storeId) {
-        gptService.generateReviewSummary(storeId);
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success("success");
-        return ResponseEntity.ok().body(apiResult);
-    }
+    @GetMapping("/review")
+    public ResponseEntity<?> generateReviewSummary() {
+        /** TODO
+         * 0. Authorized된 사용자만이 접근 가능
+         * 1. ReviewService에서 Review 받아오기
+         * 2. 메서드 호출 방식을 Post로 변경
+         */
 
-    @GetMapping("/store/{storeId}/review/{summaryType}")
-    public ResponseEntity<?> getBestReviewSummary(@PathVariable(value="storeId") Long storeId,
-                                                  @PathVariable(value="summaryType") String summaryType) {
-        String content = gptService.findReviewSummaryByStoreIdAndSummaryType(storeId, summaryType);
-        return ResponseEntity.ok().body(ApiUtils.success(content));
+        List<MockReview> mockReviews = ReviewFactory.getTopReviews(REVIEW_COUNT);
+        return ResponseEntity.ok().body(ApiUtils.success(gptService.generateReviewSummary(mockReviews)));
     }
 
     @Timer
-    @PostMapping("/order")
-    public ResponseEntity<?> generateOrderGuidance(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Long userId = userPrincipal.getId();
-        String content = gptService.generateOrderGuidance(userId);
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(content);
-        return ResponseEntity.ok().body(apiResult);
+    @GetMapping("/order")
+    public ResponseEntity<?> generateOrderPrompt() {
+        /** TODO
+         * 0. Authorized된 사용자만이 접근 가능
+         * 1. 사용자 정보로부터 국적 받아오기
+         * 2. 메서드 호출 방식을 Post로 변경
+         */
+
+        String country = "india";
+        return ResponseEntity.ok().body(ApiUtils.success(gptService.generateOrderPromptWithCountry(country)));
     }
 }

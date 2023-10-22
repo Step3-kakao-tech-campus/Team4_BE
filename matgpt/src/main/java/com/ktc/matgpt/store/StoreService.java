@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -72,21 +71,10 @@ public class StoreService {
     }
 
 
-    public Store findById(Long id) {
-        Store store = storeJPARepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다.")
-        );
-        return store;
-    }
-
-    public StoreResponse.FindByIdStoreDTO getStoreDtoById(Long id) {
+    public StoreResponse.FindByIdStoreDTO findById(Long id) {
         Store storePS = storeJPARepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다.")
         );
         return new StoreResponse.FindByIdStoreDTO(storePS);
-    }
-
-    public int getNumsOfReviewById(Long storeId) {
-        return findById(storeId).getNumsOfReview();
     }
 }

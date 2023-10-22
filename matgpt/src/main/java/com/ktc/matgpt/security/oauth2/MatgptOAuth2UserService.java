@@ -49,7 +49,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationProcessingException("some message");
         }
 
-        Optional<User> userOptional = userRepository.findByEmail(oauth2UserInfo.getEmail());
+        Optional<User> userOptional = userRepository.findByEmail(oauth2UserInfo.getEmail()); // TODO: findByPhonenumber
         User user;
         if(userOptional.isPresent()) {
             user = userOptional.get();

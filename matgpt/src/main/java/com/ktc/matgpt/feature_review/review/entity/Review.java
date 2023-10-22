@@ -25,7 +25,7 @@ public class Review extends BaseTimeEntity {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false)
     private String content;
 
     @Column(nullable = false, updatable = false)
