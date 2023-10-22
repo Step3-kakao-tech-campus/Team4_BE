@@ -84,7 +84,8 @@ public class SecurityConfig {
         http.csrf(
                 csrfCustomizer -> csrfCustomizer
                         .ignoringRequestMatchers(antMatcher("/h2-console/**"))
-                        .disable() // TODO
+                        .disable()
+                // TODO
         );
         // 헤더 설정
         http.headers(
@@ -97,23 +98,24 @@ public class SecurityConfig {
                 authorizeCustomizer -> authorizeCustomizer
                         .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                         .requestMatchers(antMatcher("/auth/**")).permitAll()
+                        .requestMatchers(antMatcher("/stores/**")).permitAll()
                         .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(antMatcher("/v3/api-docs/")).permitAll()
-                       // .requestMatchers(antMatcher("/stores/{storeId}/reviews")).authenticated()   // review 인증
+
                         .anyRequest().permitAll() // TODO
         );
 //---------------------------------------------
         http.exceptionHandling(
                 exceptionHandler -> exceptionHandler.accessDeniedHandler(
                         (request, response, accessDeniedException) ->
-                            jwtAccessDeniedHandler.handle(request, response, accessDeniedException)
+                                jwtAccessDeniedHandler.handle(request, response, accessDeniedException)
                 )
         );
 
         http.exceptionHandling(
                 exceptionHandler -> exceptionHandler.authenticationEntryPoint(
                         (request, response, authException) ->
-                            jwtAuthenticationEntryPoint.commence(request, response, authException)
+                                jwtAuthenticationEntryPoint.commence(request, response, authException)
                 )
         );
 //---------------------------------------------
