@@ -62,43 +62,16 @@ public class StoreRestController {
 
     //음식점 검색
     @GetMapping("/stores")
-
     public ResponseEntity<?> Search( @RequestParam(value ="lati") double latitude ,
                                      @RequestParam(value = "longi") double longitude ,
                                      @RequestParam(value = "sort", defaultValue = "id") String sort,
                                      @RequestParam(value = "cursor", defaultValue = "6") Long cursor,
                                      @RequestParam(value="q") String searchQuery ) {
         List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findBySearch(searchQuery,sort,cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
-
-    public ResponseEntity<?> findAllByPage(@RequestParam(value = "sort", defaultValue = "id") String sort,
-                                           @RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
-        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAllByPage(sort,cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }
 
-
-//    @GetMapping("/stores/myLike")
-//    public ResponseEntity<?> findAllMyLikeByPage(@AuthenticationPrincipal UserPrincipal userPrincipal , @RequestParam(value = "cursor", defaultValue = "5") Long cursor){
-//
-//
-//    }
-//
-//    @GetMapping("/stores/recentVisit")
-//    public ResponseEntity<?> findAllMyRecentVisitByPage(@AuthenticationPrincipal UserPrincipal userPrincipal , @RequestParam(value = "cursor", defaultValue = "5") Long cursor){
-//
-//
-//
-//    }
-
-
-//    @GetMapping("/stores/dis")
-//    public ResponseEntity<?> findAllbyDis( @RequestParam("user_latitude") double latitude,
-//                                           @RequestParam("user_longitude") double longitude) {
-//        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAllByDistance(latitude,longitude);
-//        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
-//        return ResponseEntity.ok(apiResult);
-//    }
 
 
     @GetMapping("/stores/{id}")
