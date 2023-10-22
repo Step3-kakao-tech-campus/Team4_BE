@@ -99,6 +99,9 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                         .requestMatchers(antMatcher("/auth/**")).permitAll()
                         .requestMatchers(antMatcher("/stores/**")).permitAll()
+                        .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
+                        .requestMatchers(antMatcher("/v3/api-docs/")).permitAll()
+
                         .anyRequest().permitAll() // TODO
         );
 //---------------------------------------------
