@@ -1,15 +1,16 @@
 package com.ktc.matgpt.feature_review.tag;
 
-import com.ktc.matgpt.exception.Exception500;
 import com.ktc.matgpt.feature_review.food.Food;
 import com.ktc.matgpt.feature_review.image.Image;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TagService {
@@ -32,11 +33,14 @@ public class TagService {
     @Transactional
     public void deleteAll(Long imageId) {
         List<Tag> tags = tagJPARepository.findAllByImageId(imageId);
-        if (tags.isEmpty()) throw new Exception500("imageId:" + imageId + ": 이미지에 등록된 태그가 없습니다.");
+        if (tags.isEmpty()) {
+            log.info("image-" + imageId + ": 해당 이미지에 삭제할 태그가 없습니다.");
+            return;
+        }
 
         for (Tag tag : tags) {
             Food food = tag.getFood();
-            food.updateMinus(tag.getMenu_rating());
+            food.updateReviewDecrease(tag.getMenu_rating());
             tagJPARepository.delete(tag);
         }
     }

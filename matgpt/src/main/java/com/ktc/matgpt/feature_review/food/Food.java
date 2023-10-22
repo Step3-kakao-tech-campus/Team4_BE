@@ -26,7 +26,7 @@ public class Food extends BaseTimeEntity {
     @Column
     private int reviewCount;
 
-    @Column(nullable = false)
+    @Column
     private double averageRating;
 
     @Builder
@@ -35,13 +35,17 @@ public class Food extends BaseTimeEntity {
         this.reviewCount = reviewCount;
         this.averageRating = averageRating;
     }
-    public void updatePlus(double addRating) {
+    public void updateReviewIncrease(double addRating) {
         reviewCount++;
         averageRating = (averageRating * reviewCount + addRating) / reviewCount;
     }
 
-    public void updateMinus(double subRating) {
-        averageRating = (reviewCount*averageRating - subRating) / (reviewCount-1);
+    public void updateReviewDecrease(double subRating) {
+        if (reviewCount == 1) {
+            reviewCount--;
+            averageRating = 0;
+        }
+        averageRating = (reviewCount * averageRating - subRating) / (reviewCount-1);
         reviewCount--;
     }
 }
