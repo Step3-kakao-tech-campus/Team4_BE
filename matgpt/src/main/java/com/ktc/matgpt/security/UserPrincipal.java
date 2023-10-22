@@ -13,12 +13,10 @@ import java.util.*;
 @Getter
 public class UserPrincipal implements OAuth2User, UserDetails {
     //name은 여기서 생성
-    private final Long id;
     private final String email;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
+    public UserPrincipal(String email, Collection<? extends GrantedAuthority> authorities) {
         this.email = email;
         this.authorities = authorities;
     }
@@ -29,7 +27,6 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                 singletonList(new SimpleGrantedAuthority("ROLE_GUEST"));
 
         return new UserPrincipal(
-                user.getId(),
                 user.getEmail(),
                 authorities
         );

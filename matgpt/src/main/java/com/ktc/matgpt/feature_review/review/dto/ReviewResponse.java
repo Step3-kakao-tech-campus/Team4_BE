@@ -130,7 +130,6 @@ public class ReviewResponse {
             this.currentReviewCount = reviewPage.getNumberOfElements();
             this.hasNextPage = reviewPage.hasNext();
         }
-
         @Getter
         @ToString
         public static class FindByUserIdDTO {
@@ -156,6 +155,6 @@ public class ReviewResponse {
                 this.relativeTime = relativeTime;
                 if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
             }
-        }
+
     }
 }
