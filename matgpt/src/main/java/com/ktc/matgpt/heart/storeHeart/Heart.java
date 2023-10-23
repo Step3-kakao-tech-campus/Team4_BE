@@ -15,7 +15,6 @@ import static jakarta.persistence.FetchType.LAZY;
 
 
 @Entity
-@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,5 +33,13 @@ public class Heart {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="store_id")
     private Store store;
+
+    @Builder
+    public static Heart create(User user, Store store) {
+        Heart heart = new Heart();
+        heart.setUser(user);
+        heart.setStore(store);
+        return heart;
+    }
 
 }
