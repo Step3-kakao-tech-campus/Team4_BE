@@ -1,4 +1,4 @@
-package com.ktc.matgpt.heart.storeHeart;
+package com.ktc.matgpt.like.likeStore;
 
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.user.entity.User;
@@ -10,16 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface HeartJPARepository extends JpaRepository<Heart, Long> {
+public interface LikeStoreJPARepository extends JpaRepository<LikeStore, Long> {
 
-    @Query("select h from Heart h where h.user.id = :userId")
-    Optional<Heart> findHeartByUserId(Long userId);
+    @Query("select h from LikeStore h where h.user.id = :userId")
+    Optional<LikeStore> findHeartByUserId(Long userId);
 
-    @Query( "select h.store from Heart h where h.user.id = :userId")
-    List<Store> findStoresByUserId(Long userId);
-
-    Optional<Heart> findHeartByUserIdAndStoreId(Long userId, Long storeId);
-
+    @Query( "select h.store from LikeStore h where h.user.id = :userId")
+    List<Store> findLikedStoresByUserId(Long userId);
     boolean existsByUserAndStore(User userRef, Store storeRef);
     void deleteByUserAndStore(User user, Store store);
 

@@ -1,16 +1,14 @@
-package com.ktc.matgpt.heart.storeHeart;
+package com.ktc.matgpt.like.likeStore;
 
 import com.ktc.matgpt.store.Store;
-import com.ktc.matgpt.store.entity.Category;
 import com.ktc.matgpt.user.entity.User;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class HeartResponseDTO {
+public class LikeStoreResponseDTO {
 
     @Getter
     @Setter
@@ -30,14 +28,12 @@ public class HeartResponseDTO {
         public class StoreDTO{
             private Long storeId;
             private String storeName;
-            private Category category;
             private double ratingAvg;
             private int numsOfReview;
 
             public StoreDTO(Store store){
                 this.storeId = store.getId();
                 this.storeName = store.getName();
-                this.category = store.getSubCategory().getCategory();
                 this.ratingAvg = store.getRatingAvg();
                 this.numsOfReview = store.getNumsOfReview();
             }

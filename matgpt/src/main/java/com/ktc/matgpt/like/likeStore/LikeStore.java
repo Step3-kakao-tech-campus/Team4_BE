@@ -1,4 +1,4 @@
-package com.ktc.matgpt.heart.storeHeart;
+package com.ktc.matgpt.like.likeStore;
 
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.user.entity.User;
@@ -9,17 +9,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-import static jakarta.persistence.FetchType.LAZY;
-
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "heart_tb")
-public class Heart {
+@Table(name = "likestore_tb")
+public class LikeStore {
 
 
     @Id
@@ -35,11 +31,11 @@ public class Heart {
     private Store store;
 
     @Builder
-    public static Heart create(User user, Store store) {
-        Heart heart = new Heart();
-        heart.setUser(user);
-        heart.setStore(store);
-        return heart;
+    public static LikeStore create(User user, Store store) {
+        LikeStore likeStore = new LikeStore();
+        likeStore.setUser(user);
+        likeStore.setStore(store);
+        return likeStore;
     }
 
 }

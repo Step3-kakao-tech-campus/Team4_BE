@@ -1,4 +1,4 @@
-package com.ktc.matgpt.heart.storeHeart;
+package com.ktc.matgpt.like.likeStore;
 
 
 import com.ktc.matgpt.security.UserPrincipal;
@@ -13,25 +13,29 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("")
-public class HeartRestController {
+public class LikeStoreRestController {
 
-    private final HeartService heartService;
+    private final LikeStoreService likeStoreService;
+
+    //특정 Store 즐겨찾기 추가하기
+    @PostMapping("/stores/{storeId}/like")
+    public ResponseEntity<?> toggleHeart(@PathVariable Long storeId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        boolean isHeartAdded = likeStoreService.toggleHeartForStore(storeId, userPrincipal.getEmail());
+
+        String message = isHeartAdded ? "즐겨찾기 성공" : "즐겨찾기 취소 성공";
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(message);
+
+        return ResponseEntity.ok(apiResult);
+    }
 
     @GetMapping("/stores/like")
     public ResponseEntity<?> findAllStores(@AuthenticationPrincipal UserPrincipal userPrincipal){
-        HeartResponseDTO.FindAllLikeStoresDTO heartResponseDTO = heartService.findStoresByUserEmail(userPrincipal.getEmail());
+        LikeStoreResponseDTO.FindAllLikeStoresDTO heartResponseDTO = likeStoreService.findStoresByUserEmail(userPrincipal.getEmail());
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(heartResponseDTO);
         return ResponseEntity.ok(apiResult);
 
     }
 
-    //특정 store에 좋아요 누르기
-    @PostMapping("/stores/{storeId}/like")
-    public ResponseEntity<?> addHeart(@PathVariable(value = "storeId", required = true) Long storeId , @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        heartService.addHeartToStore(storeId, userPrincipal.getEmail());
-        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success("success");
-        return ResponseEntity.ok(apiResult);
-    }
 
 
     //특정 store에 좋아요 취소하기
