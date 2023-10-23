@@ -36,8 +36,8 @@ public class HeartResponseDTO {
 
             public StoreDTO(Store store){
                 this.storeId = store.getId();
-                this.storeName = store.getStoreName();
-                this.category = store.getCategory();
+                this.storeName = store.getName();
+                this.category = store.getSubCategory().getCategory();
                 this.ratingAvg = store.getRatingAvg();
                 this.numsOfReview = store.getNumsOfReview();
             }
