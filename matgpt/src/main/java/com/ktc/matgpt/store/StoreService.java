@@ -1,6 +1,8 @@
 package com.ktc.matgpt.store;
 
 
+import com.ktc.matgpt.user.entity.User;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class StoreService {
 
     private final StoreJPARepository storeJPARepository;
+    private final EntityManager entityManager;
 
     public List<StoreResponse.FindAllStoreDTO> findAllByDistance(double latitude, double longitude) {
         List<Store> stores = storeJPARepository.findNearestStoresWithDistance(latitude,longitude);
@@ -81,11 +84,10 @@ public class StoreService {
 
 
     public Store findById(Long id) {
-        Store store = storeJPARepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다.")
-        );
-        return store;
+        return storeJPARepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다."));
     }
+
 
     public StoreResponse.FindByIdStoreDTO getStoreDtoById(Long id) {
         Store storePS = storeJPARepository.findById(id).orElseThrow(
@@ -96,5 +98,10 @@ public class StoreService {
 
     public int getNumsOfReviewById(Long storeId) {
         return findById(storeId).getNumsOfReview();
+    }
+
+    public Store getReferenceById(Long storeId) {
+        // 실제 엔터티를 로드하지 않고, 프록시 객체를 반환
+        return entityManager.getReference(Store.class, storeId);
     }
 }
