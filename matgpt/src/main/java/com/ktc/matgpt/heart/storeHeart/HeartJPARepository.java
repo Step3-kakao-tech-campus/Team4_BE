@@ -20,9 +20,7 @@ public interface HeartJPARepository extends JpaRepository<Heart, Long> {
 
     Optional<Heart> findHeartByUserIdAndStoreId(Long userId, Long storeId);
 
-    boolean existsByUserAndStore(User user, Store store);
-
-    boolean existsByUserIdAndStoreId(Long userId, Long storeId);
+    boolean existsByUserAndStore(User userRef, Store storeRef);
     void deleteByUserAndStore(User user, Store store);
 
 
