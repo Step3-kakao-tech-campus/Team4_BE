@@ -2,10 +2,7 @@ package com.ktc.matgpt.heart.storeHeart;
 
 
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.utils.ApiUtils;
-import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,10 +17,9 @@ public class HeartRestController {
 
     private final HeartService heartService;
 
-    //
     @GetMapping("/stores/like")
     public ResponseEntity<?> findAllStores(@AuthenticationPrincipal UserPrincipal userPrincipal){
-        HeartResponseDTO.FindAllLikeStoresDTO heartResponseDTO = heartService.findStoresByUser(userPrincipal.getEmail());
+        HeartResponseDTO.FindAllLikeStoresDTO heartResponseDTO = heartService.findStoresByUserEmail(userPrincipal.getEmail());
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(heartResponseDTO);
         return ResponseEntity.ok(apiResult);
 
