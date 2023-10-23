@@ -1,19 +1,14 @@
-package com.ktc.matgpt.storeHeart;
+package com.ktc.matgpt.likeStore;
 
 
+import com.ktc.matgpt.like.likeStore.LikeStoreService;
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.security.oauth2.MatgptOAuth2Provider;
-import com.ktc.matgpt.user.entity.AgeGroup;
-import com.ktc.matgpt.user.entity.Gender;
-import com.ktc.matgpt.user.entity.User;
-import com.ktc.matgpt.user.repository.UserRepository;
-import com.ktc.matgpt.user.service.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,44 +16,26 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
-public class HeartRestControllerTest {
+public class LikeStoreRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private UserRepository userRepository;
+    @MockBean
+    private LikeStoreService likeStoreService;
 
-    @Autowired
-    private UserService userService;
-
-
-    @BeforeEach
-    public void setup() {
-        User user = new User();
-        user.setAgeGroup(AgeGroup.TWENTY_TO_TWENTYNINE);
-        user.setEmailVerified(null);
-        user.setId(1L);
-        user.setEmail("nstgic3@gmail.com");
-        user.setGender(Gender.MALE);
-        user.setName("ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7");
-        user.setProvider(MatgptOAuth2Provider.KAKAO);
-        user.setProviderId("3038773712L");
-
-        userRepository.save(user);
-
-    }
-
-    @DisplayName("Find all liked stores")
+    @DisplayName("즐겨찾기한 음식점 모두 불러오기")
     @Test
     public void testFindAllStores() throws Exception {
         Long mockUserId = 1L;
@@ -72,7 +49,7 @@ public class HeartRestControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("Add heart to store")
+    @DisplayName("음식점 즐겨찾기 추가 테스트v1")
     @Test
     public void testAddHeartToStore() throws Exception {
         Long mockUserId = 1L;
@@ -86,5 +63,41 @@ public class HeartRestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    @DisplayName("음식점 즐겨찾기 추가 토글 테스트 - 즐겨찾기 추가")
+    @Test
+    public void testToggleHeart_Add() throws Exception {
+        Long mockStoreId = 1L;
+        String mockEmail = "nstgic3@gmail.com";
+
+        when(likeStoreService.toggleHeartForStore(mockStoreId, mockEmail)).thenReturn(true);
+
+        UserPrincipal userPrincipal = new UserPrincipal(null, mockEmail, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+
+        mockMvc.perform(post("/stores/" + mockStoreId + "/like")
+                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value("즐겨찾기 성공"));
+    }
+
+    @DisplayName("음식점 즐겨찾기 추가 토글 테스트 - 즐겨찾기 해제")
+    @Test
+    public void testToggleHeart_Remove() throws Exception {
+        Long mockStoreId = 1L;
+        String mockEmail = "nstgic3@gmail.com";
+
+        when(likeStoreService.toggleHeartForStore(mockStoreId, mockEmail)).thenReturn(false);
+
+        UserPrincipal userPrincipal = new UserPrincipal(null, mockEmail, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+
+        mockMvc.perform(post("/stores/" + mockStoreId + "/like")
+                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value("즐겨찾기 취소 성공"));
+    }
+
+
 
 }
