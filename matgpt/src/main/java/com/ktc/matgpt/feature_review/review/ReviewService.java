@@ -1,20 +1,19 @@
 package com.ktc.matgpt.feature_review.review;
 
-import com.ktc.matgpt.feature_review.food.Food;
-import com.ktc.matgpt.feature_review.food.FoodService;
+import com.ktc.matgpt.food.Food;
+import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.feature_review.image.Image;
-import com.ktc.matgpt.feature_review.image.ImageJPARepository;
 import com.ktc.matgpt.feature_review.image.ImageService;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import com.ktc.matgpt.feature_review.review.dto.ReviewResponse;
 import com.ktc.matgpt.feature_review.review.entity.Review;
 import com.ktc.matgpt.feature_review.s3.S3Service;
 import com.ktc.matgpt.feature_review.tag.Tag;
-import com.ktc.matgpt.feature_review.tag.TagJPARepository;
 import com.ktc.matgpt.feature_review.tag.TagService;
 import com.ktc.matgpt.store.Store;
+import com.ktc.matgpt.store.StoreService;
 import com.ktc.matgpt.user.entity.User;
-import com.ktc.matgpt.user.repository.UserRepository;
+import com.ktc.matgpt.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -24,8 +23,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.script.ScriptException;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,11 +37,10 @@ public class ReviewService {
     private final ReviewJPARepository reviewJPARepository;
     private final S3Service s3Service;
     private final ImageService imageService;
-    private final ImageJPARepository imageJPARepository;
     private final FoodService foodService;
     private final TagService tagService;
-    private final TagJPARepository tagJPARepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final StoreService storeService;
     private final MessageSourceAccessor messageSourceAccessor;
 
     private final int DEFAULT_PAGE_SIZE = 5;
@@ -52,34 +51,37 @@ public class ReviewService {
     final static Long MONTH = WEEK*4;
     final static Long YEAR = MONTH*12;
 
-    @Transactional
-    public Long create(Long userId, Store store, ReviewRequest.CreateDTO requestDTO/*, MultipartFile file*/) {
-        int visitCount = requestDTO.getPeopleCount();
-        Review review = Review.builder()
-                .userId(userId)
-                .store(store)
-                .content(requestDTO.getContent())
-                .rating(requestDTO.getRating())
-                .peopleCount(requestDTO.getPeopleCount())
-                .totalPrice(requestDTO.getTotalPrice())
-                .costPerPerson(requestDTO.getTotalPrice() / visitCount)
-                .build();
 
+    public ReviewResponse.UploadS3DTO createReview(Long userId, Long storeId, ReviewRequest.CreateDTO requestDTO) {
+
+        //Store 프록시객체
+        Store storeRef = storeService.getReferenceById(storeId);
+
+        // 리뷰 데이터 저장
+        Review review = Review.create(userId, storeRef, requestDTO.getContent(), requestDTO.getRating(), requestDTO.getPeopleCount(), requestDTO.getTotalPrice());
         reviewJPARepository.save(review);
-        if (requestDTO.getReviewImages().isEmpty()) return review.getId();
 
+        // presigned URL 생성
+        List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = new ArrayList<>();
         for (ReviewRequest.CreateDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
-            // TODO: s3 업로드 구현
-//            String imageUrl = s3Service.save(imageDTO.getImage());
-            Image image = imageService.save(imageDTO, review/*, imageUrl*/);
-            if (imageDTO.getTags().isEmpty()) return review.getId();
+            String objectKey = generateObjectKey(review, imageDTO.getImage());
+            URL presignedUrl = s3Service.getPresignedUrl(objectKey);
 
-            for (ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
-                Food food = foodService.save(tagDTO);
-                tagService.save(image, food, tagDTO);
-            }
+            presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(objectKey, presignedUrl));
         }
-        return review.getId();
+
+        return new ReviewResponse.UploadS3DTO(review.getId(), presignedUrls);
+    }
+
+    private String generateObjectKey(Review review, MultipartFile image) {
+        return String.format("reviews/%d/%s", review.getId(), image.getOriginalFilename());
+    }
+
+    private void saveTagsForImage(Image image, ReviewRequest.CreateDTO.ImageDTO imageDTO, Store store) {
+        for (ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
+            Food food = foodService.saveOrUpdateFoodByTag(tagDTO, store.getId());
+            tagService.saveTag(image, food, tagDTO);
+        }
     }
 
 
@@ -97,7 +99,7 @@ public class ReviewService {
     }
 
 
-    public ReviewResponse.FindByReviewIdDTO findByReviewId(Long reviewId) {
+    public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId) {
 
         Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
                 () -> new NoSuchElementException("reviewId-" + reviewId + ": 리뷰를 찾을 수 없습니다.")
@@ -105,14 +107,14 @@ public class ReviewService {
 
         ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO = getReviewerDTO(review);
 
-        List<Image> images = imageJPARepository.findAllByReviewId(reviewId);
+        List<Image> images = imageService.getImagesByReviewId(reviewId);
         if (images.isEmpty()) log.info("review-" + review.getId() + "리뷰에 등록된 이미지가 없습니다.");
 
 
         List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = new ArrayList<>();
 
         for (Image image : images) {
-            List<Tag> tags = tagJPARepository.findAllByImageId(image.getId());
+            List<Tag> tags = tagService.getTagsByImageId(image.getId());
             if (tags.isEmpty()) log.info("image-" + image.getId() + ": 이미지에 등록된 태그가 없습니다.");
 
             imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
@@ -135,7 +137,7 @@ public class ReviewService {
 
         List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = new ArrayList<>();
         for (Review review : reviews) {
-            List<String> imageUrls = imageJPARepository.findAllImagesByReviewId(review.getId());
+            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
 
             if (imageUrls.isEmpty()) {
                 log.info("review-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
@@ -169,7 +171,7 @@ public class ReviewService {
         List<ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO> reviewDTOs = new ArrayList<>();
 
         for (Review review : reviews) {
-            List<String> imageUrls = imageJPARepository.findAllImagesByReviewId(review.getId());
+            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
             if (imageUrls.isEmpty()) {
                 log.info("reviewId-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
             }
@@ -189,16 +191,14 @@ public class ReviewService {
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
         }
-        imageService.deleteAll(reviewId);
+        imageService.deleteImagesByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
     }
 
 
 
     private ReviewResponse.FindByReviewIdDTO.ReviewerDTO getReviewerDTO(Review review) {
-        User user = userRepository.findById(review.getUserId()).orElseThrow(
-                () -> new NoSuchElementException("리뷰 작성자를 불러올 수 없습니다. 등록되지 않은 사용자입니다.")
-        );
+        User user = userService.findById(review.getUserId());
 
         return ReviewResponse.FindByReviewIdDTO.ReviewerDTO.builder()
                         .userName(user.getName())
