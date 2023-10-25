@@ -1,14 +1,11 @@
-package com.ktc.matgpt.feature_review.food;
+package com.ktc.matgpt.food;
 
-import com.ktc.matgpt.feature_review.food.dto.FoodDTO;
+import com.ktc.matgpt.food.dto.FoodDTO;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 

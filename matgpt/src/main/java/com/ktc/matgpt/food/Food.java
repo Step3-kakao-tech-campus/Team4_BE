@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.food;
+package com.ktc.matgpt.food;
 
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.utils.BaseTimeEntity;

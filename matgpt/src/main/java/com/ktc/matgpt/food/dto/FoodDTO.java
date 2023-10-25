@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.food.dto;
+package com.ktc.matgpt.food.dto;
 
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import lombok.AllArgsConstructor;

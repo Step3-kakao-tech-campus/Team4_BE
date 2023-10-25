@@ -1,10 +1,9 @@
-package com.ktc.matgpt.feature_review.food;
+package com.ktc.matgpt.food;
 
-import com.ktc.matgpt.feature_review.food.dto.FoodDTO;
+import com.ktc.matgpt.food.dto.FoodDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
