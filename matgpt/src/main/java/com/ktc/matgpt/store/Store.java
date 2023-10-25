@@ -59,5 +59,20 @@ public class Store {
     @Column(nullable = false)
     private double ratingAvg;
 
+    public void addReview(double rating) {
+        this.ratingAvg = (this.ratingAvg * this.numsOfReview + rating) / (this.numsOfReview + 1);
+        this.numsOfReview++;
+    }
+
+    public void removeReview(double rating) {
+        if (this.numsOfReview == 1) {
+            this.ratingAvg = 0;
+            this.numsOfReview--;
+            return;
+        }
+        this.ratingAvg = (this.ratingAvg * this.numsOfReview - rating) / (this.numsOfReview - 1);
+        this.numsOfReview--;
+    }
+
 
 }
