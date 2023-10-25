@@ -1,11 +1,10 @@
-package com.ktc.matgpt.feature_review.review;
+package com.ktc.matgpt.review;
 
-import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
-import com.ktc.matgpt.feature_review.review.dto.ReviewResponse;
-import com.ktc.matgpt.feature_review.s3.S3Service;
+import com.ktc.matgpt.review.dto.ReviewRequest;
+import com.ktc.matgpt.review.dto.ReviewResponse;
+import com.ktc.matgpt.aws.S3Service;
 import com.ktc.matgpt.feature_review.utils.ApiUtils;
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

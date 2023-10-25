@@ -1,7 +1,7 @@
-package com.ktc.matgpt.feature_review.review.mypage;
+package com.ktc.matgpt.review.mypage;
 
-import com.ktc.matgpt.feature_review.review.ReviewService;
-import com.ktc.matgpt.feature_review.review.dto.ReviewResponse;
+import com.ktc.matgpt.review.ReviewService;
+import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.feature_review.utils.ApiUtils;
 import com.ktc.matgpt.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-
 
 
 @RequestMapping("/mypage")

@@ -1,8 +1,8 @@
-package com.ktc.matgpt.feature_review.image;
+package com.ktc.matgpt.image;
 
-import com.ktc.matgpt.feature_review.review.entity.Review;
-import com.ktc.matgpt.feature_review.s3.S3Service;
-import com.ktc.matgpt.feature_review.tag.TagService;
+import com.ktc.matgpt.review.entity.Review;
+import com.ktc.matgpt.aws.S3Service;
+import com.ktc.matgpt.tag.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

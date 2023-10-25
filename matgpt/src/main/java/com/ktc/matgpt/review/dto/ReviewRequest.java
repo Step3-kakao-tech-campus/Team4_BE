@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.review.dto;
+package com.ktc.matgpt.review.dto;
 
 import jakarta.validation.constraints.Min;
 import lombok.*;

@@ -1,8 +1,8 @@
-package com.ktc.matgpt.feature_review.tag;
+package com.ktc.matgpt.tag;
 
 import com.ktc.matgpt.food.Food;
-import com.ktc.matgpt.feature_review.image.Image;
-import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
+import com.ktc.matgpt.image.Image;
+import com.ktc.matgpt.review.dto.ReviewRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

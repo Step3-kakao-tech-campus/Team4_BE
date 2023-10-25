@@ -1,10 +1,9 @@
-package com.ktc.matgpt.feature_review.tag;
+package com.ktc.matgpt.tag;
 
 import com.ktc.matgpt.food.Food;
-import com.ktc.matgpt.feature_review.image.Image;
+import com.ktc.matgpt.image.Image;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;

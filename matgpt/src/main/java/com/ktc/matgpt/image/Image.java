@@ -1,6 +1,6 @@
-package com.ktc.matgpt.feature_review.image;
+package com.ktc.matgpt.image;
 
-import com.ktc.matgpt.feature_review.review.entity.Review;
+import com.ktc.matgpt.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

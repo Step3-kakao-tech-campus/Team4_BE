@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.s3;
+package com.ktc.matgpt.aws;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

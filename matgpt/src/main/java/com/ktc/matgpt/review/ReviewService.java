@@ -1,15 +1,15 @@
-package com.ktc.matgpt.feature_review.review;
+package com.ktc.matgpt.review;
 
 import com.ktc.matgpt.food.Food;
 import com.ktc.matgpt.food.FoodService;
-import com.ktc.matgpt.feature_review.image.Image;
-import com.ktc.matgpt.feature_review.image.ImageService;
-import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
-import com.ktc.matgpt.feature_review.review.dto.ReviewResponse;
-import com.ktc.matgpt.feature_review.review.entity.Review;
-import com.ktc.matgpt.feature_review.s3.S3Service;
-import com.ktc.matgpt.feature_review.tag.Tag;
-import com.ktc.matgpt.feature_review.tag.TagService;
+import com.ktc.matgpt.image.Image;
+import com.ktc.matgpt.image.ImageService;
+import com.ktc.matgpt.review.dto.ReviewRequest;
+import com.ktc.matgpt.review.dto.ReviewResponse;
+import com.ktc.matgpt.review.entity.Review;
+import com.ktc.matgpt.aws.S3Service;
+import com.ktc.matgpt.tag.Tag;
+import com.ktc.matgpt.tag.TagService;
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
 import com.ktc.matgpt.user.entity.User;

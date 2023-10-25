@@ -1,8 +1,8 @@
-package com.ktc.matgpt.feature_review.review.dto;
+package com.ktc.matgpt.review.dto;
 
-import com.ktc.matgpt.feature_review.image.Image;
-import com.ktc.matgpt.feature_review.review.entity.Review;
-import com.ktc.matgpt.feature_review.tag.Tag;
+import com.ktc.matgpt.image.Image;
+import com.ktc.matgpt.review.entity.Review;
+import com.ktc.matgpt.tag.Tag;
 import lombok.*;
 import org.springframework.data.domain.Page;
 

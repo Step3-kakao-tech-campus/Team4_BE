@@ -1,6 +1,6 @@
 package com.ktc.matgpt.chatgpt.dto;
 
-import com.ktc.matgpt.feature_review.review.entity.Review;
+import com.ktc.matgpt.review.entity.Review;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;

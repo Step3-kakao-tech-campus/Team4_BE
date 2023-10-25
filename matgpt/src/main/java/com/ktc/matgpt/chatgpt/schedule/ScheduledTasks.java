@@ -1,9 +1,7 @@
 package com.ktc.matgpt.chatgpt.schedule;
 
 import com.ktc.matgpt.chatgpt.annotation.Timer;
-import com.ktc.matgpt.chatgpt.entity.GptReview;
 import com.ktc.matgpt.chatgpt.service.GptService;
-import com.ktc.matgpt.feature_review.review.ReviewService;
 import com.ktc.matgpt.store.StoreResponse;
 import com.ktc.matgpt.store.StoreService;
 import lombok.RequiredArgsConstructor;
