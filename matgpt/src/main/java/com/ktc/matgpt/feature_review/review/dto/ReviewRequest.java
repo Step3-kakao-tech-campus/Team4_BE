@@ -32,7 +32,7 @@ public class ReviewRequest {
         @ToString
         @NoArgsConstructor(force = true)
         public static class ImageDTO {
-//            private MultipartFile image;
+            private MultipartFile image;
             private String imageUrl;
             private List<TagDTO> tags;
 
@@ -40,8 +40,8 @@ public class ReviewRequest {
             @ToString
             public static class TagDTO {
                 private String name;
-                private int location_x;
-                private int location_y;
+                private int locationX;
+                private int locationY;
                 private double rating;
             }
         }
