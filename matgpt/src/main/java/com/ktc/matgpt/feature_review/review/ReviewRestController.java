@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +27,9 @@ public class ReviewRestController {
     @PostMapping("")        // request를 이미지 파일이 아닌 이미지 url으로 받음
     public ResponseEntity<?> create(@PathVariable Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO, @AuthenticationPrincipal UserPrincipal userPrincipal
             /*@RequestPart("key") ReviewRequest.CreateDTO requestDTO, @RequestPart(value = "file", required = false) MultipartFile file*/) {
+        ReviewResponse.UploadS3DTO uploadS3DTO = reviewService.createReview(userPrincipal.getId(), storeId, requestDTO);
 
-        Store store = storeService.findById(storeId);
-        Long createdId = reviewService.create(userPrincipal.getId(), store, requestDTO/*, file*/);
-        String msg = "review-" + createdId + "(of store-" + storeId + ") created";
-
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
+        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(uploadS3DTO);
         return ResponseEntity.ok(apiResult);
     }
 
@@ -68,7 +64,7 @@ public class ReviewRestController {
     // 개별 리뷰 상세조회
     @GetMapping("/{reviewId}")
     public ResponseEntity<?> findById(@PathVariable Long reviewId) {
-        ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findByReviewId(reviewId);
+        ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findDetailByReviewId(reviewId);
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTO);
         return ResponseEntity.ok(apiResult);
