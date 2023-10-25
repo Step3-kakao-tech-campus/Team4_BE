@@ -1,33 +1,53 @@
 package com.ktc.matgpt.feature_review.food;
 
+import com.ktc.matgpt.feature_review.food.dto.FoodDTO;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
+import com.ktc.matgpt.store.Store;
+import com.ktc.matgpt.store.StoreService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class FoodService {
     private final FoodJPARepository foodJPARepository;
-    public Food save(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
+    private final StoreService storeService;
+
+    public Food saveOrUpdateFoodByTag(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO, Long storeId) {
         return foodJPARepository.findByFoodName(tagDTO.getName())
                 .map(food -> {
-                    food.updateReviewIncrease(tagDTO.getRating());
+                    updateFoodRating(food, tagDTO.getRating());
                     return food;
-                }
-        ).orElse(create(tagDTO));
+                })
+                .orElseGet(() -> addFoodToStore(storeId,new FoodDTO.CreateDTO(tagDTO.getName(),"")));
     }
 
-    public Food create(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
-        Food newFood = Food.builder()
-                .foodName(tagDTO.getName())
-                .reviewCount(1)
-                .averageRating(tagDTO.getRating())
-                .build();
-        return foodJPARepository.save(newFood);
+    private void updateFoodRating(Food food, double newRating) {
+        food.updateReview(food.getTotalRating(), newRating);
     }
 
+    public void deleteFoodByTag(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
+        foodJPARepository.findByFoodName(tagDTO.getName())
+                .ifPresent(food -> {food.removeReview(tagDTO.getRating());});
+    }
+
+
+    public List<Food> getFoodsByStore(Long storeId) {
+        return foodJPARepository.findByStoreId(storeId);
+    }
+
+    public List<Food> getRecentlySearchedFoodsByStore(Long storeId) {
+        return foodJPARepository.findTop10ByStoreIdOrderByCreatedAtDesc(storeId);
+    }
+
+
+    public Food addFoodToStore(Long storeId,FoodDTO.CreateDTO dto) {
+        Store store = storeService.findById(storeId);
+        return foodJPARepository.save(Food.create(dto.getFoodName(),dto.getFoodDescription(),store));
+    }
 }
