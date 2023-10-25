@@ -2,6 +2,8 @@ package com.ktc.matgpt.store;
 
 
 
+import com.ktc.matgpt.feature_review.food.Food;
+import com.ktc.matgpt.feature_review.food.FoodService;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
@@ -9,23 +11,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/store")
 public class StoreRestController {
     private final StoreService storeService;
+    private final FoodService foodService;
     private static final int PAGE_DEFAULT_SIZE = 5;
     private static final int MY_PAGE_DEFAULT_SIZE = 4;
 
 
-    @GetMapping("/stores/all")
+    @GetMapping("/all")
     public ResponseEntity<?> findAll(@RequestParam(value ="lati") double latitude ,
                                      @RequestParam(value = "longi") double longitude ,
                                      @RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -79,6 +80,14 @@ public class StoreRestController {
         StoreResponse.FindByIdStoreDTO responseDTO = storeService.getStoreDtoById(id);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTO);
         return ResponseEntity.ok(apiResult);
+    }
+
+    // 검색 기록을 통해 해당 음식점에서 최근 검색된 음식 리스트를 반환하는 로직
+    // 예시로는 단순히 최근에 생성된 음식을 반환합니다.
+    @GetMapping("/{storeId}/recentlySearchedFoods")
+    public ResponseEntity<List<Food>> getRecentlySearchedFoodsByStore(@PathVariable Long storeId) {
+        List<Food> recentlySearchedFoods = foodService.getRecentlySearchedFoodsByStore(storeId);
+        return ResponseEntity.ok(recentlySearchedFoods);
     }
 
 }

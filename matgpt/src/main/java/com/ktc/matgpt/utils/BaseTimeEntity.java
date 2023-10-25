@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.review.entity;
+package com.ktc.matgpt.utils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
