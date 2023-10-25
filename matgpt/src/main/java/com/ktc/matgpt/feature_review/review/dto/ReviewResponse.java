@@ -6,11 +6,37 @@ import com.ktc.matgpt.feature_review.tag.Tag;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ReviewResponse {
+
+    @Getter
+    @ToString
+    public static class UploadS3DTO {
+        private Long reviewId;
+        private List<PresignedUrlDTO> presignedUrls;
+
+        public UploadS3DTO(Long reviewId, List<PresignedUrlDTO> presignedUrls) {
+            this.reviewId = reviewId;
+            this.presignedUrls = presignedUrls;
+        }
+
+        @Getter
+        @ToString
+        public static class PresignedUrlDTO {
+            private String objectKey;
+            private URL presignedUrl;
+
+            @Builder
+            public PresignedUrlDTO(String objectKey, URL presignedUrl) {
+                this.objectKey = objectKey;
+                this.presignedUrl = presignedUrl;
+            }
+        }
+    }
 
 
     @Getter
@@ -80,10 +106,10 @@ public class ReviewResponse {
                 private double rating;
 
                 public TagDTO(Tag tag) {
-                    this.name = tag.getMenu_name();
-                    this.location_x = tag.getLocation_x();
-                    this.location_y = tag.getLocation_y();
-                    this.rating = tag.getMenu_rating();
+                    this.name = tag.getFood().getFoodName();
+                    this.location_x = tag.getLocationX();
+                    this.location_y = tag.getLocationY();
+                    this.rating = tag.getFood().getAverageRating();
                 }
             }
         }
