@@ -1,6 +1,6 @@
 package com.ktc.matgpt.chatgpt.entity;
 
-import com.ktc.matgpt.feature_review.review.entity.BaseTimeEntity;
+import com.ktc.matgpt.utils.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
