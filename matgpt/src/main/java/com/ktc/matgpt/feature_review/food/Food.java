@@ -1,21 +1,25 @@
 package com.ktc.matgpt.feature_review.food;
 
-import com.ktc.matgpt.feature_review.review.entity.BaseTimeEntity;
+import com.ktc.matgpt.store.Store;
+import com.ktc.matgpt.utils.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-//@AllArgsConstructor
-//@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "food_tb")
 public class Food extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     @Column(nullable = false)
     private String foodName;
@@ -27,25 +31,41 @@ public class Food extends BaseTimeEntity {
     private int reviewCount;
 
     @Column
-    private double averageRating;
+    private double totalRating;
+
+    private Food(String foodName, String foodDescription) {
+        this.foodName = foodName;
+        this.foodDescription = foodDescription;
+    }
 
     @Builder
-    public Food(String foodName, int reviewCount, double averageRating) {
-        this.foodName = foodName;
-        this.reviewCount = reviewCount;
-        this.averageRating = averageRating;
-    }
-    public void updateReviewIncrease(double addRating) {
-        reviewCount++;
-        averageRating = (averageRating * reviewCount + addRating) / reviewCount;
+    public static Food create(String foodName, String foodDescription, Store store) {
+        Food food = new Food(foodName, foodDescription);
+        food.store = store;
+        return food;
     }
 
-    public void updateReviewDecrease(double subRating) {
-        if (reviewCount == 1) {
-            reviewCount--;
-            averageRating = 0;
-        }
-        averageRating = (reviewCount * averageRating - subRating) / (reviewCount-1);
-        reviewCount--;
+    // 소숫점 두자리로 반환
+    public double getAverageRating() {
+        return reviewCount == 0 ? 0 : Math.round((totalRating / reviewCount) * 100) / 100.0;
     }
+
+    public void addReview(double rating) {
+        this.totalRating += rating;
+        this.reviewCount++;
+    }
+
+
+    public void removeReview(double oldRating) {
+        if (this.reviewCount == 0) return;
+        this.totalRating -= oldRating;
+        this.reviewCount--;
+    }
+
+    public void updateReview(double oldRating, double newRating) {
+        this.removeReview(oldRating);
+        this.addReview(newRating);
+    }
+
+
 }
