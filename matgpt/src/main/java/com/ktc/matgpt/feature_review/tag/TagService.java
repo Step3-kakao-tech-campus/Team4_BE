@@ -1,6 +1,6 @@
 package com.ktc.matgpt.feature_review.tag;
 
-import com.ktc.matgpt.feature_review.food.Food;
+import com.ktc.matgpt.food.Food;
 import com.ktc.matgpt.feature_review.image.Image;
 import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
 import lombok.RequiredArgsConstructor;
@@ -16,32 +16,42 @@ import java.util.List;
 public class TagService {
     private final TagJPARepository tagJPARepository;
 
-    public Tag save(Image image, Food food, ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
-        Tag tag = Tag.builder()
-                .image(image)
-                .food(food)
-                .menu_name(tagDTO.getName())
-                .menu_rating(tagDTO.getRating())
-                .location_x(tagDTO.getLocation_x())
-                .location_y(tagDTO.getLocation_y())
-                .build();
+    @Transactional
+    public Tag saveTag(Image image, Food food, ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
+        Tag tag = Tag.create(image,food, tagDTO.getRating(), tagDTO.getLocationX(),tagDTO.getLocationY());
         tagJPARepository.save(tag);
-
         return tag;
     }
 
+
     @Transactional
-    public void deleteAll(Long imageId) {
-        List<Tag> tags = tagJPARepository.findAllByImageId(imageId);
+    public void deleteTagsByImageId(Long imageId) {
+        List<Tag> tags = getTagsByImageId(imageId);
+
         if (tags.isEmpty()) {
-            log.info("image-" + imageId + ": 해당 이미지에 삭제할 태그가 없습니다.");
+            log.info("image-%d: 해당 이미지에 삭제할 태그가 없습니다.", imageId);
             return;
         }
 
+        deleteTagsAndRelatedReviews(tags);
+    }
+
+    public List<Tag> getTagsByImageId(Long imageId) {
+        return tagJPARepository.findAllByImageId(imageId);
+    }
+
+
+    private void deleteTagsAndRelatedReviews(List<Tag> tags) {
         for (Tag tag : tags) {
-            Food food = tag.getFood();
-            food.updateReviewDecrease(tag.getMenu_rating());
+            removeReviewFromFood(tag);
             tagJPARepository.delete(tag);
         }
     }
+
+    private void removeReviewFromFood(Tag tag) {
+        Food food = tag.getFood();
+        food.removeReview(tag.getMenuRating());
+    }
+
+
 }
