@@ -1,19 +1,19 @@
 package com.ktc.matgpt.feature_review.review.entity;
 
 import com.ktc.matgpt.store.Store;
+import com.ktc.matgpt.utils.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 @Getter
-@NoArgsConstructor
-//@AllArgsConstructor
-//@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review_tb")
 public class Review extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,22 +43,34 @@ public class Review extends BaseTimeEntity {
     @Column(updatable = false)
     private int recommendCount = 0;
 
-    @Builder
     public Review(Store store, Long userId, String content, double rating,
-                  int peopleCount, int totalPrice, int costPerPerson) {
+                  int peopleCount, int totalPrice) {
         this.store = store;
         this.userId = userId;
         this.content = content;
         this.rating = rating;
         this.peopleCount = peopleCount;
         this.totalPrice = totalPrice;
-        this.costPerPerson = costPerPerson;
+        this.costPerPerson = totalPrice / peopleCount;
     }
+
+    public static Review create(Long userId, Store store, String content, double rating, int peopleCount, int totalPrice) {
+        return new Review(store, userId, content, rating, peopleCount, totalPrice);
+    }
+
 
     public void updateContent(String content) {
         this.content = content;
     }
 
-    public void plusRecommendCount() { this.recommendCount++; }
-    public void minusRecommendCount() { this.recommendCount--; }
+    public void plusRecommendCount() {
+        this.recommendCount++;
+    }
+
+    public void minusRecommendCount() {
+        if (this.recommendCount > 0) {
+            this.recommendCount--;
+        }
+    }
+
 }
