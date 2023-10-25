@@ -30,12 +30,13 @@ public class LikeStore {
     @JoinColumn(name="store_id")
     private Store store;
 
+    private LikeStore(User user, Store store){
+        this.user = user;
+        this.store = store;
+    }
     @Builder
     public static LikeStore create(User user, Store store) {
-        LikeStore likeStore = new LikeStore();
-        likeStore.setUser(user);
-        likeStore.setStore(store);
-        return likeStore;
+        return new LikeStore(user,store);
     }
 
 }
