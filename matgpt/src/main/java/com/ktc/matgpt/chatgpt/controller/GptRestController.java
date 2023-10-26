@@ -1,16 +1,14 @@
 package com.ktc.matgpt.chatgpt.controller;
 
-import com.ktc.matgpt.chatgpt.annotation.Timer;
 import com.ktc.matgpt.chatgpt.service.GptService;
-import com.ktc.matgpt.feature_review.utils.ApiUtils;
-import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.store.Store;
-import com.ktc.matgpt.store.StoreService;
+import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,14 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class GptRestController {
 
     private final GptService gptService;
-    private final StoreService storeService;
 
-    @Timer
     @PostMapping("/store/{storeId}/review")
-    public ResponseEntity<?> generateReviewSummary(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                   @PathVariable Long storeId) {
-        gptService.generateReviewSummary(storeId);
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success("success");
+    public ResponseEntity<?> generateReviewSummary(@PathVariable Long storeId) throws ExecutionException, InterruptedException {
+        gptService.generateReviewSummarys(storeId);
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success("success");
         return ResponseEntity.ok().body(apiResult);
     }
 
@@ -34,15 +29,16 @@ public class GptRestController {
     public ResponseEntity<?> getBestReviewSummary(@PathVariable(value="storeId") Long storeId,
                                                   @PathVariable(value="summaryType") String summaryType) {
         String content = gptService.findReviewSummaryByStoreIdAndSummaryType(storeId, summaryType);
-        return ResponseEntity.ok().body(ApiUtils.success(content));
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(content);
+        return ResponseEntity.ok().body(apiResult);
     }
 
-    @Timer
     @PostMapping("/order")
-    public ResponseEntity<?> generateOrderGuidance(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Long userId = userPrincipal.getId();
+    public ResponseEntity<?> generateOrderGuidance(/*@AuthenticationPrincipal UserPrincipal userPrincipal*/) throws ExecutionException, InterruptedException {
+//        Long userId = userPrincipal.getId();
+        Long userId = 1L;
         String content = gptService.generateOrderGuidance(userId);
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(content);
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(content);
         return ResponseEntity.ok().body(apiResult);
     }
 }

@@ -62,6 +62,12 @@ public class StoreService {
         return responseDTOs;
     }
 
+    public List<StoreResponse.FindAllDTO> findAll() {
+        return storeJPARepository.findAll().stream()
+                .map(StoreResponse.FindAllDTO::new)
+                .toList();
+    }
+
 
     private List<Store> getStoreListById(Long id, Pageable page , String search) {
         return id.equals(0L)

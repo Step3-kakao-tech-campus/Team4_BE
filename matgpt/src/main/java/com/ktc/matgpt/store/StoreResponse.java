@@ -11,6 +11,20 @@ public class StoreResponse {
 
     @Getter
     @Setter
+    public static class FindAllDTO {
+        private Long storeId;
+        private String storeName;
+        private int numsOfReview;
+
+        public FindAllDTO(Store store) {
+            this.storeId = store.getId();
+            this.storeName = store.getName();
+            this.numsOfReview = store.getNumsOfReview();
+        }
+    }
+
+    @Getter
+    @Setter
     public static class FindAllStoreDTO {
         private Long storeId;
         private String storeName;
