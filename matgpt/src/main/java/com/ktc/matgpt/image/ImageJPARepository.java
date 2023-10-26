@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.image;
+package com.ktc.matgpt.image;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

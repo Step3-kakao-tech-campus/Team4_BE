@@ -2,19 +2,17 @@ package com.ktc.matgpt.store;
 
 
 
-import com.ktc.matgpt.feature_review.food.Food;
-import com.ktc.matgpt.feature_review.food.FoodService;
+import com.ktc.matgpt.food.Food;
+import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController

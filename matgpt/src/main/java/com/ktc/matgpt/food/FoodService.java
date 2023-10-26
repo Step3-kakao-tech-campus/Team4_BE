@@ -1,7 +1,7 @@
 package com.ktc.matgpt.food;
 
 import com.ktc.matgpt.food.dto.FoodDTO;
-import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
+import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +28,11 @@ public class FoodService {
         food.updateReview(food.getTotalRating(), newRating);
     }
 
-    public void deleteFoodByTag(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
+    public void removeRatingByTagName(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
         foodJPARepository.findByFoodName(tagDTO.getName())
-                .ifPresent(food -> {food.removeReview(tagDTO.getRating());});
+                .ifPresent(food -> food.removeReview(tagDTO.getRating()));
     }
+
 
 
     public List<Food> getFoodsByStore(Long storeId) {

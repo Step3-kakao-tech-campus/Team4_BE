@@ -1,7 +1,5 @@
 package com.ktc.matgpt.food.dto;
 
-import com.ktc.matgpt.feature_review.review.dto.ReviewRequest;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 

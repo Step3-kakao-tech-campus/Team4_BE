@@ -1,7 +1,8 @@
-package com.ktc.matgpt.feature_review.image;
+package com.ktc.matgpt.image;
 
-import com.ktc.matgpt.feature_review.review.entity.Review;
+import com.ktc.matgpt.review.entity.Review;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,9 +10,7 @@ import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 @Getter
-@NoArgsConstructor
-//@AllArgsConstructor
-//@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "image_tb")
 public class Image {
     @Id
@@ -25,9 +24,19 @@ public class Image {
     @Column(nullable = false)
     private String url;
 
-    @Builder
     public Image(Review review, String url) {
         this.review = review;
         this.url = url;
     }
+
+    @Builder
+    public static Image create(Review review, String url) {
+        return new Image(review, url);
+    }
+
+    public void setReview(Review review) {
+        this.review = review;
+    }
+
+
 }

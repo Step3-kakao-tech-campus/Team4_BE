@@ -1,4 +1,4 @@
-package com.ktc.matgpt.feature_review.tag;
+package com.ktc.matgpt.tag;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
