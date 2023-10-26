@@ -7,17 +7,24 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @Slf4j
-public record GptResponse(int created, List<Choice> choices, Usage usage) {
+public record GptResponse(@JsonProperty("created") int created,
+                          @JsonProperty("choices") List<Choice> choices,
+                          @JsonProperty("usage") Usage usage,
+                          @JsonProperty("id") String id,
+                          @JsonProperty("model") String model,
+                          @JsonProperty("object") String object) {
 
     public record Choice(@JsonProperty("finish_reason") FinishReason finishReason,
                          @JsonProperty("index") int index,
                          @JsonProperty("message") Message message) {
 
-        public record Message(String role, String content) {}
+        public record Message(@JsonProperty("role") String role,
+                              @JsonProperty("content") String content) {}
     }
 
     public record Usage(@JsonProperty("prompt_tokens") int promptTokens,
-                        @JsonProperty("completion_tokens") int completionTokens) {}
+                        @JsonProperty("completion_tokens") int completionTokens,
+                        @JsonProperty("total_tokens") int totalTokens) {}
 
     public String getContent() {
         return this.choices().get(0).message().content();

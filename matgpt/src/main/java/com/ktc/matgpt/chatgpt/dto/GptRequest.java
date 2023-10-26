@@ -13,18 +13,19 @@ import static com.ktc.matgpt.chatgpt.dto.GptResponse.Choice.Message;
  * max_tokens – is used to limit the maximum number of tokens in the response. The default value is infinity which means that the response will be as long as the model can generate. Generally, it would be a good idea to set this value to a reasonable number to avoid generating very long responses and incurring a high cost.
  */
 public record GptRequest(@JsonProperty("model") String modelType,
-                         List<Message> messages,
+                         @JsonProperty("messages") List<Message> messages,
                          @JsonProperty("n") int numberOfResponses,
                          @JsonProperty("temperature") double randomnessOfResponse,
                          @JsonProperty("max_tokens") int maxTokens) {
 
-    public static final int NUMBER_OF_RESPONSES = 1;
-    public static final double RANDOMNESS_OF_RESPONSE = 1.0;
-    public static final int MAX_TOKENS = 100;
-    public static final String MESSAGE_ROLE = "user";
+    private static final int NUMBER_OF_RESPONSES = 1;
+    private static final double RANDOMNESS_OF_RESPONSE = 1.0;
+    private static final int MAX_TOKENS = 100;
+    private static final String MESSAGE_ROLE = "user";
+    private static final String MODEL_TYPE = "gpt-3.5-turbo";
 
-    public GptRequest(String modelType, String content) {
-        this(modelType,
+    public GptRequest(String content) {
+        this(MODEL_TYPE,
                 new ArrayList<>(List.of(new Message(MESSAGE_ROLE, content))),
                 NUMBER_OF_RESPONSES,
                 RANDOMNESS_OF_RESPONSE,
