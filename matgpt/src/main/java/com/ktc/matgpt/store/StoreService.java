@@ -1,16 +1,16 @@
 package com.ktc.matgpt.store;
 
 
-import com.ktc.matgpt.user.entity.User;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -85,13 +85,13 @@ public class StoreService {
 
     public Store findById(Long id) {
         return storeJPARepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다."));
+                () -> new CustomException(ErrorCode.STORE_NOT_FOUND));
     }
 
 
     public StoreResponse.FindByIdStoreDTO getStoreDtoById(Long id) {
         Store storePS = storeJPARepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException ("해당 매장을 찾을 수 없습니다.")
+                () -> new CustomException(ErrorCode.STORE_NOT_FOUND)
         );
         return new StoreResponse.FindByIdStoreDTO(storePS);
     }
@@ -101,7 +101,10 @@ public class StoreService {
     }
 
     public Store getReferenceById(Long storeId) {
-        // 실제 엔터티를 로드하지 않고, 프록시 객체를 반환
-        return entityManager.getReference(Store.class, storeId);
+        try {
+            return entityManager.getReference(Store.class, storeId);
+        } catch (EntityNotFoundException e) {
+            throw new CustomException(ErrorCode.STORE_NOT_FOUND);
+        }
     }
 }
