@@ -52,7 +52,29 @@ public class ReviewService {
     final static Long YEAR = MONTH*12;
 
 
-    public ReviewResponse.UploadS3DTO createReview(Long userId, Long storeId, ReviewRequest.CreateDTO requestDTO) {
+    public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO) {
+        // 이미지 업로드 완료 후 리뷰, 이미지, 태그 정보 저장 로직
+        // 이 로직은 이미지 업로드가 완료된 후 호출됩니다.
+
+        //Store 프록시객체
+        Store storeRef = storeService.getReferenceById(storeId);
+        Review review = findReviewByIdOrThrow(reviewId);
+
+        for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
+            Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
+            saveTagsForImage(image, imageDTO, storeRef); // 태그 저장
+        }
+    }
+
+    private void saveTagsForImage(Image image, ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO, Store store) {
+        for (ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
+            Food food = foodService.saveOrUpdateFoodByTag(tagDTO, store.getId()); //TODO: 태그에 들어갈 음식 검색하고 추가하는 로직
+            tagService.saveTag(image, food, tagDTO);
+        }
+    }
+
+    // 리뷰 생성 메서드
+    public Long createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
 
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
