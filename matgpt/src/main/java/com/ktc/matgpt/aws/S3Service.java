@@ -20,7 +20,7 @@ public class S3Service {
 
     public URL getPresignedUrl(String objectKey) {
         Date expiration = new Date();
-        long expTimeMillis = expiration.getTime() + 1000 * 60 * 60;;
+        long expTimeMillis = expiration.getTime() + 1000 * 60 * 60;
         expiration.setTime(expTimeMillis);
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
