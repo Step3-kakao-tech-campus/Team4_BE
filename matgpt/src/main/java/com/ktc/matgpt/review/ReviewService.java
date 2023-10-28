@@ -234,17 +234,21 @@ public class ReviewService {
                         .build();
     }
 
-
-    private String getRelativeTime(LocalDateTime time) {//TODO: Locale 이슈
+    //TODO: Locale 이슈
+    private String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
         long seconds = duration.getSeconds();
-
         TimeUnit unit = TimeUnit.getAppropriateUnit(seconds);
-        long value = seconds / unit.getSeconds();
+        long value = (long) Math.floor((double) seconds / unit.getSeconds());
         String unitKey = unit.getKey();
-//        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
-//        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
-        return value+" "+unitKey+"ago";
+
+        // 1이 아닌 경우에만 's'를 추가
+        if (value != 1) {
+            unitKey += "s";
+        }
+        return value + " " + unitKey + "ago";
+        //        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
+        //        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
     }
 
 }
