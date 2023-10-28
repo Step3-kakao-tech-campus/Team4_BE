@@ -1,5 +1,8 @@
 package com.ktc.matgpt.review;
 
+import com.ktc.matgpt.aws.FileValidator;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.aws.S3Service;
@@ -8,13 +11,16 @@ import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.store.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-@RequestMapping("/stores/{storeId}/reviews")
+@RequestMapping("/stores")
 @RequiredArgsConstructor
 @RestController
 public class ReviewRestController {
@@ -22,14 +28,33 @@ public class ReviewRestController {
     private final StoreService storeService;
     private final S3Service s3Service;
 
-    @CrossOrigin
-    @PostMapping("")        // request를 이미지 파일이 아닌 이미지 url으로 받음
-    public ResponseEntity<?> create(@PathVariable Long storeId, @RequestBody ReviewRequest.CreateDTO requestDTO, @AuthenticationPrincipal UserPrincipal userPrincipal
-            /*@RequestPart("key") ReviewRequest.CreateDTO requestDTO, @RequestPart(value = "file", required = false) MultipartFile file*/) {
-        ReviewResponse.UploadS3DTO uploadS3DTO = reviewService.createReview(userPrincipal.getId(), storeId, requestDTO);
+    // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
+    @PostMapping("/{storeId}/reviews/temp")
+    public ResponseEntity<ApiUtils.ApiResult<?>> createTemporaryReview(@PathVariable Long storeId,
+                                                                       @RequestBody ReviewRequest.SimpleCreateDTO requestDTO,
+                                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            Long reviewId = reviewService.createTemporaryReview(userPrincipal.getId(),storeId, requestDTO);
+            List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = reviewService.createPresignedUrls(reviewId, requestDTO);
+            return ResponseEntity.ok(ApiUtils.success(new ReviewResponse.UploadS3DTO(reviewId, presignedUrls)));
+        } catch (FileValidator.FileValidationException e) {
+            return ResponseEntity.badRequest().body(ApiUtils.error(e.getMessage(), HttpStatus.BAD_REQUEST));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiUtils.error("서버 내부 오류 발생", HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+    }
 
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(uploadS3DTO);
-        return ResponseEntity.ok(apiResult);
+
+    // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
+    @PostMapping("/{storeId}/complete/{reviewId}")
+    public ResponseEntity<?> completeReview(@PathVariable Long storeId,Long reviewId,
+                                            @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
+        try {
+            reviewService.completeReviewUpload(storeId, reviewId, requestDTO);
+            return ResponseEntity.ok(ApiUtils.success("리뷰가 성공적으로 완료되었습니다."));
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.REVIEW_PROCESS_ERROR);
+        }
     }
 
     // 음식점 리뷰 목록 조회
@@ -44,7 +69,6 @@ public class ReviewRestController {
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }
-
 
 
     // 리뷰 수정

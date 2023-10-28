@@ -16,8 +16,8 @@ import java.util.List;
 public class TagService {
     private final TagJPARepository tagJPARepository;
 
-    @Transactional
-    public Tag saveTag(Image image, Food food, ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
+
+    public Tag saveTag(Image image, Food food, ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO) {
         Tag tag = Tag.create(image,food, tagDTO.getRating(), tagDTO.getLocationX(),tagDTO.getLocationY());
         tagJPARepository.save(tag);
         return tag;

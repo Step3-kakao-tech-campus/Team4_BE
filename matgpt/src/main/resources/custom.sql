@@ -4,6 +4,9 @@ INSERT INTO category_tb (id, name) VALUES
                                        (2, 'CHINESE'),
                                        (3, 'DESSERT'),
                                        (4, 'JAPANESE');
+-- User Table Initalization
+INSERT INTO USER_TB (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, PROVIDER, PROVIDER_ID)
+VALUES (2, null, 1L, 'nstgic3@gmail.com', 'MALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KAKAO', 3038773712);
 
 -- DetailedCategory Table Initialization
 INSERT INTO sub_category_tb (id, name, category_id) VALUES

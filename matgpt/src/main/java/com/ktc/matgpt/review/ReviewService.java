@@ -1,5 +1,8 @@
 package com.ktc.matgpt.review;
 
+import com.ktc.matgpt.aws.FileValidator;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.food.Food;
 import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.Image;
@@ -52,45 +55,72 @@ public class ReviewService {
     final static Long YEAR = MONTH*12;
 
 
-    public ReviewResponse.UploadS3DTO createReview(Long userId, Long storeId, ReviewRequest.CreateDTO requestDTO) {
+    public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO) {
+        // 이미지 업로드 완료 후 리뷰, 이미지, 태그 정보 저장 로직
+        // 이 로직은 이미지 업로드가 완료된 후 호출됩니다.
+
+        //Store 프록시객체
+        Store storeRef = storeService.getReferenceById(storeId);
+        Review review = findReviewByIdOrThrow(reviewId);
+
+        for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
+            Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
+            saveTagsForImage(image, imageDTO, storeRef); // 태그 저장
+        }
+    }
+
+    private void saveTagsForImage(Image image, ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO, Store store) {
+        for (ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
+            Food food = foodService.saveOrUpdateFoodByTag(tagDTO, store.getId()); //TODO: 태그에 들어갈 음식 검색하고 추가하는 로직
+            tagService.saveTag(image, food, tagDTO);
+        }
+    }
+
+    // 리뷰 생성 메서드
+    public Long createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
 
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
 
         // 리뷰 데이터 저장
-        Review review = Review.create(userId, storeRef, requestDTO.getContent(), requestDTO.getRating(), requestDTO.getPeopleCount(), requestDTO.getTotalPrice());
+        Review review = Review.create(userId, storeRef, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
-        // presigned URL 생성
+        return review.getId();
+    }
+
+    // Presigned URL 생성 메서드
+    public List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> createPresignedUrls(Long reviewId, ReviewRequest.SimpleCreateDTO simpleDTO) throws FileValidator.FileValidationException {
         List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = new ArrayList<>();
-        for (ReviewRequest.CreateDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
-            String objectKey = generateObjectKey(review, imageDTO.getImage());
+
+        for (ReviewRequest.SimpleCreateDTO.ImageDTO imageDTO : simpleDTO.getReviewImages()) {
+            imageService.validateImageFile(imageDTO.getImage());
+            String objectKey = generateObjectKey(reviewId, imageDTO.getImage()); // MultipartFile에서 파일명 추출
             URL presignedUrl = s3Service.getPresignedUrl(objectKey);
 
             presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(objectKey, presignedUrl));
         }
 
-        return new ReviewResponse.UploadS3DTO(review.getId(), presignedUrls);
+        return presignedUrls;
     }
 
-    private String generateObjectKey(Review review, MultipartFile image) {
-        return String.format("reviews/%d/%s", review.getId(), image.getOriginalFilename());
+    public Review findReviewByIdOrThrow(Long reviewId) {
+        return reviewJPARepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
     }
 
-    private void saveTagsForImage(Image image, ReviewRequest.CreateDTO.ImageDTO imageDTO, Store store) {
-        for (ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
-            Food food = foodService.saveOrUpdateFoodByTag(tagDTO, store.getId());
-            tagService.saveTag(image, food, tagDTO);
-        }
+    private String generateObjectKey(Long reviewId, MultipartFile image) {
+        // 필요시 커스텀 가능
+        // TODO: S3내부 구조 확정시에 변경 요망
+        return String.format("reviews/%d/%s", reviewId, image);
     }
+
+    //태그에 음식, 이미지 매핑해서 저장
 
 
     @Transactional
     public void update(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
-        Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
-                () -> new NoSuchElementException("reviewId-" + reviewId + ": 존재하지 않는 리뷰입니다. 수정할 수 없습니다.")
-        );
-
+        Review review = findReviewByIdOrThrow(reviewId);
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
         }
@@ -101,9 +131,7 @@ public class ReviewService {
 
     public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId) {
 
-        Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
-                () -> new NoSuchElementException("reviewId-" + reviewId + ": 리뷰를 찾을 수 없습니다.")
-        );
+        Review review = findReviewByIdOrThrow(reviewId);
 
         ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO = getReviewerDTO(review);
 
@@ -185,9 +213,7 @@ public class ReviewService {
 
     @Transactional
     public void delete(Long reviewId, Long userId) {
-        Review review = reviewJPARepository.findByReviewId(reviewId).orElseThrow(
-                () -> new NoSuchElementException("review-" + reviewId + ": 존재하지 않는 리뷰입니다. 삭제할 수 없습니다.")
-        );
+        Review review = findReviewByIdOrThrow(reviewId);
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
         }

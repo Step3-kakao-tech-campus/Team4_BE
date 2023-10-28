@@ -46,11 +46,5 @@ public class Tag {
         return new Tag(image, food, menuRating, locationX, locationY);
     }
 
-    public void updateRating(double newRating) {
-        double oldRating = this.menuRating;
-        this.menuRating = newRating;
-        food.updateReview(oldRating, newRating);
-    }
-
 
 }

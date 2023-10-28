@@ -15,7 +15,7 @@ public class FoodService {
     private final FoodJPARepository foodJPARepository;
     private final StoreService storeService;
 
-    public Food saveOrUpdateFoodByTag(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO, Long storeId) {
+    public Food saveOrUpdateFoodByTag(ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO, Long storeId) {
         return foodJPARepository.findByFoodName(tagDTO.getName())
                 .map(food -> {
                     updateFoodRating(food, tagDTO.getRating());
@@ -28,7 +28,7 @@ public class FoodService {
         food.updateReview(food.getTotalRating(), newRating);
     }
 
-    public void removeRatingByTagName(ReviewRequest.CreateDTO.ImageDTO.TagDTO tagDTO) {
+    public void removeRatingByTagName(ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO) {
         foodJPARepository.findByFoodName(tagDTO.getName())
                 .ifPresent(food -> food.removeReview(tagDTO.getRating()));
     }
