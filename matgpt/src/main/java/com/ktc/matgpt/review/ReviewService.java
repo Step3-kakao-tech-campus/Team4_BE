@@ -17,6 +17,7 @@ import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
+import com.ktc.matgpt.utils.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -233,23 +234,21 @@ public class ReviewService {
                         .build();
     }
 
-
+    //TODO: Locale 이슈
     private String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
-        Long seconds = duration.getSeconds();
+        long seconds = duration.getSeconds();
+        TimeUnit unit = TimeUnit.getAppropriateUnit(seconds);
+        long value = (long) Math.floor((double) seconds / unit.getSeconds());
+        String unitKey = unit.getKey();
 
-        // TODO: user.getCountry()로 받아오도록 구현
-        Locale country = Locale.KOREA;  // 임시로 한국 설정
-
-        String msg;
-        if (seconds<MIN) msg = seconds + messageSourceAccessor.getMessage("sec", country);
-        else if (seconds<HOUR) msg = seconds/MIN + messageSourceAccessor.getMessage("min", country);
-        else if (seconds<DAY) msg = seconds/HOUR + messageSourceAccessor.getMessage("hour", country);
-        else if (seconds<WEEK) msg = seconds/DAY + messageSourceAccessor.getMessage("day", country);
-        else if (seconds<MONTH) msg = seconds/WEEK + messageSourceAccessor.getMessage("week", country);
-        else if (seconds<YEAR) msg = seconds/MONTH + messageSourceAccessor.getMessage("month", country);
-        else msg = seconds/YEAR + messageSourceAccessor.getMessage("year", country);
-
-        return msg + " " + messageSourceAccessor.getMessage("ago", country);
+        // 1이 아닌 경우에만 's'를 추가
+        if (value != 1) {
+            unitKey += "s";
+        }
+        return value + " " + unitKey + "ago";
+        //        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
+        //        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
     }
+
 }
