@@ -2,15 +2,14 @@ package com.ktc.matgpt.chatgpt.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ktc.matgpt.chatgpt.dto.FinishReason;
-import com.ktc.matgpt.chatgpt.dto.GptRequest;
-import com.ktc.matgpt.chatgpt.dto.GptRequestConverter;
-import com.ktc.matgpt.chatgpt.dto.GptResponse;
+import com.ktc.matgpt.chatgpt.config.AsyncConfig;
+import com.ktc.matgpt.chatgpt.dto.*;
 import com.ktc.matgpt.chatgpt.entity.GptGuidance;
 import com.ktc.matgpt.chatgpt.entity.GptReview;
 import com.ktc.matgpt.chatgpt.exception.ApiException;
 import com.ktc.matgpt.chatgpt.repository.GptGuidanceRepository;
 import com.ktc.matgpt.chatgpt.repository.GptReviewRepository;
+import com.ktc.matgpt.chatgpt.utils.UnixTimeConverter;
 import com.ktc.matgpt.review.ReviewService;
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.store.StoreService;
@@ -23,9 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.*;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -44,37 +45,31 @@ public class GptService {
     private final ReviewService reviewService;
     private final StoreService storeService;
     private final RestTemplate restTemplate;
+    private final AsyncConfig asyncConfig;
 
 
-    @Async
-    public void generateReviewSummarys(Long storeId) throws ExecutionException, InterruptedException {
+    public List<GptResponse> generateReviewSummarys(Long storeId) {
         List<String> summaryTypes = List.of("BEST", "WORST");
-        for (String summaryType : summaryTypes) {
-            generateReviewSummary(storeId, summaryType);
-        }
+        return summaryTypes.stream()
+                .map(summaryType -> generateReviewSummary(storeId, summaryType))
+                .filter(Objects::nonNull)
+                .toList();
     }
 
-    public void generateReviewSummary(Long storeId, String summaryType) throws ExecutionException, InterruptedException {
+    public GptResponse generateReviewSummary(Long storeId, String summaryType) {
         List<Review> reviews = reviewService.findByStoreIdAndSummaryType(storeId, summaryType, REVIEW_COUNT);
 
-        // TODO : 현재는 FakeDB로 연결되어 있어서 이 문장이 필요함.
+        // TODO : 현재는 FakeDB로 연결되어 있어서 이 문장이 필요함. 추후 삭제 필요
         if (reviews.size() < 10) {
-            return;
+            return null;
         }
 
-        GptRequest requestBody = GptRequestConverter.convertFromReviews(reviews, summaryType);
-        CompletableFuture<GptResponse> gptResponse = getGptResponse(requestBody);
-        String reviewSummary = gptResponse.get().getContent();
-        if (reviewSummary == null) {
-            log.error("[ChatGPT API] : storeId-" + storeId + "리뷰 요약을 생성하는데 실패했습니다.");
-            return;
-        }
-
-        updateOrCreateGptReview(storeId, summaryType, reviewSummary);
+        GptApiRequest requestBody = GptRequestConverter.convertFromReviews(reviews, summaryType);
+        CompletableFuture<GptApiResponse> gptApiResponse = callChatGptApi(requestBody);
+        return new GptResponse(storeId, summaryType, gptApiResponse);
     }
 
     public String findReviewSummaryByStoreIdAndSummaryType(Long storeId, String summaryType) {
-        summaryType = summaryType.toUpperCase();
         GptReview gptReview = gptReviewRepository.findByStoreIdAndSummaryType(storeId, summaryType).orElseThrow(
                 () -> new NoSuchElementException("storeId-" + storeId + ": 해당 음식점에는 리뷰 요약이 존재하지 않습니다."));
         return gptReview.getContent();
@@ -88,10 +83,11 @@ public class GptService {
         // String country = user.getCountry();
 
         String country = "india";
-        GptRequest requestBody = GptRequestConverter.convertFromCountry(country);
-        CompletableFuture<GptResponse> gptResponse = getGptResponse(requestBody);
+        GptApiRequest requestBody = GptRequestConverter.convertFromCountry(country);
+        CompletableFuture<GptApiResponse> gptResponse = callChatGptApi(requestBody);
 
         String content = gptResponse.get().getContent();
+        LocalDateTime createdAt = UnixTimeConverter.toLocalDateTime(gptResponse.get().created());
         if (content == null) {
             log.error("[ChatGPT API] : userId-" + userId + " 주문 가이드를 생성하는데 실패했습니다.");
             throw new ApiException.ContentNotFoundException();
@@ -100,6 +96,7 @@ public class GptService {
         GptGuidance gptGuidance = GptGuidance.builder()
                 .userId(userId)
                 .content(content)
+                .createdAt(createdAt)
                 .build();
 
         gptGuidanceRepository.save(gptGuidance);
@@ -115,40 +112,44 @@ public class GptService {
         return gptReviews.get(0).getLastNumsOfReview();
     }
 
-    public CompletableFuture<GptResponse> getGptResponse(GptRequest requestBody) {
-        try {
-            ResponseEntity<String> responseString = restTemplate.postForEntity(API_URL, requestBody, String.class);
-            GptResponse response = new ObjectMapper().readValue(responseString.getBody(), GptResponse.class);
-            validateResponse(response);
-            return CompletableFuture.completedFuture(response);
-        } catch (HttpClientErrorException | HttpServerErrorException e) { // Http 상태 오류
-            log.error("[ChatGPT API] HttpErrorException Occured : " + e.getStatusCode());
-            throw new ApiException.UnknownFinishReasonException();
-        } catch (ResourceAccessException e) { // 타임아웃 관련 오류
-            log.error("[ChatGPT API] ResourceAccessException : " + e.getMessage());
-            return CompletableFuture.completedFuture(getFallbackValue());
-        } catch (RestClientException e) { // 기타 오류
-            log.error("[ChatGPT API] RestClientException: " + e.getMessage());
-            log.error(Arrays.toString(e.getStackTrace()));
-            throw new ApiException.ContentNotFoundException();
-        } catch (JsonProcessingException e) {
-            log.error("[ChatGPT API] JsonProcessingException : " + e.getMessage());
-            throw new RuntimeException(e);
-        }
+    @Async
+    public CompletableFuture<GptApiResponse> callChatGptApi(GptApiRequest requestBody) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                ResponseEntity<String> responseString = restTemplate.postForEntity(API_URL, requestBody, String.class);
+                GptApiResponse apiResponse = new ObjectMapper().readValue(responseString.getBody(), GptApiResponse.class);
+                validateApiResponse(apiResponse);
+                return apiResponse;
+            } catch (HttpClientErrorException | HttpServerErrorException e) { // Http 상태 오류
+                log.error("[ChatGPT API] HttpErrorException Occured : " + e.getStatusCode());
+                throw new ApiException.UnknownFinishReasonException();
+            } catch (ResourceAccessException e) { // 타임아웃 관련 오류
+                log.error("[ChatGPT API] ResourceAccessException : " + e.getMessage());
+                return getFallbackValue();
+            } catch (RestClientException e) { // 기타 오류
+                log.error("[ChatGPT API] RestClientException: " + e.getMessage());
+                log.error(Arrays.toString(e.getStackTrace()));
+                throw new ApiException.ContentNotFoundException();
+            } catch (JsonProcessingException e) {
+                log.error("[ChatGPT API] JsonProcessingException : " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, asyncConfig.getAsyncExecutor()); // 사용자 정의 스레드 풀 사용
     }
 
-    private void updateOrCreateGptReview(Long storeId, String summaryType, String reviewSummary) {
-        GptReview gptReview = findOrCreateGptReview(storeId, summaryType, reviewSummary);
+    @Transactional
+    public void updateOrCreateGptReview(Long storeId, String summaryType, String reviewSummary, LocalDateTime createdAt) {
+        GptReview gptReview = findOrCreateGptReview(storeId, summaryType, reviewSummary, createdAt);
         gptReviewRepository.save(gptReview);
-        log.info("[ChatGPT API] : Store-" + storeId + " Review Summary Updated!");
+        log.info("[ChatGPT API] : Store-{} Review Summary Updated!", storeId);
     }
 
-    private GptReview findOrCreateGptReview(Long storeId, String summaryType, String content) {
+    private GptReview findOrCreateGptReview(Long storeId, String summaryType, String content, LocalDateTime createdAt) {
         int currentNumsOfReview = storeService.getNumsOfReviewById(storeId);
         // ReviewSummary가 이미 존재한다면 수정, 존재하지 않는다면 생성
         return gptReviewRepository.findByStoreIdAndSummaryType(storeId, summaryType)
                 .map(existingReview -> {
-                    existingReview.updateContent(content);
+                    existingReview.updateContent(content, createdAt);
                     existingReview.updateLastNumsOfReview(currentNumsOfReview);
                     return existingReview;
                 })
@@ -157,23 +158,25 @@ public class GptService {
                         .content(content)
                         .summaryType(summaryType)
                         .lastNumsOfReview(currentNumsOfReview)
+                        .createdAt(createdAt)
+                        .updatedAt(createdAt)
                         .build());
     }
 
-    private static void validateResponse(GptResponse response) {
-        if (response == null || response.choices() == null || response.choices().isEmpty()) {
-            log.error("[ChatGPT API] ContentNotFoundException occured: ");
+    private static void validateApiResponse(GptApiResponse apiResponse) {
+        if (apiResponse == null || apiResponse.choices() == null || apiResponse.choices().isEmpty()) {
+            log.error("[ChatGPT API] ContentNotFoundException occured.");
             throw new ApiException.ContentNotFoundException();
         }
 
-        if (FinishReason.TIMEOUT == response.getFinishReason()) {
+        if (FinishReason.TIMEOUT == apiResponse.getFinishReason()) {
             throw new ApiException.TimeoutException();
         }
-        response.log();
+        apiResponse.log();
     }
 
-    private static GptResponse getFallbackValue() {
-        List<GptResponse.Choice> choices = List.of(new GptResponse.Choice(FinishReason.TIMEOUT, 0, new GptResponse.Choice.Message(null, null)));
-        return new GptResponse(0, choices, null, null, null, null);
+    private static GptApiResponse getFallbackValue() {
+        List<GptApiResponse.Choice> choices = List.of(new GptApiResponse.Choice(FinishReason.TIMEOUT, 0, new GptApiResponse.Choice.Message(null, null)));
+        return new GptApiResponse(0, choices, null, null, null, null);
     }
 }
