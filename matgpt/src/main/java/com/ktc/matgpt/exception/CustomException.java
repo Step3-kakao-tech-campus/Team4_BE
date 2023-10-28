@@ -1,6 +1,5 @@
 package com.ktc.matgpt.exception;
 
-import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.utils.ApiUtils;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

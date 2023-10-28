@@ -8,9 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,7 +29,7 @@ public class UserControllerTest {
     @DisplayName("Oauth2 Principle 적재 테스트")
     @Test()
     public void getUserInfo_ShouldReturnUserInfo() throws Exception {
-        Long mockUserId = 1L;
+        Long mockUserId = 2L;
         String mockUsername = "test@example.com";
 
         UserPrincipal userPrincipal = new UserPrincipal(mockUserId,mockUsername, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
