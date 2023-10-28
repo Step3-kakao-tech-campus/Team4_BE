@@ -26,11 +26,13 @@ public enum TimeUnit {
     }
 
     public static TimeUnit getAppropriateUnit(long seconds) {
-        for (TimeUnit unit : TimeUnit.values()) {
-            if (seconds < unit.getSeconds()) {
-                return unit;
+        TimeUnit[] units = TimeUnit.values();
+        for (int i = units.length - 1; i >= 0; i--) {
+            if (seconds >= units[i].getSeconds()) {
+                return units[i];
             }
         }
-        return YEAR;
+        return SECOND;
     }
+
 }
