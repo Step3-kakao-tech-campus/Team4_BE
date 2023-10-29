@@ -6,7 +6,10 @@ INSERT INTO category_tb (id, name) VALUES
                                        (4, 'JAPANESE');
 -- User Table Initalization
 INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, PROVIDER, PROVIDER_ID)
-VALUES (2, null, 1, 'nstgic3@gmail.com', 'MALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KAKAO', 3038773712);
+VALUES (2, null, 1, 'nstgic3@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KAKAO', 3038773712);
+INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, PROVIDER, PROVIDER_ID)
+VALUES (2, null, 2, 'female@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KAKAO', 3038733712);
+
 
 -- DetailedCategory Table Initialization
 INSERT INTO sub_category_tb (id, name, category_id) VALUES
@@ -37,6 +40,18 @@ VALUES
     (9, '음식점9', '02-3789-2778', '서울 중구 명동7길', '11:00 - 21:00', 37.56645, 126.988566, 18000, 4, 28, 2.7,9),
     (10, '음식점10', '02-3789-2778', '서울 중구 명동7길 13', '11:00 - 21:00', 37.566005, 126.9824525, 18000, 4, 548, 2.0,10),
     (11, '음식점11', '02-3789-2778', '서울 중구', '11:00 - 21:00', 37.56313, 126.980006, 18000, 4, 23, 4.8,11);
+
+
+
+-- LikeStore Table Initalization
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (1,1,1);
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (2,2,1);
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (3,3,1);
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (4,7,1);
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (5,1,2);
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (6,2,2);
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (7,5,2);
+INSERT INTO likestore_tb(id,store_id,user_id)VALUES (8,6,2);
 
 
 INSERT INTO review_tb
