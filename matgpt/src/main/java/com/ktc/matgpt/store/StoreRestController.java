@@ -24,6 +24,19 @@ public class StoreRestController {
     private static final int MY_PAGE_DEFAULT_SIZE = 4;
 
 
+    //마커 찍는 stores 보내주기
+    @GetMapping("/")
+    public ResponseEntity<?> MarkerStores(
+                                          @RequestParam(value ="maxlat") double maxLat ,
+                                          @RequestParam(value = "maxlon") double maxLon ,
+                                          @RequestParam(value ="minlat") double minLat ,
+                                          @RequestParam(value = "minlon") double minLon) {
+        List<StoreResponse.MarkerStoresDTO> responseDTOs = storeService.findAllMarkers(maxLat,maxLon,minLat,minLon);
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
+
+
     @GetMapping("/all")
     public ResponseEntity<?> findAll(@RequestParam(value ="lati") double latitude ,
                                      @RequestParam(value = "longi") double longitude ,
