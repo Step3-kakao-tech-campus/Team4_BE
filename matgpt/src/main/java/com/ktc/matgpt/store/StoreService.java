@@ -21,6 +21,19 @@ public class StoreService {
     private final StoreJPARepository storeJPARepository;
     private final EntityManager entityManager;
 
+    @Transactional(readOnly = true)
+    public List<StoreResponse.MarkerStoresDTO> findAllMarkers(double maxLatitude, double maxLongitude,double minLatitude, double minLongitude) {
+
+        List<Store> stores = storeJPARepository.findMarkers(maxLatitude,maxLongitude,minLatitude,minLongitude);
+
+        List<StoreResponse.MarkerStoresDTO> responseDTOs = stores.stream()
+                .map(s -> new StoreResponse.MarkerStoresDTO(s))
+                .collect(Collectors.toList());
+        return responseDTOs;
+    }
+
+
+    @Transactional(readOnly = true)
     public List<StoreResponse.FindAllStoreDTO> findAllByDistance(double latitude, double longitude) {
         List<Store> stores = storeJPARepository.findNearestStoresWithDistance(latitude,longitude);
         List<StoreResponse.FindAllStoreDTO> responseDTOs = stores.stream()
