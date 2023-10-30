@@ -20,6 +20,7 @@ public class TagService {
     public Tag saveTag(Image image, Food food, ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO) {
         Tag tag = Tag.create(image,food, tagDTO.getRating(), tagDTO.getLocationX(),tagDTO.getLocationY());
         tagJPARepository.save(tag);
+        log.info("tag-%d: 태그가 저장되었습니다.", tag.getId());
         return tag;
     }
 
@@ -45,6 +46,7 @@ public class TagService {
         for (Tag tag : tags) {
             removeReviewFromFood(tag);
             tagJPARepository.delete(tag);
+            log.info("tag-%d: 태그를 삭제했습니다.", tag.getId());
         }
     }
 

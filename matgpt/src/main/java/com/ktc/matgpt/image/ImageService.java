@@ -23,6 +23,7 @@ public class ImageService {
     public Image saveImageForReview(Review review, String imageUrl) {
         Image image = Image.create(review, imageUrl);
         imageJPARepository.save(image);
+        log.info("image-%d: 이미지가 저장되었습니다.", image.getId());
         return image;
     }
 
@@ -30,7 +31,7 @@ public class ImageService {
     public void deleteImagesByReviewId(Long reviewId) {
         List<Image> images = imageJPARepository.findAllByReviewId(reviewId);
         if (images.isEmpty()) {
-            log.info("review-" + reviewId + ": 해당 리뷰에 삭제할 이미지가 없습니다.");
+            log.info("review-%d: 해당 리뷰에 삭제할 이미지가 없습니다.", reviewId);
             return;
         }
         deleteImagesAndAssociatedTags(images);
@@ -40,6 +41,7 @@ public class ImageService {
         for (Image image : images) {
             tagService.deleteTagsByImageId(image.getId());
             imageJPARepository.delete(image);
+            log.info("image-%d: 이미지를 삭제했습니다.", image.getId());
         }
     }
 

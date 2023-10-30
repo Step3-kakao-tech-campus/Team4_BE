@@ -1,5 +1,6 @@
 package com.ktc.matgpt.review.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,15 +10,17 @@ import java.util.List;
 public class ReviewRequest {
 
     // 초기 리뷰 생성을 위한 간소화된 DTO
-    @Getter
+    @Getter @Setter
     @ToString
-    public class SimpleCreateDTO {
+    @NoArgsConstructor
+    public static class SimpleCreateDTO {
         private List<SimpleCreateDTO.ImageDTO> reviewImages;
         private String content;
         private double rating;
         private int peopleCount;
         private int totalPrice;
 
+        @Builder
         public SimpleCreateDTO(List<SimpleCreateDTO.ImageDTO> reviewImages, String content,
                          double rating, int peopleCount, int totalPrice) {
             this.reviewImages = reviewImages;
@@ -27,11 +30,13 @@ public class ReviewRequest {
             this.totalPrice = totalPrice;
         }
 
-        @Getter
+        @Getter @Setter
         @ToString
         @NoArgsConstructor(force = true)
         public static class ImageDTO {
+            @JsonProperty
             private MultipartFile image;
+            public ImageDTO(MultipartFile image) { this.image = image; }
         }
     }
 
@@ -83,7 +88,7 @@ public class ReviewRequest {
         @Min(1)
         private int peopleCount;
         @Min(0)
-        private int totalPrice;     // 범위로 받게 된다면 enum PriceRange 타입 이용
+        private int totalPrice;
 
         public CreateDTO(List<ImageDTO> reviewImages, String content,
                          double rating, int peopleCount, int totalPrice) {
@@ -115,9 +120,14 @@ public class ReviewRequest {
 
 
     @Getter
+    @Setter
     @ToString
+    @NoArgsConstructor
     public static class UpdateDTO {
         private String content;
+        public UpdateDTO(String content) {
+            this.content = content;
+        }
     }
 
 

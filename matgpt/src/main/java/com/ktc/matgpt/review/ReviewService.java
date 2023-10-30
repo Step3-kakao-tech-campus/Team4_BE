@@ -18,6 +18,8 @@ import com.ktc.matgpt.store.StoreService;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
 import com.ktc.matgpt.utils.TimeUnit;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,6 +48,7 @@ public class ReviewService {
     private final UserService userService;
     private final StoreService storeService;
     private final MessageSourceAccessor messageSourceAccessor;
+    private final EntityManager entityManager;
 
     private final int DEFAULT_PAGE_SIZE = 5;
     final static Long MIN = 60L;
@@ -125,7 +128,6 @@ public class ReviewService {
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
         }
-
         review.updateContent(requestDTO.getContent());
     }
 
@@ -156,9 +158,12 @@ public class ReviewService {
 
     public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, double cursorRating) {
 
-        List<Review> reviews = (sortBy.equals("latest"))
-                ? reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE)
-                : reviewJPARepository.findAllByStoreIdAndOrderByRatingDesc(storeId, cursorId, cursorRating, DEFAULT_PAGE_SIZE);
+
+        List<Review> reviews = switch (sortBy) {
+            case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE);
+            case "rating" -> reviewJPARepository.findAllByStoreIdAndOrderByRatingDesc(storeId, cursorId, cursorRating, DEFAULT_PAGE_SIZE);
+            default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
+        };
 
         if (reviews.isEmpty()) {
             throw new NoSuchElementException("storeId-" + storeId + ": 음식점에 등록된 리뷰가 없습니다.");
@@ -189,9 +194,12 @@ public class ReviewService {
     }
 
     public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, int pageNum) {
-        Page<Review> reviews = (sortBy.equals("latest"))
-                ? reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE))
-                : reviewJPARepository.findAllByUserIdAndOrderByRatingDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+        Page<Review> reviews = switch (sortBy) {
+            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+            case "rating" -> reviewJPARepository.findAllByUserIdAndOrderByRatingDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+            default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
+        };
+
 
         if (reviews.isEmpty()) {
             throw new NoSuchElementException("user-" + userId + ": 회원이 작성한 리뷰가 없습니다.");
@@ -220,6 +228,7 @@ public class ReviewService {
         }
         imageService.deleteImagesByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
+        log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
     }
 
 
@@ -249,6 +258,14 @@ public class ReviewService {
         return value + " " + unitKey + "ago";
         //        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
         //        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
+    }
+
+    public Review getReferenceById(Long reviewId) {
+        try {
+            return entityManager.getReference(Review.class, reviewId);
+        } catch (EntityNotFoundException e) {
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
     }
 
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@RequestMapping("/mypage")
+@RequestMapping(value = "/mypage", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
 @RestController
 public class MyPageController {
@@ -22,6 +22,19 @@ public class MyPageController {
     // 마이페이지 작성한 리뷰 조회
     @GetMapping("/my-reviews")
     public ResponseEntity<?> findAllByUserId(@RequestParam(defaultValue = "latest") String sortBy,
+                                             @RequestParam(defaultValue = "1") int pageNum,
+                                             @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        ReviewResponse.FindPageByUserIdDTO responseDTOs =
+                reviewService.findAllByUserId(userPrincipal.getId(), sortBy, pageNum);
+
+        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    // 마이페이지 좋아요한 리뷰 조회
+    @GetMapping("/liked-reviews")
+    public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(defaultValue = "latest") String sortBy,
                                              @RequestParam(defaultValue = "1") int pageNum,
                                              @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
