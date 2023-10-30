@@ -220,6 +220,7 @@ public class ReviewService {
         }
         imageService.deleteImagesByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
+        log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
     }
 
 
