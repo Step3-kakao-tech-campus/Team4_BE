@@ -25,19 +25,50 @@ public class StoreResponse {
 
     @Getter
     @Setter
+    public static class MarkerStoresDTO{
+        private Long storeId;
+        private String storeName;
+        private double latitude;
+        private double longitude;
+        private String storeImg;
+
+        public MarkerStoresDTO(Store store){
+            this.storeId = store.getId();
+            this.storeName = store.getName();
+            this.latitude = store.getLatitude();
+            this.longitude = store.getLongitude();
+            this.storeImg = store.getStoreImg();
+        }
+    }
+
+    @Getter
+    @Setter
     public static class FindAllStoreDTO {
         private Long storeId;
         private String storeName;
-        private Category category;
+        private CategoryDTO category;
         private double ratingAvg;
         private int numsOfReview;
 
         public FindAllStoreDTO(Store store) {
             this.storeId = store.getId();
             this.storeName = store.getName();
-            this.category = store.getSubCategory().getCategory();
+            this.category = new CategoryDTO(store.getSubCategory().getCategory());
             this.ratingAvg = store.getRatingAvg();
             this.numsOfReview = store.getNumsOfReview();
+        }
+
+        @Getter
+        @Setter
+        public class CategoryDTO{
+            private Long id;
+            private String name;
+
+            public CategoryDTO(Category category){
+                this.id = category.getId();
+                this.name = category.getName();
+
+            }
         }
     }
 
