@@ -3,6 +3,11 @@ spring:
     import:
       - classpath:/application-secret.yml
 
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/myGPT?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    username: "piggle"
+#    password: "123456789"
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:test
@@ -14,6 +19,15 @@ spring:
       settings:
         web-allow-others: true
 
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQLDialect
+#        format_sql: true
+#        show_sql: true
+#    open-in-view: false
   jpa:
     hibernate:
       ddl-auto: create

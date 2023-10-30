@@ -24,6 +24,20 @@ public class StoreRestController {
     private static final int MY_PAGE_DEFAULT_SIZE = 4;
 
 
+    //마커 찍는 stores 보내주기
+    @GetMapping("/")
+    public ResponseEntity<?> MarkerStores(
+                                          @RequestParam(value ="maxlat") double maxLat ,
+                                          @RequestParam(value = "maxlon") double maxLon ,
+                                          @RequestParam(value ="minlat") double minLat ,
+                                          @RequestParam(value = "minlon") double minLon) {
+        List<StoreResponse.MarkerStoresDTO> responseDTOs = storeService.findAllMarkers(maxLat,maxLon,minLat,minLon);
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
+
+
+    //사용자 거리와 가까운 순으로 불러오기
     @GetMapping("/all")
     public ResponseEntity<?> findAll(@RequestParam(value ="lati") double latitude ,
                                      @RequestParam(value = "longi") double longitude ,
@@ -33,34 +47,8 @@ public class StoreRestController {
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }
-
-
-    //인기 많은 음식점 - 리뷰 갯수 순
-    @GetMapping("/stores/popular")
-    public ResponseEntity<?> findAllPopular(@RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
-        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAllByPopular(cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
-        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
-        return ResponseEntity.ok(apiResult);
-    }
-
-    //최근 리뷰가 달린 음식점
-    @GetMapping("/stores/recent")
-    public ResponseEntity<?> findAllRecent(@RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
-        //리뷰에서 가져와야함
-        return ResponseEntity.ok(null);
-    }
-
-    //비슷한 사용자들이 좋아하는 음식점
-    @GetMapping("/stores/similar")
-    public ResponseEntity<?> findAllSimilar(@RequestParam(value = "cursor", defaultValue = "6") Long cursor , @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<StoreResponse.FindAllStoreDTO> responseDTOs = null;
-        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
-        return ResponseEntity.ok(apiResult);
-    }
-
-
     //음식점 검색
-    @GetMapping("/stores")
+    @GetMapping("/search")
     public ResponseEntity<?> Search( @RequestParam(value ="lati") double latitude ,
                                      @RequestParam(value = "longi") double longitude ,
                                      @RequestParam(value = "sort", defaultValue = "id") String sort,
@@ -70,6 +58,32 @@ public class StoreRestController {
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }
+
+    //인기 많은 음식점 - 리뷰 갯수 순
+    @GetMapping("/popular")
+    public ResponseEntity<?> findAllPopular(@RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
+        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findAllByPopular(cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    //최근 리뷰가 달린 음식점
+    @GetMapping("/recent")
+    public ResponseEntity<?> findAllRecent(@RequestParam(value = "cursor", defaultValue = "6") Long cursor) {
+        //리뷰에서 가져와야함
+        return ResponseEntity.ok(null);
+    }
+
+    //비슷한 사용자들이 좋아하는 음식점
+    @GetMapping("/similar")
+    public ResponseEntity<?> findAllSimilar(@RequestParam(value = "cursor", defaultValue = "6") Long cursor  ,@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<StoreResponse.FindAllStoreDTO> responseDTOs = storeService.findSimilarStores(userPrincipal.getEmail(),cursor, PageRequest.of(0, PAGE_DEFAULT_SIZE));
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(responseDTOs);
+        return ResponseEntity.ok(apiResult);
+    }
+
+
+
 
 
 
