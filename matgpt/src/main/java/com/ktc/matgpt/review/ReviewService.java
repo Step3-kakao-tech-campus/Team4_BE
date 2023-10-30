@@ -156,9 +156,12 @@ public class ReviewService {
 
     public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, double cursorRating) {
 
-        List<Review> reviews = (sortBy.equals("latest"))
-                ? reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE)
-                : reviewJPARepository.findAllByStoreIdAndOrderByRatingDesc(storeId, cursorId, cursorRating, DEFAULT_PAGE_SIZE);
+
+        List<Review> reviews = switch (sortBy) {
+            case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE);
+            case "rating" -> reviewJPARepository.findAllByStoreIdAndOrderByRatingDesc(storeId, cursorId, cursorRating, DEFAULT_PAGE_SIZE);
+            default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
+        };
 
         if (reviews.isEmpty()) {
             throw new NoSuchElementException("storeId-" + storeId + ": 음식점에 등록된 리뷰가 없습니다.");
@@ -189,9 +192,12 @@ public class ReviewService {
     }
 
     public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, int pageNum) {
-        Page<Review> reviews = (sortBy.equals("latest"))
-                ? reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE))
-                : reviewJPARepository.findAllByUserIdAndOrderByRatingDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+        Page<Review> reviews = switch (sortBy) {
+            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+            case "rating" -> reviewJPARepository.findAllByUserIdAndOrderByRatingDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+            default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
+        };
+
 
         if (reviews.isEmpty()) {
             throw new NoSuchElementException("user-" + userId + ": 회원이 작성한 리뷰가 없습니다.");
