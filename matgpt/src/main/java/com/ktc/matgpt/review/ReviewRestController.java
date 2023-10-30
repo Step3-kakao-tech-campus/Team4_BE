@@ -20,7 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-@RequestMapping("/stores")
+@RequestMapping(value = "/stores", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
 @RestController
 public class ReviewRestController {
@@ -58,7 +58,7 @@ public class ReviewRestController {
     }
 
     // 음식점 리뷰 목록 조회
-    @GetMapping("")
+    @GetMapping("/{storeId}/reviews")
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
                                               @RequestParam(defaultValue = "6") Long cursorId,
