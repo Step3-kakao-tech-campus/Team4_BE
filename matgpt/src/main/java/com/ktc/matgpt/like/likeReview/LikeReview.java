@@ -5,8 +5,17 @@ import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "likereview_tb")
 public class LikeReview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
