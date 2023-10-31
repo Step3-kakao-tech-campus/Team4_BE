@@ -2,6 +2,7 @@ package com.ktc.matgpt.chatgpt.controller;
 
 import com.ktc.matgpt.chatgpt.dto.GptApiResponse;
 import com.ktc.matgpt.chatgpt.dto.GptResponse;
+import com.ktc.matgpt.chatgpt.dto.GptResponseDto;
 import com.ktc.matgpt.chatgpt.service.GptService;
 import com.ktc.matgpt.chatgpt.utils.UnixTimeConverter;
 import com.ktc.matgpt.security.UserPrincipal;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -24,11 +26,10 @@ public class GptRestController {
 
     private final GptService gptService;
 
-    @GetMapping("/store/{storeId}/review/{summaryType}")
-    public ResponseEntity<?> getBestReviewSummary(@PathVariable(value="storeId") Long storeId,
-                                                  @PathVariable(value="summaryType") String summaryType) {
-        String content = gptService.findReviewSummaryByStoreIdAndSummaryType(storeId, summaryType);
-        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(content);
+    @GetMapping("/store/{storeId}/review")
+    public ResponseEntity<?> getReviewSummarys(@PathVariable(value = "storeId") Long storeId) {
+        GptResponseDto<Map<String, String>> gptResponseDto = gptService.findReviewSummaryByStoreId(storeId);
+        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(gptResponseDto);
         return ResponseEntity.ok().body(apiResult);
     }
 
