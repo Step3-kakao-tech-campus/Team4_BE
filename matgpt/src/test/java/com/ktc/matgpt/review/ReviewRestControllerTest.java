@@ -2,13 +2,18 @@ package com.ktc.matgpt.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.TestHelper;
+import com.ktc.matgpt.aws.FileValidator;
+import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
+import com.ktc.matgpt.store.StoreService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,12 +26,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.*;
 import java.net.URL;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,6 +53,18 @@ public class ReviewRestControllerTest {
 
     @Mock
     private ImageService imageService;
+
+    @Mock
+    private FoodService foodService;
+
+    @Mock
+    private StoreService storeService;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
 
 
     @DisplayName("개별 리뷰 상세조회")
@@ -101,8 +118,7 @@ public class ReviewRestControllerTest {
         fileInfo.put("contentType", imageFile.getContentType());
 
         // 리뷰 데이터 DTO를 준비합니다.
-        ReviewRequest.SimpleCreateDTO requestDTO = TestHelper.constructTempReviewCreateDTO();
-        String requestDTOJson = TestHelper.convertToJSON(requestDTO);
+        String requestDTOJson = TestHelper.constructTempReviewCreateDTO();
         MockMultipartFile dataPart = new MockMultipartFile("data", "", "application/json", requestDTOJson.getBytes());
 
 
@@ -124,26 +140,30 @@ public class ReviewRestControllerTest {
     }
 
 
-    @DisplayName("리뷰 생성 완료")
+    @DisplayName("리뷰 생성 완료") //TODO : 테스트 코드 작성 실패
     @Test
     public void completeReview_test() throws Exception {
         //given
-        String storeId = "1";
-        String reviewId = "41";
+        Long storeId = 1L;
+        Long reviewId = 1L;
+        String requestDTOJson = TestHelper.constructCompleteDTO();
+        String url = String.format("/stores/%d/complete/%d", storeId, reviewId);
 
         //when
         ResultActions resultActions = mvc.perform(
-                post("/stores/"+ storeId +"/complete/"+ reviewId)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                post(url)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(requestDTOJson) // 리뷰 세부 정보 포함
         );
 
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
-        System.out.println("테스트 : "+responseBody);
+        System.out.println("테스트 : " + responseBody);
 
         // verify
         resultActions.andExpect(jsonPath("$.success").value("true"));
     }
+
 
     @DisplayName("음식점 리뷰 목록(5개 단위) 조회 최신순")
     @Test
