@@ -15,13 +15,12 @@ public class LikeReviewResponseDTO {
     @Setter
     public static class FindAllLikeReviewsDTO{
 
-        private Long userId;
         private List<LikeReviewResponseDTO.FindAllLikeReviewsDTO.ReviewDTO> reviewList;
 
         public FindAllLikeReviewsDTO(User user, List<Review> reviewList){
-            this.userId = user.getId();
-            this.reviewList = reviewList.stream().map(LikeReviewResponseDTO.FindAllLikeReviewsDTO.ReviewDTO::new).collect(Collectors.toList());
-
+            this.reviewList = reviewList.stream()
+                    .map(review -> new ReviewDTO(review, user)) // Review와 User 객체 모두 전달
+                    .collect(Collectors.toList());
         }
 
         @Getter @Setter
@@ -34,14 +33,14 @@ public class LikeReviewResponseDTO {
             private StoreDTO store;
             private ReviewerDTO reviewer;
 
-            public ReviewDTO(Review review){
+            public ReviewDTO(Review review,User user){
                 this.reviewId = review.getId();
                 this.reviewContent = review.getContent();
                 this.rating = review.getRating();
                 this.peopleCount = review.getPeopleCount();
                 this.numOfLikes = review.getRecommendCount();
                 this.store = new StoreDTO(review.getStore());
-                this.reviewer = new ReviewerDTO(review.get());
+                this.reviewer = new ReviewerDTO(user); // ReviewerDTO 초기화
             }
 
             @Getter @Setter
@@ -53,7 +52,7 @@ public class LikeReviewResponseDTO {
                 public StoreDTO(Store store){
                     this.storeId = store.getId();
                     this.storeName = store.getName();
-                    this.storeImage = store.getStoreImg();
+                    this.storeImage = store.getStoreImageUrl();
                 }
             }
 
@@ -66,7 +65,7 @@ public class LikeReviewResponseDTO {
                 public ReviewerDTO(User user){
                     this.userId = user.getId();
                     this.userName = user.getName();
-                    this.userProfileImage = user.getProfileImage;
+                    this.userProfileImage = user.getProfileImageUrl();
                 }
             }
         }

@@ -33,7 +33,7 @@ public class LikeReviewService {
             deleteLikeToReview(userRef, reviewRef);
             return false;
         } else {
-            addLikeToReview(userRef, reviewRef);
+            addLikeToReview(userRef, storeRef, reviewRef);
             return true;
         }
     }
