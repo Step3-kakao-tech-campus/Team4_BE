@@ -30,6 +30,9 @@ public class User {
     private String email;
 
     @Column(nullable = true)
+    private String profileImageUrl;
+
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
