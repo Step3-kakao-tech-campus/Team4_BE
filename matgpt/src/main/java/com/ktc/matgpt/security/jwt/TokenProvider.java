@@ -1,6 +1,7 @@
 package com.ktc.matgpt.security.jwt;
 
-import com.ktc.matgpt.exception.InvalidTokenException;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.security.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -95,7 +96,7 @@ public class TokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new InvalidTokenException("권한 정보가 없는 토큰입니다.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN_EXCEPTION);
         }
 
 
