@@ -31,7 +31,7 @@ public class StoreService {
     // 마커 표시할 음식점 보기
     @Transactional(readOnly = true)
     public List<StoreResponse.MarkerStoresDTO> findAllMarkers(double maxLat, double maxLon, double minLat, double minLon) {
-        List<Store> stores = storeJPARepository.findMarkers(maxLat, maxLon, minLat, minLon);
+        List<Store> stores = storeJPARepository.findAllWithinLatLonBoundaries(maxLat, maxLon, minLat, minLon);
         return stores.stream()
                 .map(StoreResponse.MarkerStoresDTO::new)
                 .toList();
@@ -157,25 +157,25 @@ public class StoreService {
 
     private List<Store> getStoreListById(String search, Long cursor, Pageable pageable) {
         return cursor == -1
-                ? storeJPARepository.findAllById(search, pageable)
-                : storeJPARepository.findByIdLessThanOrderByIdDesc(search, cursor, pageable);
+                ? storeJPARepository.findAllBySearchOrderByIdDesc(search, pageable)
+                : storeJPARepository.findAllBySearchAndIdLessThanCursor(search, cursor, pageable);
     }
 
     private List<Store> getStoreListByStar(String search, Long cursor, Long lastId, Pageable pageable) {
         return cursor == -1
-                ? storeJPARepository.findAllByStar(search, pageable)
-                : storeJPARepository.findAllByStarLessThanIdDesc(search,cursor, lastId, pageable);
+                ? storeJPARepository.findAllBySearchOrderByRatingDesc(search, pageable)
+                : storeJPARepository.findAllBySearchAndRatingLessThanCursor(search,cursor, lastId, pageable);
     }
 
     private List<Store> getStoreListByReviews(String search, Integer cursor, Long lastId, Pageable pageable) {
         return cursor == -1
-            ? storeJPARepository.findAllByReviews(search, pageable)
-            : storeJPARepository.findAllByReviewsLessThanIdDesc(search, cursor, lastId, pageable);
+            ? storeJPARepository.findAllBySearchOrderByNumsOfReviewDesc(search, pageable)
+            : storeJPARepository.findAllBySearchAndNumsOfReviewLessThanCursor(search, cursor, lastId, pageable);
     }
 
     private List<Store> getStoreListByDistance(double latitude, double longitude, Double cursor, Long lastId, Pageable pageable) {
         return cursor == -1.0
-                ? storeJPARepository.findNearestStoresWithDistance(latitude, longitude, pageable)
-                : storeJPARepository.findNearestStoresWithDistance(latitude, longitude, cursor, lastId, pageable);
+                ? storeJPARepository.findAllByNearest(latitude, longitude, pageable)
+                : storeJPARepository.findAllByNearestAndDistanceLessThanCursor(latitude, longitude, cursor, lastId, pageable);
     }
 }
