@@ -1,29 +1,36 @@
 package com.ktc.matgpt.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ktc.matgpt.TestHelper;
+import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
+import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,6 +42,13 @@ public class ReviewRestControllerTest {
 
     @Autowired
     private ObjectMapper ob;
+
+    @Mock
+    private ReviewService reviewService;
+
+    @Mock
+    private ImageService imageService;
+
 
     @DisplayName("개별 리뷰 상세조회")
     @Test
@@ -63,15 +77,43 @@ public class ReviewRestControllerTest {
         String storeId = "1";
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
-        String requestBody = ob.writeValueAsString(constructTempReviewCreateDTO());
+        String reviewUuid = "uuiduuiduuiduuid111";
+        List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = new ArrayList<>();
+
+        // 예시 데이터, 실제 데이터는 S3 사전 서명된 URL 생성 로직을 통해 얻어야 함
+        String exampleFileName = "image.jpg";
+        URL examplePresignedUrl = new URL("https://example-bucket.s3.amazonaws.com/" + exampleFileName + "?AWSAccessKeyId=EXAMPLEKEY&Expires=1570000000&Signature=EXAMPLESIGNATURE");
+
+        // 객체 생성 및 목록에 추가
+        presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(exampleFileName, examplePresignedUrl));
+
+        when(reviewService.createTemporaryReview(any(Long.class), any(Long.class), any(ReviewRequest.SimpleCreateDTO.class)))
+                .thenReturn(reviewUuid);
+        when(reviewService.createPresignedUrls(eq(reviewUuid), any(Integer.class)))
+                .thenReturn(presignedUrls);
+
+        // 가상의 이미지 파일을 준비합니다.
+        MockMultipartFile imageFile = new MockMultipartFile("images", "image.jpg", "image/jpeg", "image content".getBytes());
+
+        // 파일 정보를 맵으로 변환합니다.
+        Map<String, String> fileInfo = new HashMap<>();
+        fileInfo.put("name", imageFile.getOriginalFilename());
+        fileInfo.put("contentType", imageFile.getContentType());
+
+        // 리뷰 데이터 DTO를 준비합니다.
+        ReviewRequest.SimpleCreateDTO requestDTO = TestHelper.constructTempReviewCreateDTO();
+        String requestDTOJson = TestHelper.convertToJSON(requestDTO);
+        MockMultipartFile dataPart = new MockMultipartFile("data", "", "application/json", requestDTOJson.getBytes());
+
+
 
         //when
-        ResultActions resultActions = mvc.perform(
-                post("/stores/"+ storeId +"/reviews/temp")
-                        .content(requestBody)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
-        );
+        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/stores/{storeId}/reviews/temp", 1)
+                        .file(dataPart)
+                        .file(imageFile)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal)))
+                        .andExpect(status().isOk());
 
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -80,6 +122,7 @@ public class ReviewRestControllerTest {
         // verify
         resultActions.andExpect(jsonPath("$.success").value("true"));
     }
+
 
     @DisplayName("리뷰 생성 완료")
     @Test
@@ -195,30 +238,4 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.success").value("true"));
     }
 
-    public ReviewRequest.SimpleCreateDTO constructTempReviewCreateDTO() throws IOException {
-
-        InputStream fi1 = new ByteArrayInputStream(new File("src/main/resources/images/image1.png"));
-        InputStream fi2 = new ByteArrayInputStream(new File("src/main/resources/images/image2.png"));
-
-        MockMultipartFile image1 = new MockMultipartFile("image1", "image1.png", "image/png", fi1);
-        MockMultipartFile image2 = new MockMultipartFile("image2", "image2.png", "image/png", fi2);
-
-        List<ReviewRequest.SimpleCreateDTO.ImageDTO> images = Arrays.asList(
-                new ReviewRequest.SimpleCreateDTO.ImageDTO(image1),
-                new ReviewRequest.SimpleCreateDTO.ImageDTO(image2)
-        );
-
-
-        return ReviewRequest.SimpleCreateDTO.builder()
-                .reviewImages(images)
-                .content("리뷰 임시 저장 확인 - 리뷰 내용입니다.")
-                .rating(3.4)
-                .peopleCount(4)
-                .totalPrice(36700)
-                .build();
-    }
-
-//    public ReviewRequest.CreateCompleteDTO constructReviewCompleteDTO() {
-//
-//    }
 }
