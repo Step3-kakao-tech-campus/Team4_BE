@@ -16,11 +16,11 @@ public class ReviewResponse {
     @Getter
     @ToString
     public static class UploadS3DTO {
-        private Long reviewId;
+        private String reviewUuid;
         private List<PresignedUrlDTO> presignedUrls;
 
-        public UploadS3DTO(Long reviewId, List<PresignedUrlDTO> presignedUrls) {
-            this.reviewId = reviewId;
+        public UploadS3DTO(String reviewUuid, List<PresignedUrlDTO> presignedUrls) {
+            this.reviewUuid = reviewUuid;
             this.presignedUrls = presignedUrls;
         }
 
@@ -176,7 +176,7 @@ public class ReviewResponse {
                 this.rating = review.getRating();
                 this.content = review.getContent();
                 this.createdAt = review.getCreatedAt();
-                this.storeImage = review.getStore().getStoreImg();
+                this.storeImage = review.getStore().getStoreImageUrl();
                 this.storeName = review.getStore().getName();
                 this.imageUrls = imageUrls;
                 this.relativeTime = relativeTime;

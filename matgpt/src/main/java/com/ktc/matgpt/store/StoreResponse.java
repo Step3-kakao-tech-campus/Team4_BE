@@ -29,14 +29,14 @@ public class StoreResponse {
         private String storeName;
         private double latitude;
         private double longitude;
-        private String storeImg;
+        private String storeImage;
 
         public MarkerStoresDTO(Store store){
             this.storeId = store.getId();
             this.storeName = store.getName();
             this.latitude = store.getLatitude();
             this.longitude = store.getLongitude();
-            this.storeImg = store.getStoreImg();
+            this.storeImage = store.getStoreImageUrl();
         }
     }
 
@@ -96,7 +96,7 @@ public class StoreResponse {
             this.businessHours = store.getBusinessHours();
             this.avgCostPerPerson = store.getAvgCostPerPerson();
             this.avgVisitCount = store.getAvgVisitCount();
-            this.storeImg = store.getStoreImg();
+            this.storeImg = store.getStoreImageUrl();
             this.numsOfReview = store.getNumsOfReview();
             this.ratingAvg = store.getRatingAvg();
         }

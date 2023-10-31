@@ -36,7 +36,7 @@ public class Store {
     private String businessHours;
 
     @Column
-    private String storeImg;
+    private String storeImageUrl;
 
     @Column(nullable = false)
     private Double latitude;

@@ -1,5 +1,6 @@
 package com.ktc.matgpt.review.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,29 +10,21 @@ import java.util.List;
 public class ReviewRequest {
 
     // 초기 리뷰 생성을 위한 간소화된 DTO
-    @Getter
+    @Getter @Setter
     @ToString
-    public class SimpleCreateDTO {
-        private List<SimpleCreateDTO.ImageDTO> reviewImages;
+    @NoArgsConstructor
+    public static class SimpleCreateDTO {
         private String content;
         private double rating;
         private int peopleCount;
         private int totalPrice;
 
-        public SimpleCreateDTO(List<SimpleCreateDTO.ImageDTO> reviewImages, String content,
-                         double rating, int peopleCount, int totalPrice) {
-            this.reviewImages = reviewImages;
+        @Builder
+        public SimpleCreateDTO(String content, double rating, int peopleCount, int totalPrice) {
             this.content = content;
             this.rating = rating;
             this.peopleCount = peopleCount;
             this.totalPrice = totalPrice;
-        }
-
-        @Getter
-        @ToString
-        @NoArgsConstructor(force = true)
-        public static class ImageDTO {
-            private MultipartFile image;
         }
     }
 
@@ -63,6 +56,11 @@ public class ReviewRequest {
             private String imageUrl;
             private List<TagDTO> tags;
 
+            public ImageDTO(String imageUrl, List<TagDTO> tags) {
+                this.imageUrl = imageUrl;
+                this.tags = tags;
+            }
+
             @Getter
             @ToString
             public static class TagDTO {
@@ -70,6 +68,13 @@ public class ReviewRequest {
                 private int locationX;
                 private int locationY;
                 private double rating;
+
+                public TagDTO(String name, int locationX, int locationY, double rating) {
+                    this.name = name;
+                    this.locationX = locationX;
+                    this.locationY = locationY;
+                    this.rating = rating;
+                }
             }
         }
     }
@@ -83,7 +88,7 @@ public class ReviewRequest {
         @Min(1)
         private int peopleCount;
         @Min(0)
-        private int totalPrice;     // 범위로 받게 된다면 enum PriceRange 타입 이용
+        private int totalPrice;
 
         public CreateDTO(List<ImageDTO> reviewImages, String content,
                          double rating, int peopleCount, int totalPrice) {
@@ -115,9 +120,14 @@ public class ReviewRequest {
 
 
     @Getter
+    @Setter
     @ToString
+    @NoArgsConstructor
     public static class UpdateDTO {
         private String content;
+        public UpdateDTO(String content) {
+            this.content = content;
+        }
     }
 
 
