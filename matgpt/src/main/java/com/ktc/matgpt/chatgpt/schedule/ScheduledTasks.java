@@ -31,7 +31,7 @@ public class ScheduledTasks {
      * chatGpt review Summary를 갱신합니다.
      */
     @Timer
-    @Scheduled(cron = "0 40 * * * SUN")
+    @Scheduled(cron = "0 0 4 * * SUN")
     public void getReviewSummarysFromChatGptApi() {
 
         List<GptResponse> gptResponses = storeService.findAllForGpt().stream()
