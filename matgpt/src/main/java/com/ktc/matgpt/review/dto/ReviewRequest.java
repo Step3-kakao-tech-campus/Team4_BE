@@ -14,29 +14,17 @@ public class ReviewRequest {
     @ToString
     @NoArgsConstructor
     public static class SimpleCreateDTO {
-        private List<SimpleCreateDTO.ImageDTO> reviewImages;
         private String content;
         private double rating;
         private int peopleCount;
         private int totalPrice;
 
         @Builder
-        public SimpleCreateDTO(List<SimpleCreateDTO.ImageDTO> reviewImages, String content,
-                         double rating, int peopleCount, int totalPrice) {
-            this.reviewImages = reviewImages;
+        public SimpleCreateDTO(String content, double rating, int peopleCount, int totalPrice) {
             this.content = content;
             this.rating = rating;
             this.peopleCount = peopleCount;
             this.totalPrice = totalPrice;
-        }
-
-        @Getter @Setter
-        @ToString
-        @NoArgsConstructor(force = true)
-        public static class ImageDTO {
-            @JsonProperty
-            private MultipartFile image;
-            public ImageDTO(MultipartFile image) { this.image = image; }
         }
     }
 
