@@ -180,8 +180,8 @@ public class ReviewService {
 
     public List<Review> findByStoreIdAndSummaryType(Long storeId, String summaryType, int limit) {
         Pageable pageable = switch (summaryType) {
-            case "BEST" -> PageRequest.of(0, limit, Sort.by(Sort.Order.desc("rating")));
-            case "WORST" -> PageRequest.of(0, limit, Sort.by(Sort.Order.asc("rating")));
+            case "best" -> PageRequest.of(0, limit, Sort.by(Sort.Order.desc("rating")));
+            case "worst" -> PageRequest.of(0, limit, Sort.by(Sort.Order.asc("rating")));
             default -> throw new IllegalArgumentException("Invalid summaryType: " + summaryType);
         };
 
