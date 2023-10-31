@@ -56,6 +56,11 @@ public class ReviewRequest {
             private String imageUrl;
             private List<TagDTO> tags;
 
+            public ImageDTO(String imageUrl, List<TagDTO> tags) {
+                this.imageUrl = imageUrl;
+                this.tags = tags;
+            }
+
             @Getter
             @ToString
             public static class TagDTO {
@@ -63,6 +68,13 @@ public class ReviewRequest {
                 private int locationX;
                 private int locationY;
                 private double rating;
+
+                public TagDTO(String name, int locationX, int locationY, double rating) {
+                    this.name = name;
+                    this.locationX = locationX;
+                    this.locationY = locationY;
+                    this.rating = rating;
+                }
             }
         }
     }
