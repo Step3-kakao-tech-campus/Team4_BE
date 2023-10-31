@@ -28,7 +28,7 @@ public class MyPageController {
                                              @RequestParam(defaultValue = "1") int pageNum,
                                              @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
-        List<ReviewResponse.FindAllByUserIdDTO> responseDTOs =
+        ReviewResponse.FindPageByUserIdDTO responseDTOs =
                 reviewService.findAllByUserId(userPrincipal.getId(), sortBy, pageNum);
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);

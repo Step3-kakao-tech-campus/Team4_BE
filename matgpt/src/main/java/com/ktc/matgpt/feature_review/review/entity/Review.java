@@ -25,22 +25,22 @@ public class Review extends BaseTimeEntity {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String content;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private double rating;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private int peopleCount;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private int totalPrice;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private int costPerPerson;
 
-    @Column(nullable = false)
+    @Column(updatable = false)
     private int recommendCount = 0;
 
     @Builder

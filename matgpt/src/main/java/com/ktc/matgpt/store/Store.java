@@ -1,13 +1,13 @@
 package com.ktc.matgpt.store;
 
 
-import com.ktc.matgpt.store.entity.Category;
-import jakarta.persistence.Entity;
+import com.ktc.matgpt.store.entity.SubCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 @Entity
 @Builder
@@ -21,36 +21,30 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String storeName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sub_category_id")
+    private SubCategory subCategory;
 
     @Column(nullable = false)
-    private String number;
+    private String name;
+
+    @Column(nullable = false)
+    private String phoneNumber;
 
     @Column(nullable = false)
     private String address;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Category category;
-
-    @Column(nullable = false)
-    private String detailedCategory;
-
-    @Column(nullable = false)
-    private String openingTime;
-
-    @Column(nullable = false)
-    private String closingTime;
+    private String businessHours;
 
     @Column
-    private String breakTime;
+    private String storeImg;
 
     @Column(nullable = false)
-    private String latitude;
+    private Double latitude;
 
     @Column(nullable = false)
-    private String longitude;
+    private Double longitude;
 
     @Column
     private double avgCostPerPerson;
@@ -58,8 +52,6 @@ public class Store {
     @Column
     private int avgVisitCount;
 
-    @Column
-    private String storeImg;
 
     @Column(nullable = false)
     private int numsOfReview;
@@ -69,4 +61,3 @@ public class Store {
 
 
 }
-
