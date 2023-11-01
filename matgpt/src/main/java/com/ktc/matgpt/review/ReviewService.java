@@ -7,6 +7,7 @@ import com.ktc.matgpt.food.Food;
 import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.Image;
 import com.ktc.matgpt.image.ImageService;
+import com.ktc.matgpt.like.likeReview.LikeReviewService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
@@ -47,6 +48,8 @@ public class ReviewService {
     private final TagService tagService;
     private final UserService userService;
     private final StoreService storeService;
+    // TODO: LikeReviewService <-> ReviewService 순환참조 발생 해결
+//    private final LikeReviewService likeReviewService;
     private final MessageSourceAccessor messageSourceAccessor;
     private final EntityManager entityManager;
 
@@ -131,7 +134,6 @@ public class ReviewService {
         review.updateContent(requestDTO.getContent());
     }
 
-
     public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId) {
 
         Review review = findReviewByIdOrThrow(reviewId);
@@ -157,7 +159,6 @@ public class ReviewService {
 
 
     public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, double cursorRating) {
-
 
         List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE);
@@ -226,7 +227,14 @@ public class ReviewService {
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
         }
+        // 이미지(+태그) 삭제
         imageService.deleteImagesByReviewId(reviewId);
+        // Store에 리뷰 삭제 반영
+        Store store = review.getStore();
+        store.removeReview(reviewId);
+        // 리뷰 삭제
+        // TODO: 리뷰에 등록된 좋아요 삭제 과정이 필요함, 현재 순환참조 관계로 구현하지 못함
+//        likeReviewService.deleteAllByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
         log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
     }
@@ -267,5 +275,4 @@ public class ReviewService {
             throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
         }
     }
-
 }
