@@ -86,25 +86,22 @@ public class ReviewService {
     }
 
     // 리뷰 생성 메서드
-    public Long createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
-
+    public String createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
-
         // 리뷰 데이터 저장
         Review review = Review.create(userId, storeRef, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
-        return review.getId();
+        return review.getReviewUuid();
     }
 
     // Presigned URL 생성 메서드
-    public List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> createPresignedUrls(Long reviewId, ReviewRequest.SimpleCreateDTO simpleDTO) throws FileValidator.FileValidationException {
+    public List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> createPresignedUrls(String reviewUuid, int imageCount) throws FileValidator.FileValidationException {
         List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = new ArrayList<>();
 
-        for (ReviewRequest.SimpleCreateDTO.ImageDTO imageDTO : simpleDTO.getReviewImages()) {
-            imageService.validateImageFile(imageDTO.getImage());
-            String objectKey = generateObjectKey(reviewId, imageDTO.getImage()); // MultipartFile에서 파일명 추출
+        for (int i = 1; i <= imageCount; i++) {
+            String objectKey = generateObjectKey(reviewUuid, i); // 숫자를 사용하여 객체 키 생성
             URL presignedUrl = s3Service.getPresignedUrl(objectKey);
 
             presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(objectKey, presignedUrl));
@@ -118,10 +115,9 @@ public class ReviewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
     }
 
-    private String generateObjectKey(Long reviewId, MultipartFile image) {
-        // 필요시 커스텀 가능
-        // TODO: S3내부 구조 확정시에 변경 요망
-        return String.format("reviews/%d/%s", reviewId, image);
+    private String generateObjectKey(String reviewUuid, int imageIndex) {
+        // 리뷰 UUID와 순서를 조합하여 객체 키 생성
+        return String.format("reviews/%s/%d", reviewUuid, imageIndex);
     }
 
     //태그에 음식, 이미지 매핑해서 저장

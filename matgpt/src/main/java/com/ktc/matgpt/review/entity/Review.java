@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,6 +33,9 @@ public class Review extends BaseTimeEntity {
     @Column(updatable = false)
     private double rating;
 
+    @Column(nullable = false, unique = true)
+    private String reviewUuid;
+
     @Column(updatable = false)
     private int peopleCount;
 
@@ -49,6 +54,7 @@ public class Review extends BaseTimeEntity {
         this.userId = userId;
         this.content = content;
         this.rating = rating;
+        this.reviewUuid = UUID.randomUUID().toString();
         this.peopleCount = peopleCount;
         this.totalPrice = totalPrice;
         this.costPerPerson = totalPrice / peopleCount;
