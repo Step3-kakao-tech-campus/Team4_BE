@@ -40,8 +40,8 @@ public class Review extends BaseTimeEntity {
     @Column(updatable = false)
     private int costPerPerson;
 
-    @Column(updatable = false)
-    private int recommendCount = 0;
+    @Column
+    private int recommendCount;
 
     public Review(Store store, Long userId, String content, double rating,
                   int peopleCount, int totalPrice) {
