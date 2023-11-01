@@ -57,6 +57,7 @@ public class ReviewRestControllerTest {
 
         // verify
         resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.response.reviewId").value("1"));
     }
 
     @Disabled
