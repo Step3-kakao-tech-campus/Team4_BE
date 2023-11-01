@@ -42,7 +42,7 @@ public class LikeReviewService {
         return likeReviewList.stream().map(likeReview -> {
             Review review = likeReview.getReview();
             User reviewer = likeReview.getUser();
-            return new LikeReviewResponseDTO.FindLikeReviewDTO(review, reviewer.getId(), reviewer.getName(), ""/*profileImage()*/);
+            return new LikeReviewResponseDTO.FindLikeReviewDTO(review, reviewer.getName(), ""/* -> reviewer.getProfileImage()*/);
         }).collect(Collectors.toList());
     }
 
