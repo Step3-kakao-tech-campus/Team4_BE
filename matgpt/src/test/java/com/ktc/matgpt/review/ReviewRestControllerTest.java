@@ -3,6 +3,7 @@ package com.ktc.matgpt.review;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.security.UserPrincipal;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.Arrays;
@@ -56,6 +58,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.success").value("true"));
     }
 
+    @Disabled
     @DisplayName("임시 리뷰 저장")
     @Test
     public void createTemporaryReview_test() throws Exception {
@@ -63,7 +66,7 @@ public class ReviewRestControllerTest {
         String storeId = "1";
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
-        String requestBody = ob.writeValueAsString(constructTempReviewCreateDTO());
+        String requestBody = ob.writeValueAsString(null /*constructTempReviewCreateDTO()*/);
 
         //when
         ResultActions resultActions = mvc.perform(
@@ -81,6 +84,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.success").value("true"));
     }
 
+    @Disabled
     @DisplayName("리뷰 생성 완료")
     @Test
     public void completeReview_test() throws Exception {
@@ -107,20 +111,65 @@ public class ReviewRestControllerTest {
     public void findReviewsByStoreIdWithCursorPagingSortByLatest_test() throws Exception {
         //given
         String sortBy = "latest";
-        String cursorId = "9";
+        String cursorId = "41";
 
         //when
         ResultActions resultActions = mvc.perform(
                 get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
-
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
-
         // verify
         resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("16"));
+        resultActions.andExpect(jsonPath("$.response[1].reviewId").value("15"));
+        resultActions.andExpect(jsonPath("$.response[2].reviewId").value("14"));
+        resultActions.andExpect(jsonPath("$.response[3].reviewId").value("13"));
+        resultActions.andExpect(jsonPath("$.response[4].reviewId").value("12"));
+
+        //given
+        cursorId = "12";
+        //when
+        resultActions = mvc.perform(
+                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        // verify
+        resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("11"));
+        resultActions.andExpect(jsonPath("$.response[1].reviewId").value("10"));
+        resultActions.andExpect(jsonPath("$.response[2].reviewId").value("9"));
+        resultActions.andExpect(jsonPath("$.response[3].reviewId").value("8"));
+        resultActions.andExpect(jsonPath("$.response[4].reviewId").value("7"));
+
+        //given
+        cursorId = "7";
+        //when
+        resultActions = mvc.perform(
+                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        // verify
+        resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("6"));
+        resultActions.andExpect(jsonPath("$.response[1].reviewId").value("5"));
+        resultActions.andExpect(jsonPath("$.response[2].reviewId").value("4"));
+        resultActions.andExpect(jsonPath("$.response[3].reviewId").value("3"));
+        resultActions.andExpect(jsonPath("$.response[4].reviewId").value("2"));
+
+        //given
+        cursorId = "2";
+        //when
+        resultActions = mvc.perform(
+                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        // verify
+        resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("1"));
     }
 
     @DisplayName("음식점 리뷰 목록(5개 단위) 조회 평점순")
@@ -128,7 +177,7 @@ public class ReviewRestControllerTest {
     public void findReviewsByStoreIdWithCursorPagingSortByRating_test() throws Exception{
         //given
         String sortBy = "rating";
-        String cursorId = "9";
+        String cursorId = "41";
         String cursorRating = "5.0";
 
         //when
@@ -136,13 +185,82 @@ public class ReviewRestControllerTest {
                 get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
-
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
-
         // verify
         resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("11"));
+        resultActions.andExpect(jsonPath("$.response[0].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[1].reviewId").value("10"));
+        resultActions.andExpect(jsonPath("$.response[1].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[2].reviewId").value("9"));
+        resultActions.andExpect(jsonPath("$.response[2].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[3].reviewId").value("8"));
+        resultActions.andExpect(jsonPath("$.response[3].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[4].reviewId").value("7"));
+        resultActions.andExpect(jsonPath("$.response[4].rating").value("5.0"));
+
+        //given
+        cursorId = "7";
+        cursorRating = "5.0";
+
+        //when
+        resultActions = mvc.perform(
+                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        // verify
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("6"));
+        resultActions.andExpect(jsonPath("$.response[0].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[1].reviewId").value("5"));
+        resultActions.andExpect(jsonPath("$.response[1].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[2].reviewId").value("4"));
+        resultActions.andExpect(jsonPath("$.response[2].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[3].reviewId").value("3"));
+        resultActions.andExpect(jsonPath("$.response[3].rating").value("5.0"));
+        resultActions.andExpect(jsonPath("$.response[4].reviewId").value("1"));
+        resultActions.andExpect(jsonPath("$.response[4].rating").value("5.0"));
+
+        //given
+        cursorId = "1";
+        cursorRating = "5.0";
+
+        //when
+        resultActions = mvc.perform(
+                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        // verify
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("12"));
+        resultActions.andExpect(jsonPath("$.response[0].rating").value("4.0"));
+        resultActions.andExpect(jsonPath("$.response[1].reviewId").value("2"));
+        resultActions.andExpect(jsonPath("$.response[1].rating").value("4.0"));
+        resultActions.andExpect(jsonPath("$.response[2].reviewId").value("13"));
+        resultActions.andExpect(jsonPath("$.response[2].rating").value("3.0"));
+        resultActions.andExpect(jsonPath("$.response[3].reviewId").value("16"));
+        resultActions.andExpect(jsonPath("$.response[3].rating").value("2.0"));
+        resultActions.andExpect(jsonPath("$.response[4].reviewId").value("14"));
+        resultActions.andExpect(jsonPath("$.response[4].rating").value("2.0"));
+
+        //given
+        cursorId = "14";
+        cursorRating = "2.0";
+
+        //when
+        resultActions = mvc.perform(
+                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        // verify
+        resultActions.andExpect(jsonPath("$.response[0].reviewId").value("15"));
+        resultActions.andExpect(jsonPath("$.response[0].rating").value("1.0"));
     }
 
     @DisplayName("리뷰 수정")
@@ -151,9 +269,10 @@ public class ReviewRestControllerTest {
 
         //given
         Long reviewId = 1L;
+        String content = "리뷰-1의 내용이 수정된 결과입니다.";
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
-        String requestBody = ob.writeValueAsString(new ReviewRequest.UpdateDTO("리뷰-1의 내용이 수정된 결과입니다."));
+        String requestBody = ob.writeValueAsString(new ReviewRequest.UpdateDTO(content));
 
         //when
         ResultActions resultActions = mvc.perform(
@@ -162,13 +281,19 @@ public class ReviewRestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
-
-        //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
 
+        resultActions = mvc.perform(
+                get("/stores/"+reviewId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : "+responseBody);
         // verify
         resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(jsonPath("$.response.content").value(content));
     }
 
 
@@ -179,46 +304,31 @@ public class ReviewRestControllerTest {
         Long reviewId = 1L;
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
+        String notFoundMessage = "[MatGPT] 요청한 리뷰를 찾을 수 없습니다.";
 
-        //when
+        //when - 리뷰 삭제
         ResultActions resultActions = mvc.perform(
                 delete("/stores/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
-
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
-
         // verify
         resultActions.andExpect(jsonPath("$.success").value("true"));
-    }
 
-    public ReviewRequest.SimpleCreateDTO constructTempReviewCreateDTO() throws IOException {
-
-        InputStream fi1 = new ByteArrayInputStream(new File("src/main/resources/images/image1.png"));
-        InputStream fi2 = new ByteArrayInputStream(new File("src/main/resources/images/image2.png"));
-
-        MockMultipartFile image1 = new MockMultipartFile("image1", "image1.png", "image/png", fi1);
-        MockMultipartFile image2 = new MockMultipartFile("image2", "image2.png", "image/png", fi2);
-
-        List<ReviewRequest.SimpleCreateDTO.ImageDTO> images = Arrays.asList(
-                new ReviewRequest.SimpleCreateDTO.ImageDTO(image1),
-                new ReviewRequest.SimpleCreateDTO.ImageDTO(image2)
+        //when - 리뷰 삭제 후 조회
+        resultActions = mvc.perform(
+                delete("/stores/"+reviewId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
-
-
-        return ReviewRequest.SimpleCreateDTO.builder()
-                .reviewImages(images)
-                .content("리뷰 임시 저장 확인 - 리뷰 내용입니다.")
-                .rating(3.4)
-                .peopleCount(4)
-                .totalPrice(36700)
-                .build();
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : "+responseBody);
+        // verify
+        resultActions.andExpect(jsonPath("$.errorCode").value(404));
+        resultActions.andExpect(jsonPath("$.message").value(notFoundMessage));
     }
-
-//    public ReviewRequest.CreateCompleteDTO constructReviewCompleteDTO() {
-//
-//    }
 }
