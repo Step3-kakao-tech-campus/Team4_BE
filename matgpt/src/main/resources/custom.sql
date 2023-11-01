@@ -131,3 +131,13 @@ VALUES
     (38, 4, 10, '완전 추천합니다!', 5, 5, 50000, 25000, 2, now(), now()),
     (39, 4, 11, '최고의 음식, 최고의 서비스!', 5, 5, 50000, 25000, 2, now(), now()),
     (40, 4, 12, '자주 방문하려고요. 정말 맛있어요!', 5, 5, 50000, 25000, 2, now(), now());
+
+-- LikeStore Table Initalization
+INSERT INTO likereview_tb(review_id, user_id)VALUES (1 ,1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (3, 1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (1, 2);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 2);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
