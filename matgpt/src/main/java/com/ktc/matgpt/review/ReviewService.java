@@ -123,7 +123,7 @@ public class ReviewService {
 
 
     @Transactional
-    public void update(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
+    public void updateContent(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
         Review review = findReviewByIdOrThrow(reviewId);
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
