@@ -229,9 +229,9 @@ public class ReviewService {
         }
         // 이미지(+태그) 삭제
         imageService.deleteImagesByReviewId(reviewId);
-        // Store에 리뷰 삭제 반영
-        Store store = review.getStore();
-        store.removeReview(reviewId);
+
+        Store store = storeService.findById(review.getStore().getId());
+        store.removeReview(review.getRating());
         // 리뷰 삭제
         // TODO: 리뷰에 등록된 좋아요 삭제 과정이 필요함, 현재 순환참조 관계로 구현하지 못함
 //        likeReviewService.deleteAllByReviewId(reviewId);
