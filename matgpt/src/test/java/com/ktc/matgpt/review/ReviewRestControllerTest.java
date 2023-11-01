@@ -43,10 +43,11 @@ public class ReviewRestControllerTest {
     public void findReviewById_test() throws Exception {
         //given
         String reviewId = "1";
+        String storeId = "1";
 
         //when
         ResultActions resultActions = mvc.perform(
-                get("/stores/"+reviewId)
+                get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -94,7 +95,7 @@ public class ReviewRestControllerTest {
 
         //when
         ResultActions resultActions = mvc.perform(
-                post("/stores/"+ storeId +"/complete/"+ reviewId)
+                post("/stores/"+ storeId +"/reviews/complete/"+ reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -112,10 +113,11 @@ public class ReviewRestControllerTest {
         //given
         String sortBy = "latest";
         String cursorId = "41";
+        String storeId = "1";
 
         //when
         ResultActions resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -134,7 +136,7 @@ public class ReviewRestControllerTest {
         cursorId = "12";
         //when
         resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         // verify
@@ -149,7 +151,7 @@ public class ReviewRestControllerTest {
         cursorId = "7";
         //when
         resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         // verify
@@ -164,7 +166,7 @@ public class ReviewRestControllerTest {
         cursorId = "2";
         //when
         resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         // verify
@@ -176,13 +178,14 @@ public class ReviewRestControllerTest {
     @Test
     public void findReviewsByStoreIdWithCursorPagingSortByRating_test() throws Exception{
         //given
+        String storeId = "1";
         String sortBy = "rating";
         String cursorId = "41";
         String cursorRating = "5.0";
 
         //when
         ResultActions resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -207,7 +210,7 @@ public class ReviewRestControllerTest {
 
         //when
         resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -230,7 +233,7 @@ public class ReviewRestControllerTest {
 
         //when
         resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -253,7 +256,7 @@ public class ReviewRestControllerTest {
 
         //when
         resultActions = mvc.perform(
-                get("/stores/1/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorRating="+ cursorRating)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -268,7 +271,8 @@ public class ReviewRestControllerTest {
     public void updateReview_test() throws Exception{
 
         //given
-        Long reviewId = 1L;
+        String storeId = "1";
+        String reviewId = "1";
         String content = "리뷰-1의 내용이 수정된 결과입니다.";
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
@@ -276,7 +280,7 @@ public class ReviewRestControllerTest {
 
         //when
         ResultActions resultActions = mvc.perform(
-                put("/stores/"+reviewId)
+                put("/stores/"+ storeId +"/reviews/"+reviewId)
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
@@ -285,7 +289,7 @@ public class ReviewRestControllerTest {
         System.out.println("테스트 : "+responseBody);
 
         resultActions = mvc.perform(
-                get("/stores/"+reviewId)
+                get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -301,14 +305,16 @@ public class ReviewRestControllerTest {
     @Test
     public void deleteReview_test() throws Exception{
         //given
-        Long reviewId = 1L;
+        String storeId = "1";
+        String reviewId = "1";
+
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
         String notFoundMessage = "[MatGPT] 요청한 리뷰를 찾을 수 없습니다.";
 
         //when - 리뷰 삭제
         ResultActions resultActions = mvc.perform(
-                delete("/stores/"+reviewId)
+                delete("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
@@ -320,7 +326,7 @@ public class ReviewRestControllerTest {
 
         //when - 리뷰 삭제 후 조회
         resultActions = mvc.perform(
-                delete("/stores/"+reviewId)
+                delete("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
