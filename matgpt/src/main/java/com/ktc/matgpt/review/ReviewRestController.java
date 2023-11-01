@@ -77,7 +77,7 @@ public class ReviewRestController {
                                     @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO,
                                     @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
-        reviewService.update(reviewId, userPrincipal.getId(), requestDTO);
+        reviewService.updateContent(reviewId, userPrincipal.getId(), requestDTO);
         String msg = "review-" + reviewId + " updated";
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
