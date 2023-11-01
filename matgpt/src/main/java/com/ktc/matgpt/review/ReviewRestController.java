@@ -15,12 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-@RequestMapping(value = "/stores", produces = {"application/json; charset=UTF-8"})
+@RequestMapping(value = "/stores/{storeId}/reviews", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
 @RestController
 public class ReviewRestController {
@@ -29,7 +27,7 @@ public class ReviewRestController {
     private final S3Service s3Service;
 
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
-    @PostMapping("/{storeId}/reviews/temp")
+    @PostMapping("/temp")
     public ResponseEntity<ApiUtils.ApiResult<?>> createTemporaryReview(@PathVariable Long storeId,
                                                                        @RequestBody ReviewRequest.SimpleCreateDTO requestDTO,
                                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -46,7 +44,7 @@ public class ReviewRestController {
 
 
     // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
-    @PostMapping("/{storeId}/complete/{reviewId}")
+    @PostMapping("/{reviewId}")
     public ResponseEntity<?> completeReview(@PathVariable Long storeId,Long reviewId,
                                             @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
         try {
@@ -58,7 +56,7 @@ public class ReviewRestController {
     }
 
     // 음식점 리뷰 목록 조회
-    @GetMapping("/{storeId}/reviews")
+    @GetMapping("")
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
                                               @RequestParam(defaultValue = "6") Long cursorId,
