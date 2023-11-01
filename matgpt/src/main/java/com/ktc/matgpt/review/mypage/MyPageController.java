@@ -1,5 +1,7 @@
 package com.ktc.matgpt.review.mypage;
 
+import com.ktc.matgpt.like.likeReview.LikeReviewResponseDTO;
+import com.ktc.matgpt.like.likeReview.LikeReviewService;
 import com.ktc.matgpt.review.ReviewService;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.feature_review.utils.ApiUtils;
@@ -12,12 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 
 @RequestMapping(value = "/mypage", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
 @RestController
 public class MyPageController {
     private final ReviewService reviewService;
+    private final LikeReviewService likeReviewService;
 
     // 마이페이지 작성한 리뷰 조회
     @GetMapping("/my-reviews")
@@ -34,15 +39,10 @@ public class MyPageController {
 
     // 마이페이지 좋아요한 리뷰 조회
     @GetMapping("/liked-reviews")
-    public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(defaultValue = "latest") String sortBy,
-                                             @RequestParam(defaultValue = "1") int pageNum,
-                                             @AuthenticationPrincipal UserPrincipal userPrincipal
-    ) {
-        ReviewResponse.FindPageByUserIdDTO responseDTOs =
-                reviewService.findAllByUserId(userPrincipal.getId(), sortBy, pageNum);
-
+    public ResponseEntity<?> findLikedReviewsByUserId(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<LikeReviewResponseDTO.FindLikeReviewDTO> responseDTOs
+                = likeReviewService.findReviewsByUserEmail(userPrincipal.getEmail());
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
     }
-
 }
