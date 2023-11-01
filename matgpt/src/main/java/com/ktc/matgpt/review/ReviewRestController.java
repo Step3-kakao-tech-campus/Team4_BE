@@ -17,12 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-@RequestMapping(value = "/stores", produces = {"application/json; charset=UTF-8"})
+@RequestMapping(value = "/stores/{storeId}/reviews", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
 @RestController
 public class ReviewRestController {
@@ -30,7 +28,7 @@ public class ReviewRestController {
     private final ImageService imageService;
 
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
-    @PostMapping(value = "/{storeId}/reviews/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiUtils.ApiResult<?>> createTemporaryReview(@PathVariable Long storeId,
                                                                        @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
                                                                        @RequestPart("images") List<MultipartFile> images,
@@ -52,7 +50,7 @@ public class ReviewRestController {
 
 
     // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
-    @PostMapping("/{storeId}/complete/{reviewId}")
+    @PostMapping("/{reviewId}")
     public ResponseEntity<?> completeReview(@PathVariable Long storeId,Long reviewId,
                                             @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
         try {
@@ -64,7 +62,7 @@ public class ReviewRestController {
     }
 
     // 음식점 리뷰 목록 조회
-    @GetMapping("/{storeId}/reviews")
+    @GetMapping("")
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
                                               @RequestParam(defaultValue = "6") Long cursorId,
@@ -83,7 +81,7 @@ public class ReviewRestController {
                                     @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO,
                                     @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
-        reviewService.update(reviewId, userPrincipal.getId(), requestDTO);
+        reviewService.updateContent(reviewId, userPrincipal.getId(), requestDTO);
         String msg = "review-" + reviewId + " updated";
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);

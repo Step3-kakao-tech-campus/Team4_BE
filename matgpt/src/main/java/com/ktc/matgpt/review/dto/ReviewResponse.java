@@ -120,7 +120,6 @@ public class ReviewResponse {
     @ToString
     public static class FindAllByStoreIdDTO {
         private Long reviewId;
-        private Long userId;
         private double rating;
         private String content;
         private LocalDateTime createdAt;
@@ -132,7 +131,6 @@ public class ReviewResponse {
 
         public FindAllByStoreIdDTO(Review review, String relativeTime, List<String> imageUrls) {
             this.reviewId = review.getId();
-            this.userId = review.getUserId();
             this.imageUrls = imageUrls;
             this.content = review.getContent();
             this.rating = review.getRating();

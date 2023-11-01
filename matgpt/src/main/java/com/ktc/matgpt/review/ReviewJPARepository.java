@@ -13,24 +13,17 @@ import java.util.Optional;
 
 @Repository
 public interface ReviewJPARepository extends JpaRepository<Review, Long> {
-    @Query("select r from Review r where r.id = :reviewId")
-    Optional<Review> findByReviewId(Long reviewId);
-
-    @Query("select r from Review r where r.store.id = :storeId")
-    List<Review> findAllByStoreId(Long storeId);
-
     List<Review> findByStoreId(Long storeId, Pageable pageable);
 
-    @Query("select r from Review r join fetch r.store where r.userId = :userId")
-    List<Review> findAllByUserId(Long userId);
-
-    @Query(nativeQuery = true, value = "SELECT * FROM review_tb r " +
-            "WHERE id < :cursorId AND store_id = :storeId " +
+    @Query(nativeQuery = true, value =
+            "SELECT * FROM review_tb r " +
+            "WHERE store_id = :storeId AND id < :cursorId " +
             "ORDER BY id DESC " +
             "LIMIT :size")
     List<Review> findAllByStoreIdAndOrderByIdDesc(Long storeId, Long cursorId, int size);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM review_tb r " +
+    @Query(nativeQuery = true, value =
+            "SELECT * FROM review_tb r " +
             "WHERE store_id = :storeId AND (rating < :cursorRating OR (rating = :cursorRating AND id < :cursorId)) " +
             "ORDER BY rating DESC, id DESC " +
             "LIMIT :size")

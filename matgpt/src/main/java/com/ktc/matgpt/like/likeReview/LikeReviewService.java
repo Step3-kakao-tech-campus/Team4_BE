@@ -1,11 +1,7 @@
 package com.ktc.matgpt.like.likeReview;
 
-import com.ktc.matgpt.like.likeStore.LikeStore;
-import com.ktc.matgpt.like.likeStore.LikeStoreResponseDTO;
 import com.ktc.matgpt.review.ReviewService;
 import com.ktc.matgpt.review.entity.Review;
-import com.ktc.matgpt.store.Store;
-import com.ktc.matgpt.store.StoreService;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,48 +9,59 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class LikeReviewService {
     private final UserService userService;
     private final ReviewService reviewService;
-    private final StoreService storeService;
     private final LikeReviewJPARepository likeReviewJPARepository;
 
     @Transactional
     public boolean toggleLikeForReview(Long reviewId, String email) {
 
         User userRef = userService.getReferenceByEmail(email);
-        Review reviewRef = reviewService.getReferenceById(reviewId);
-        Store storeRef = storeService.getReferenceById(reviewRef.getStore().getId());
+        Review review = reviewService.findReviewByIdOrThrow(reviewId);
 
-        if (isLikeAlreadyExists(userRef, reviewRef)) {
-            deleteLikeToReview(userRef, reviewRef);
+        if (isLikeAlreadyExists(userRef, review)) {
+            deleteLikeToReview(userRef, review);
+            review.minusRecommendCount();
             return false;
         } else {
-            addLikeToReview(userRef, storeRef, reviewRef);
+            addLikeToReview(userRef, review);
+            review.plusRecommendCount();
             return true;
         }
     }
 
-    public LikeReviewResponseDTO.FindAllLikeReviewsDTO findReviewsByUserEmail(String email) {
+    public List<LikeReviewResponseDTO.FindLikeReviewDTO> findReviewsByUserEmail(String email) {
         User user = userService.findByEmail(email);
-        List<Review> reviewList = likeReviewJPARepository.findLikedReviewsByUserId(user.getId()).stream().toList();
-        return new LikeReviewResponseDTO.FindAllLikeReviewsDTO(user,reviewList);
+        List<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserId(user.getId()).stream().toList();
+
+        return likeReviewList.stream().map(likeReview -> {
+            Review review = likeReview.getReview();
+            User reviewer = likeReview.getUser();
+            return new LikeReviewResponseDTO.FindLikeReviewDTO(review, reviewer.getName(), ""/* -> reviewer.getProfileImage()*/);
+        }).collect(Collectors.toList());
     }
 
     @Transactional
-    public void addLikeToReview(User userRef, Store storeRef, Review reviewRef){
-        likeReviewJPARepository.save(LikeReview.create(userRef, storeRef, reviewRef));
+    public void deleteAllByReviewId(Long reviewId) {
+        likeReviewJPARepository.deleteAllByReviewId(reviewId);
     }
 
     @Transactional
-    public void deleteLikeToReview(User userRef, Review reviewRef) {
-        likeReviewJPARepository.deleteByUserAndReview(userRef, reviewRef);
+    public void addLikeToReview(User userRef, Review review){
+        likeReviewJPARepository.save(LikeReview.create(userRef, review));
     }
 
-    private boolean isLikeAlreadyExists(User userRef, Review reviewRef) {
-        return likeReviewJPARepository.existsByUserAndReview(userRef, reviewRef);
+    @Transactional
+    public void deleteLikeToReview(User userRef, Review review) {
+        likeReviewJPARepository.deleteByUserAndReview(userRef, review);
+    }
+
+    private boolean isLikeAlreadyExists(User userRef, Review review) {
+        return likeReviewJPARepository.existsByUserAndReview(userRef, review);
     }
 }
