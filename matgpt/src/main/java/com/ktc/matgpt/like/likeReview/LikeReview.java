@@ -1,6 +1,5 @@
 package com.ktc.matgpt.like.likeReview;
 
-import com.ktc.matgpt.like.likeStore.LikeStore;
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.user.entity.User;
