@@ -3,6 +3,7 @@ package com.ktc.matgpt.store;
 import com.ktc.matgpt.exception.CustomException;
 import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.like.likeStore.LikeStoreJPARepository;
+import com.ktc.matgpt.like.likeStore.LikeStoreService;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
 import com.ktc.matgpt.utils.CursorRequest;
@@ -25,7 +26,7 @@ public class StoreService {
 
     private final UserService userService;
     private final StoreJPARepository storeJPARepository;
-    private final LikeStoreJPARepository likeStoreJPARepository;
+    private final LikeStoreService likeStoreService;
     private final EntityManager entityManager;
 
     // 마커 표시할 음식점 보기
@@ -65,7 +66,7 @@ public class StoreService {
         //다른 사용자들이 좋아요 누른 음식점 list counting
         Map<Store,Integer> storeList = new HashMap<>();
         for (User u : userList){
-            List<Store> stores = likeStoreJPARepository.findLikedStoresByUserId(u.getId());
+            List<Store> stores = likeStoreService.findLikedStoresByUserId(u.getId());
             for (Store s : stores) {
                 if ( !storeList.containsKey(s) ){
                     storeList.put(s,1);
@@ -108,23 +109,6 @@ public class StoreService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public <T extends Comparable<T>> PageResponse<T, StoreResponse.FindAllStoreDTO> findAllStores(Function<Store, T> cursorExtractor, List<Store> stores, int size) {
-        if (stores.isEmpty()) {
-            return new PageResponse<>(new CursorRequest<>(null, null, size), List.of());
-        }
-
-        List<StoreResponse.FindAllStoreDTO> findAllStoreDTOS = stores.stream()
-                .map(StoreResponse.FindAllStoreDTO::new)
-                .toList();
-
-        Store lastStore = stores.get(stores.size() - 1);
-        T nextCursor = cursorExtractor.apply(lastStore);
-        Long nextId = lastStore.getId();
-
-        return new PageResponse<>(new CursorRequest<>(nextCursor, nextId, size), findAllStoreDTOS);
-    }
-
     public List<StoreResponse.FindAllDTO> findAllForGpt() {
         return storeJPARepository.findAll().stream()
                 .map(StoreResponse.FindAllDTO::new)
@@ -153,6 +137,22 @@ public class StoreService {
         } catch (EntityNotFoundException e) {
             throw new CustomException(ErrorCode.STORE_NOT_FOUND);
         }
+    }
+
+    private <T extends Comparable<T>> PageResponse<T, StoreResponse.FindAllStoreDTO> findAllStores(Function<Store, T> cursorExtractor, List<Store> stores, int size) {
+        if (stores.isEmpty()) {
+            return new PageResponse<>(new CursorRequest<>(null, null, size), List.of());
+        }
+
+        List<StoreResponse.FindAllStoreDTO> findAllStoreDTOS = stores.stream()
+                .map(StoreResponse.FindAllStoreDTO::new)
+                .toList();
+
+        Store lastStore = stores.get(stores.size() - 1);
+        T nextCursor = cursorExtractor.apply(lastStore);
+        Long nextId = lastStore.getId();
+
+        return new PageResponse<>(new CursorRequest<>(nextCursor, nextId, size), findAllStoreDTOS);
     }
 
     private List<Store> getStoreListById(String search, Long cursor, Pageable pageable) {
