@@ -112,7 +112,7 @@ public class TokenProvider {
 
 
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new UserPrincipal(userId,claims.get(USER_EMAIL).toString(), authorities);
+        UserDetails principal = new UserPrincipal(userId,claims.get(USER_EMAIL).toString(),false, authorities);//첫 가입 이후이므로 false 로 두어도 무방함
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
 
