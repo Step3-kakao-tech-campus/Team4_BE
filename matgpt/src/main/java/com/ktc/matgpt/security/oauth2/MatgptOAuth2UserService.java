@@ -98,6 +98,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
                 .email(oauth2UserInfo.getEmail())
                 .gender(oauth2UserInfo.getGender())
                 .ageGroup(oauth2UserInfo.getAgeGroup())
+                .isFirstLogin(true)
                 .provider(provider)
                 .providerId(oauth2UserInfo.getId())
                 .build();
