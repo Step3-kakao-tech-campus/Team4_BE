@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 
 @RequestMapping(value = "/mypage", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
