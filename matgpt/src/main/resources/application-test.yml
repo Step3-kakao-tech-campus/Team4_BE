@@ -2,11 +2,10 @@ spring:
   config:
     import:
       - classpath:/application-secret.yml
-      -
   datasource:
     url: jdbc:mysql://localhost:3306/matgpt?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
-    password: example
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -17,7 +16,6 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
         show_sql: true
-
 mail:
   host: smtp.gmail.com
   port: 587
@@ -39,3 +37,9 @@ server:
 
 jwt:
   secret: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWw
+
+springdoc:
+  enable-data-rest: false
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+

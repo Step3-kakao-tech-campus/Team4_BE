@@ -97,11 +97,15 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 authorizeCustomizer -> authorizeCustomizer
                         .requestMatchers(antMatcher("/h2-console/**")).permitAll()
-                        .requestMatchers(antMatcher("/auth/**")).permitAll()
+                        .requestMatchers(antMatcher("/auth/**")).authenticated()
+                        .requestMatchers(antMatcher("/user/**")).permitAll()
                         .requestMatchers(antMatcher("/stores/**")).permitAll()
                         .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(antMatcher("/v3/api-docs/")).permitAll()
-
+                        .requestMatchers(antMatcher("/gpt/order")).authenticated()
+                        .requestMatchers(antMatcher("/store/similar")).authenticated()
+                        .requestMatchers(antMatcher("/mypage/**")).authenticated()
+                        .requestMatchers(antMatcher("/stores/like")).authenticated()
                         .anyRequest().permitAll() // TODO
         );
 //---------------------------------------------

@@ -26,13 +26,11 @@ public class MyPageController {
     @GetMapping("/my-reviews")
     public ResponseEntity<?> findAllByUserId(@RequestParam(defaultValue = "latest") String sortBy,
                                              @RequestParam(defaultValue = "1") int pageNum,
-                                             @AuthenticationPrincipal UserPrincipal userPrincipal
-    ) {
+                                             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         ReviewResponse.FindPageByUserIdDTO responseDTOs =
                 reviewService.findAllByUserId(userPrincipal.getId(), sortBy, pageNum);
 
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
-        return ResponseEntity.ok(apiResult);
+        return ResponseEntity.ok(ApiUtils.success(responseDTOs));
     }
 
     // 마이페이지 좋아요한 리뷰 조회

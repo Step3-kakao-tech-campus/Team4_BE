@@ -1,6 +1,7 @@
 package com.ktc.matgpt.like.likeStore;
 
 
+import com.ktc.matgpt.like.usecase.CreateLikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,12 @@ import org.springframework.web.bind.annotation.*;
 public class LikeStoreRestController {
 
     private final LikeStoreService likeStoreService;
+    private final CreateLikeStoreUseCase createLikeStoreUsecase;
 
     //특정 Store 즐겨찾기 추가하기
     @PostMapping("/stores/{storeId}/like")
     public ResponseEntity<?> toggleHeart(@PathVariable Long storeId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        boolean isHeartAdded = likeStoreService.toggleHeartForStore(storeId, userPrincipal.getEmail());
+        boolean isHeartAdded = createLikeStoreUsecase.execute(storeId, userPrincipal.getEmail());
 
         String message = isHeartAdded ? "즐겨찾기 성공" : "즐겨찾기 취소 성공";
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(message);

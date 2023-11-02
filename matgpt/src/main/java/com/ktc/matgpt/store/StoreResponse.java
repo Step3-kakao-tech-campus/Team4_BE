@@ -1,4 +1,5 @@
 package com.ktc.matgpt.store;
+
 import com.ktc.matgpt.store.entity.Category;
 import com.ktc.matgpt.store.entity.SubCategory;
 import lombok.Getter;
@@ -76,7 +77,6 @@ public class StoreResponse {
 
         private Long storeId;
         private String storeName;
-        private Category category;
         private SubCategory subCategory;
         private String phoneNumber;
         private String address;
@@ -90,7 +90,6 @@ public class StoreResponse {
         public FindByIdStoreDTO(Store store) {
             this.storeId = store.getId();
             this.storeName = store.getName();
-            this.category = store.getSubCategory().getCategory();
             this.subCategory = store.getSubCategory();
             this.phoneNumber = store.getPhoneNumber();
             this.address = store.getAddress();

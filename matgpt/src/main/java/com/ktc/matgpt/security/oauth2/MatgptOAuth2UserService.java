@@ -1,7 +1,8 @@
 package com.ktc.matgpt.security.oauth2;
 
 
-import com.ktc.matgpt.exception.OAuth2AuthenticationProcessingException;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfo;
 import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfoFactory;
@@ -46,7 +47,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oauth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, userAttributes);
 
         if (isInvalidUserInfo(oauth2UserInfo)) {
-            throw new OAuth2AuthenticationProcessingException("some message");
+            throw new CustomException(ErrorCode.OAUTH2_PROCESSING_EXCEPTION);
         }
 
         Optional<User> userOptional = userRepository.findByEmail(oauth2UserInfo.getEmail());
@@ -97,6 +98,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
                 .email(oauth2UserInfo.getEmail())
                 .gender(oauth2UserInfo.getGender())
                 .ageGroup(oauth2UserInfo.getAgeGroup())
+                .isFirstLogin(true)
                 .provider(provider)
                 .providerId(oauth2UserInfo.getId())
                 .build();
