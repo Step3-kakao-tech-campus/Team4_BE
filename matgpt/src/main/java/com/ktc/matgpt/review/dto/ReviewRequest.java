@@ -1,6 +1,5 @@
 package com.ktc.matgpt.review.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,11 +64,11 @@ public class ReviewRequest {
             @ToString
             public static class TagDTO {
                 private String name;
-                private int locationX;
-                private int locationY;
+                private double locationX;
+                private double locationY;
                 private double rating;
 
-                public TagDTO(String name, int locationX, int locationY, double rating) {
+                public TagDTO(String name, double locationX, double locationY, double rating) {
                     this.name = name;
                     this.locationX = locationX;
                     this.locationY = locationY;

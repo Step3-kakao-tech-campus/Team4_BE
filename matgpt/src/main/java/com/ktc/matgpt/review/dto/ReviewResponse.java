@@ -101,8 +101,8 @@ public class ReviewResponse {
             @ToString
             public static class TagDTO {
                 private String name;
-                private int location_x;
-                private int location_y;
+                private double location_x;
+                private double location_y;
                 private double rating;
 
                 public TagDTO(Tag tag) {
