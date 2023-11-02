@@ -1,6 +1,7 @@
 package com.ktc.matgpt.security.oauth2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.security.jwt.TokenProvider;
 import com.ktc.matgpt.user.entity.RefreshToken;
 import com.ktc.matgpt.user.entity.User;
@@ -18,6 +19,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -34,21 +37,23 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         var token = tokenProvider.generateToken(authentication);
-        User user = userService.findById(((User) authentication.getPrincipal()).getId()); // 사용자 정보 획득
-        refreshTokenRepository.save(RefreshToken.create(authentication.getName(),token.getRefreshToken()));
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getId(); // 또는 필요한 정보
+        refreshTokenRepository.save(RefreshToken.create(authentication.getName(), token.getRefreshToken()));
+        boolean isFirstLogin = userService.findById(userId).isFirstLogin(); // 최초 로그인 여부
+        userService.completeRegistration(userId);
 
-        // 응답 구조에 최초 로그인 여부를 boolean 값으로 포함
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("token", token);
-        responseData.put("isFirstLogin", user.isFirstLogin()); // 최초 로그인 여부
+        // 클라이언트로 리디렉트할 URL을 설정합니다. 이 URL은 프론트엔드 측에 맞게 설정해야 합니다.
+        String redirectUrl = "http://localhost:3000/login-success";
 
+        // URL 파라미터로 토큰 정보를 전달합니다.
+        redirectUrl += "&isFirstLogin=" + isFirstLogin;
+        redirectUrl += "&accessToken=" + URLEncoder.encode(token.getAccessToken(), StandardCharsets.UTF_8.toString());
+        redirectUrl += "&accessTokenExpiresIn=" + token.getAccessTokenExpiresIn();
+        redirectUrl += "&refreshToken=" + URLEncoder.encode(token.getRefreshToken(), StandardCharsets.UTF_8.toString());
 
-        response.setStatus(HttpStatus.FOUND.value()); // 상태 코드 변경
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.setLocale(Locale.KOREA);
-        objectMapper.writeValue(response.getWriter(), ApiUtils.success(responseData)); // 토큰과 리다이렉트 URI를 보냄
-        response.getWriter().flush();
+        // 클라이언트로 리디렉트합니다.
+        response.sendRedirect(redirectUrl);
     }
 
 }
