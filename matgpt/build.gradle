@@ -52,16 +52,12 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    testImplementation 'org.mockito:mockito-core:4.8.0'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-
-bootRun {
-    String activeProfile = "dev"
-    systemProperty "spring.profiles.active", activeProfile
 }
 
 tasks.withType(JavaCompile){

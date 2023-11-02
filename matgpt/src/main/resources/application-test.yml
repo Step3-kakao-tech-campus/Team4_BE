@@ -16,7 +16,6 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
         show_sql: true
-
 mail:
   host: smtp.gmail.com
   port: 587
@@ -43,3 +42,4 @@ springdoc:
   enable-data-rest: false
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+

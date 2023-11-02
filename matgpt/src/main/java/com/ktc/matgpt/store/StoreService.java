@@ -2,7 +2,7 @@ package com.ktc.matgpt.store;
 
 import com.ktc.matgpt.exception.CustomException;
 import com.ktc.matgpt.exception.ErrorCode;
-import com.ktc.matgpt.like.likeStore.LikeStoreJPARepository;
+import com.ktc.matgpt.like.likeStore.LikeStoreService;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
 import com.ktc.matgpt.utils.CursorRequest;
@@ -24,13 +24,14 @@ import java.util.function.Function;
 public class StoreService {
 
     private final UserService userService;
+    private final LikeStoreService likeStoreService;
     private final StoreJPARepository storeJPARepository;
-    private final LikeStoreJPARepository likeStoreJPARepository;
     private final EntityManager entityManager;
 
     // 마커 표시할 음식점 보기
     @Transactional(readOnly = true)
     public List<StoreResponse.MarkerStoresDTO> findAllMarkers(double maxLat, double maxLon, double minLat, double minLon) {
+        validateLatLonBoundary(List.of(maxLat, maxLon, minLat, minLon));
         List<Store> stores = storeJPARepository.findAllWithinLatLonBoundaries(maxLat, maxLon, minLat, minLon);
         return stores.stream()
                 .map(StoreResponse.MarkerStoresDTO::new)
@@ -40,6 +41,7 @@ public class StoreService {
     // 사용자에게 가까운 순으로 보기 + 커서 기반 페이지네이션
     @Transactional(readOnly = true)
     public PageResponse<Double, StoreResponse.FindAllStoreDTO> findAllByDistance(double latitude, double longitude, Double cursor, Long lastId, int size) {
+        validateLatLonBoundary(List.of(latitude, longitude));
         Pageable pageable = PageRequest.of(0, size);
         List<Store> stores = getStoreListByDistance(latitude, longitude, cursor, lastId, pageable);
         return findAllStores(store -> store.calculateDistanceFromLatLon(latitude, longitude), stores, size);
@@ -47,7 +49,7 @@ public class StoreService {
 
     // 인기 많은 음식점 보기 (리뷰많은순정렬)
     @Transactional(readOnly = true)
-    public PageResponse<Integer, StoreResponse.FindAllStoreDTO> findAllByPopular(Integer cursor, Long lastId, int size) {
+    public PageResponse<Integer, StoreResponse.FindAllStoreDTO> findByHighestReviewCount(Integer cursor, Long lastId, int size) {
         Pageable pageable = PageRequest.of(0, size);
         List<Store> stores = getStoreListByReviews("", cursor, lastId, pageable);
         return findAllStores(Store::getNumsOfReview, stores, size);
@@ -56,30 +58,28 @@ public class StoreService {
     //비슷한 사용자들이 좋아하는 음식점 보기
     //TODO : 예외처리 해주기
     @Transactional(readOnly = true)
-    public PageResponse<Long, StoreResponse.FindAllStoreDTO> findSimilarStores(String email, Long cursor, int size) {
+    public PageResponse<Long, StoreResponse.FindAllStoreDTO> getMostLikedStoresBySimilarUsers(String email, Long cursor, int size) {
         User user = userService.findByEmail(email);
-
-        //사용자와 나이와 성별이 같은 다른 사용자들 찾기
-        List<User> userList =  userService.findByAgeGroupAndGender(user.getAgeGroup(), user.getGender());
+        List<User> similarUserList = userService.findByAgeGroupAndGender(user.getAgeGroup(), user.getGender());
 
         //다른 사용자들이 좋아요 누른 음식점 list counting
-        Map<Store,Integer> storeList = new HashMap<>();
-        for (User u : userList){
-            List<Store> stores = likeStoreJPARepository.findLikedStoresByUserId(u.getId());
-            for (Store s : stores) {
-                if ( !storeList.containsKey(s) ){
-                    storeList.put(s,1);
+        Map<Store, Integer> storeHashMap = new HashMap<>();
+        for (User similarUser : similarUserList){
+            List<Store> stores = likeStoreService.findLikedStoresByUserId(similarUser.getId());
+            for (Store store : stores) {
+                if (!storeHashMap.containsKey(store) ){
+                    storeHashMap.put(store, 1);
                 } else {
-                    int count = storeList.get(s);
+                    int count = storeHashMap.get(store);
                     count += 1;
-                    storeList.put(s,count);
+                    storeHashMap.put(store, count);
                 }
             }
         }
 
         //내림차순 정렬
-        List<Store> stores = new ArrayList<>(storeList.keySet());
-        Collections.sort(stores,(v1,v2) -> (storeList.get(v2).compareTo(storeList.get(v1))));
+        List<Store> stores = new ArrayList<>(storeHashMap.keySet());
+        Collections.sort(stores,(v1,v2) -> (storeHashMap.get(v2).compareTo(storeHashMap.get(v1))));
 
         return findAllStores(Store::getId, stores, size);
     }
@@ -102,27 +102,8 @@ public class StoreService {
                 stores = getStoreListByReviews(search, Math.toIntExact(cursor), lastId, pageable);
                 return findAllStores(Store::getNumsOfReview, stores, size);
             }
-            default -> {
-                return new PageResponse<>(new CursorRequest<>(null, null, size), List.of());
-            }
+            default -> throw new IllegalArgumentException(String.format("sort : %s 지원하지 않는 정렬 기준입니다.", sort));
         }
-    }
-
-    @Transactional(readOnly = true)
-    public <T extends Comparable<T>> PageResponse<T, StoreResponse.FindAllStoreDTO> findAllStores(Function<Store, T> cursorExtractor, List<Store> stores, int size) {
-        if (stores.isEmpty()) {
-            return new PageResponse<>(new CursorRequest<>(null, null, size), List.of());
-        }
-
-        List<StoreResponse.FindAllStoreDTO> findAllStoreDTOS = stores.stream()
-                .map(StoreResponse.FindAllStoreDTO::new)
-                .toList();
-
-        Store lastStore = stores.get(stores.size() - 1);
-        T nextCursor = cursorExtractor.apply(lastStore);
-        Long nextId = lastStore.getId();
-
-        return new PageResponse<>(new CursorRequest<>(nextCursor, nextId, size), findAllStoreDTOS);
     }
 
     public List<StoreResponse.FindAllDTO> findAllForGpt() {
@@ -152,6 +133,30 @@ public class StoreService {
             return entityManager.getReference(Store.class, storeId);
         } catch (EntityNotFoundException e) {
             throw new CustomException(ErrorCode.STORE_NOT_FOUND);
+        }
+    }
+
+    private <T extends Comparable<T>> PageResponse<T, StoreResponse.FindAllStoreDTO> findAllStores(Function<Store, T> cursorExtractor, List<Store> stores, int size) {
+        if (stores.isEmpty()) {
+            return new PageResponse<>(new CursorRequest<>(null, null, size), List.of());
+        }
+
+        List<StoreResponse.FindAllStoreDTO> findAllStoreDTOS = stores.stream()
+                .map(StoreResponse.FindAllStoreDTO::new)
+                .toList();
+
+        Store lastStore = stores.get(stores.size() - 1);
+        T nextCursor = cursorExtractor.apply(lastStore);
+        Long nextId = lastStore.getId();
+
+        return new PageResponse<>(new CursorRequest<>(nextCursor, nextId, size), findAllStoreDTOS);
+    }
+
+    private void validateLatLonBoundary(List<Double> latlons) {
+        for (double latlon: latlons) {
+            if (!(0 <= latlon && latlon <= 180)) {
+                throw new IllegalArgumentException("잘못된 위, 경도를 입력했습니다 : " + latlon);
+            }
         }
     }
 

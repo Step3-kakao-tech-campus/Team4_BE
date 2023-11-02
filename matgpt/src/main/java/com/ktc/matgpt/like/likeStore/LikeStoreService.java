@@ -16,18 +16,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LikeStoreService {
 
-    private final StoreService storeService;
     private final UserService userService;
     private final LikeStoreJPARepository likeStoreJPARepository;
 
     private final EntityManager entityManager;
 
     @Transactional
-    public boolean toggleHeartForStore(Long storeId, String email) {
-
-        User userRef = userService.getReferenceByEmail(email);
-        Store storeRef = storeService.getReferenceById(storeId);
-
+    public boolean toggleHeartForStore(User userRef, Store storeRef) {
         if (isHeartAlreadyExists(userRef, storeRef)) {
             deleteHeartToStore(userRef, storeRef);
             return false;
@@ -52,8 +47,11 @@ public class LikeStoreService {
         likeStoreJPARepository.deleteByUserAndStore(userRef, storeRef);
     }
 
+    public List<Store> findLikedStoresByUserId(Long userId) {
+        return likeStoreJPARepository.findLikedStoresByUserId(userId);
+    }
+
     private boolean isHeartAlreadyExists(User userRef, Store storeRef) {
         return likeStoreJPARepository.existsByUserAndStore(userRef, storeRef);
     }
-
 }
