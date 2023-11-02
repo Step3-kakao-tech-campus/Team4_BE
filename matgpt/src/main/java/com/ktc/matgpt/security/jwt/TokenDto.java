@@ -19,4 +19,12 @@ TokenDto {
         private Long accessTokenExpiresIn;
     }
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Request {
+        private String accessToken;
+        private String refreshToken;
+    }
 }
