@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -17,6 +18,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final EntityManager entityManager;
+
+    public boolean existsById(Long id) {
+        return userRepository.existsById(id);
+    }
 
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(
@@ -36,5 +41,11 @@ public class UserService {
     public List<User> findByAgeGroupAndGender(AgeGroup ageGroup, Gender gender) {
         return userRepository.findAllByAgeGroupAndGender(ageGroup, gender);
     }
+
+    public void completeRegistration(Long userId) {
+        userRepository.updateFirstLoginStatus(userId);
+    }
+
+
 
 }

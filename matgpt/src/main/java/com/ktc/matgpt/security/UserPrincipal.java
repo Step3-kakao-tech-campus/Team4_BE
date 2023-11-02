@@ -15,11 +15,13 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     //name은 여기서 생성
     private final Long id;
     private final String email;
+    private final boolean isFirstLogin;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String email, boolean isFirstLogin, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
+        this.isFirstLogin = isFirstLogin;
         this.authorities = authorities;
     }
 
@@ -31,6 +33,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
+                user.isFirstLogin(),
                 authorities
         );
     }
