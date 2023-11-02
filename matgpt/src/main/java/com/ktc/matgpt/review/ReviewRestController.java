@@ -28,10 +28,10 @@ public class ReviewRestController {
     private final ImageService imageService;
 
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
-    @PostMapping("/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiUtils.ApiResult<?>> createTemporaryReview(@PathVariable Long storeId,
                                                                        @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
-                                                                       @RequestPart("images") List<MultipartFile> images,
+                                                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
                                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             //파일 검증
