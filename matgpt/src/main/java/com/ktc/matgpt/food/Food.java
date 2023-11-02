@@ -1,7 +1,7 @@
 package com.ktc.matgpt.food;
 
 import com.ktc.matgpt.store.Store;
-import com.ktc.matgpt.utils.BaseTimeEntity;
+import com.ktc.matgpt.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "food_tb")
-public class Food extends BaseTimeEntity {
+public class Food extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
