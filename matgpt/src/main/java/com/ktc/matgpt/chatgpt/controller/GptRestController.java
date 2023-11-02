@@ -3,7 +3,6 @@ package com.ktc.matgpt.chatgpt.controller;
 import com.ktc.matgpt.chatgpt.dto.GptApiResponse;
 import com.ktc.matgpt.chatgpt.dto.GptResponse;
 import com.ktc.matgpt.chatgpt.dto.GptResponseDto;
-import com.ktc.matgpt.chatgpt.schedule.ScheduledTasks;
 import com.ktc.matgpt.chatgpt.service.GptService;
 import com.ktc.matgpt.chatgpt.utils.UnixTimeConverter;
 import com.ktc.matgpt.security.UserPrincipal;
