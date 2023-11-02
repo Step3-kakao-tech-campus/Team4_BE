@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/user")
 public class UserController {
 
-    @GetMapping("/userinfo")
+    @GetMapping("/info")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         String userEmail = userPrincipal.getUsername();
         return ResponseEntity.ok("User info: " + userEmail);
