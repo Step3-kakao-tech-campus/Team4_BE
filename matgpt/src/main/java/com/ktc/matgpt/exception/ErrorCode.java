@@ -20,7 +20,11 @@ public enum ErrorCode {
 
     //Auth
     INVALID_TOKEN_EXCEPTION(INTERNAL_SERVER_ERROR, 500, "[MatGPT] 유효하지 않은 토큰입니다."),
-    OAUTH2_PROCESSING_EXCEPTION(UNAUTHORIZED, 401, "[MatGPT] OAuth2 인증 처리 중 오류가 발생했습니다.");
+    UNAUTHORIZED_EXCEPTION(UNAUTHORIZED, 500, "[MatGPT] 유효한 인증이 필요합니다."),
+    OAUTH2_PROCESSING_EXCEPTION(UNAUTHORIZED, 401, "[MatGPT] OAuth2 인증 처리 중 오류가 발생했습니다."),
+    LOGOUT_USER_NOT_FOUND(UNAUTHORIZED, 401, "[MatGPT] 로그아웃 된 사용자입니다."),
+    TOKEN_MISMATCH_EXCEPTION(FORBIDDEN, 403, "[MatGPT] 토큰의 유저 정보가 일치하지 않습니다.");
+
 
     private final HttpStatus httpStatus;
     private final int code;
