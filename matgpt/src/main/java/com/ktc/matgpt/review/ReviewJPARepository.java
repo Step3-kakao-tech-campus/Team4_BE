@@ -24,16 +24,16 @@ public interface ReviewJPARepository extends JpaRepository<Review, Long> {
 
     @Query(nativeQuery = true, value =
             "SELECT * FROM review_tb r " +
-            "WHERE store_id = :storeId AND (rating < :cursorRating OR (rating = :cursorRating AND id < :cursorId)) " +
-            "ORDER BY rating DESC, id DESC " +
+            "WHERE store_id = :storeId AND (recommend_count < :cursorLikes OR (recommend_count= :cursorLikes AND id < :cursorId)) " +
+            "ORDER BY recommend_count DESC, id DESC " +
             "LIMIT :size")
-    List<Review> findAllByStoreIdAndOrderByRatingDesc(Long storeId, Long cursorId, double cursorRating, int size);
+    List<Review> findAllByStoreIdAndOrderByLikesDesc(Long storeId, Long cursorId, int cursorLikes, int size);
 
 
     @Query("select r FROM Review r JOIN FETCH r.store WHERE r.userId = :userId ORDER BY r.id DESC")
     Page<Review> findAllByUserIdAndOrderByIdDesc(Long userId, Pageable page);
 
-    @Query("SELECT r FROM Review r JOIN FETCH r.store WHERE r.userId = :userId ORDER BY r.rating DESC, r.id DESC")
-    Page<Review> findAllByUserIdAndOrderByRatingDesc(Long userId, Pageable page);
+    @Query("SELECT r FROM Review r JOIN FETCH r.store WHERE r.userId = :userId ORDER BY r.recommendCount DESC, r.id DESC")
+    Page<Review> findAllByUserIdAndOrderByLikesDesc(Long userId, Pageable page);
 
 }

@@ -155,12 +155,11 @@ public class ReviewService {
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime);
     }
 
-
-    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, double cursorRating) {
+    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, int cursorLikes) {
 
         List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE);
-            case "rating" -> reviewJPARepository.findAllByStoreIdAndOrderByRatingDesc(storeId, cursorId, cursorRating, DEFAULT_PAGE_SIZE);
+            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesDesc(storeId, cursorId, cursorLikes, DEFAULT_PAGE_SIZE);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
@@ -195,7 +194,7 @@ public class ReviewService {
     public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, int pageNum) {
         Page<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
-            case "rating" -> reviewJPARepository.findAllByUserIdAndOrderByRatingDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 

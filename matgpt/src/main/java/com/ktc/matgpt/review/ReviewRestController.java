@@ -66,9 +66,9 @@ public class ReviewRestController {
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
                                               @RequestParam(defaultValue = "6") Long cursorId,
-                                              @RequestParam(defaultValue = "5.0") double cursorRating
+                                              @RequestParam(defaultValue = "1000") int cursorLikes
     ) {
-        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorRating);
+        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
