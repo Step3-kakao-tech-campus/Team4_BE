@@ -101,7 +101,10 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/stores/**")).permitAll()
                         .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(antMatcher("/v3/api-docs/")).permitAll()
-
+                        .requestMatchers(antMatcher("/gpt/order")).authenticated()
+                        .requestMatchers(antMatcher("/store/similar")).authenticated()
+                        .requestMatchers(antMatcher("/mypage/**")).authenticated()
+                        .requestMatchers(antMatcher("/stores/like")).authenticated()
                         .anyRequest().permitAll() // TODO
         );
 //---------------------------------------------
