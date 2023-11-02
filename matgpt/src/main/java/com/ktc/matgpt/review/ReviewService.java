@@ -7,7 +7,6 @@ import com.ktc.matgpt.food.Food;
 import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.Image;
 import com.ktc.matgpt.image.ImageService;
-import com.ktc.matgpt.like.likeReview.LikeReviewService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
@@ -30,7 +29,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.time.Duration;
@@ -206,13 +204,8 @@ public class ReviewService {
         List<ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO> reviewDTOs = new ArrayList<>();
 
         for (Review review : reviews) {
-            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
-            if (imageUrls.isEmpty()) {
-                log.info("reviewId-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
-            }
-
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO(review, relativeTime, imageUrls));
+            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO(review, relativeTime));
         }
         return new ReviewResponse.FindPageByUserIdDTO(reviewDTOs, reviews);
     }
@@ -244,7 +237,7 @@ public class ReviewService {
 
         return ReviewResponse.FindByReviewIdDTO.ReviewerDTO.builder()
                         .userName(user.getName())
-                        .profileImage("default profileImage")
+                        .profileImage(user.getProfileImageUrl())
                         .email(user.getEmail())
                         .build();
     }
