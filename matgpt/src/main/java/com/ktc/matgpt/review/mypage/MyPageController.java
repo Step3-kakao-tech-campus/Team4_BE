@@ -39,10 +39,10 @@ public class MyPageController {
 
     // 마이페이지 좋아요한 리뷰 조회
     @GetMapping("/liked-reviews")
-    public ResponseEntity<?> findLikedReviewsByUserId(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<LikeReviewResponseDTO.FindLikeReviewDTO> responseDTOs
-                = likeReviewService.findReviewsByUserEmail(userPrincipal.getEmail());
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
-        return ResponseEntity.ok(apiResult);
+    public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(defaultValue = "1") int pageNum,
+                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        LikeReviewResponseDTO.FindLikeReviewsDTO responseDTO
+                = likeReviewService.findReviewsByUserId(userPrincipal.getId(), pageNum);
+        return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
 }

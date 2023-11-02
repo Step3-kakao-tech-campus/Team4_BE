@@ -5,11 +5,12 @@ import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -17,6 +18,7 @@ public class LikeReviewService {
     private final UserService userService;
     private final ReviewService reviewService;
     private final LikeReviewJPARepository likeReviewJPARepository;
+    final static int DEFAULT_PAGE_SIZE = 5;
 
     @Transactional
     public boolean toggleLikeForReview(Long reviewId, String email) {
@@ -35,15 +37,12 @@ public class LikeReviewService {
         }
     }
 
-    public List<LikeReviewResponseDTO.FindLikeReviewDTO> findReviewsByUserEmail(String email) {
-        User user = userService.findByEmail(email);
-        List<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserId(user.getId()).stream().toList();
-
-        return likeReviewList.stream().map(likeReview -> {
-            Review review = likeReview.getReview();
-            User reviewer = likeReview.getUser();
-            return new LikeReviewResponseDTO.FindLikeReviewDTO(review, reviewer.getName(), ""/* -> reviewer.getProfileImage()*/);
-        }).collect(Collectors.toList());
+    public LikeReviewResponseDTO.FindLikeReviewsDTO findReviewsByUserId(Long userId, int pageNum) {
+        User user = userService.findById(userId);
+        PageRequest page = PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE);
+        List<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserIdAndOrderByIdDesc(user.getId(), page).stream().toList();
+        LikeReviewResponseDTO.FindLikeReviewsDTO responseDTO = new LikeReviewResponseDTO.FindLikeReviewsDTO(likeReviewList);
+        return responseDTO;
     }
 
     @Transactional
