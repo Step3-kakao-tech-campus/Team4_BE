@@ -30,7 +30,6 @@ import java.util.Map;
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
-    private final ObjectMapper objectMapper;
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -38,16 +37,17 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         var token = tokenProvider.generateToken(authentication);
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Long userId = userPrincipal.getId(); // 또는 필요한 정보
         refreshTokenRepository.save(RefreshToken.create(authentication.getName(), token.getRefreshToken()));
-        boolean isFirstLogin = userService.findById(userId).isFirstLogin(); // 최초 로그인 여부
-        userService.completeRegistration(userId);
 
+        // 만약 첫 로그인이라면 isFirstLogin 플래그를 false로 업데이트합니다.
+        if (userPrincipal.isFirstLogin()) {
+            userService.completeRegistration(userPrincipal.getId());
+        }
         // 클라이언트로 리디렉트할 URL을 설정합니다. 이 URL은 프론트엔드 측에 맞게 설정해야 합니다.
         String redirectUrl = "http://localhost:3000/login-success";
 
         // URL 파라미터로 토큰 정보를 전달합니다.
-        redirectUrl += "&isFirstLogin=" + isFirstLogin;
+        redirectUrl += "&isFirstLogin=" + userPrincipal.isFirstLogin();
         redirectUrl += "&accessToken=" + URLEncoder.encode(token.getAccessToken(), StandardCharsets.UTF_8.toString());
         redirectUrl += "&accessTokenExpiresIn=" + token.getAccessTokenExpiresIn();
         redirectUrl += "&refreshToken=" + URLEncoder.encode(token.getRefreshToken(), StandardCharsets.UTF_8.toString());
