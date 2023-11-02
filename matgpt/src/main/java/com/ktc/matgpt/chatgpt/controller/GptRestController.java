@@ -27,7 +27,7 @@ public class GptRestController {
     private final GptService gptService;
 
     @GetMapping("/store/{storeId}/review")
-    public ResponseEntity<?> getReviewSummarys(@PathVariable(value = "storeId") Long storeId) {
+    public ResponseEntity<?> getReviewSummarys(@PathVariable Long storeId) {
         GptResponseDto<Map<String, String>> gptResponseDto = gptService.findReviewSummaryByStoreId(storeId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(gptResponseDto);
         return ResponseEntity.ok().body(apiResult);
