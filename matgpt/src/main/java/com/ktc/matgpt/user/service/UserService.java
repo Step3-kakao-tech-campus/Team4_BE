@@ -43,12 +43,9 @@ public class UserService {
     }
 
     public void completeRegistration(Long userId) {
-        User user = findById(userId);
-        if (user.isFirstLogin()) {
-            user.completeFirstLogin();
-            userRepository.save(user);
-        }
+        userRepository.updateFirstLoginStatus(userId);
     }
+
 
 
 }
