@@ -2,6 +2,8 @@ package com.ktc.matgpt.like.likeReview;
 
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,4 +20,7 @@ public interface LikeReviewJPARepository extends JpaRepository<LikeReview, Long>
     void deleteAllByReviewId(Long reviewId);
 
     boolean existsByUserAndReview(User userRef, Review reviewRef);
+
+    @Query("select lr FROM LikeReview lr JOIN FETCH lr.review JOIN FETCH lr.user WHERE lr.user.id = :userId ORDER BY lr.id DESC")
+    Page<LikeReview> findAllByUserIdAndOrderByIdDesc(Long userId, Pageable page);
 }

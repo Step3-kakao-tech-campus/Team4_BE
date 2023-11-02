@@ -123,10 +123,10 @@ public class ReviewResponse {
         private double rating;
         private String content;
         private LocalDateTime createdAt;
-
         private List<String> imageUrls;
         private boolean isUpdated = false;
         private String relativeTime;
+        private int numOfLikes;
 
 
         public FindAllByStoreIdDTO(Review review, String relativeTime, List<String> imageUrls) {
@@ -136,6 +136,7 @@ public class ReviewResponse {
             this.rating = review.getRating();
             this.createdAt = review.getCreatedAt();
             this.relativeTime = relativeTime;
+            this.numOfLikes = review.getRecommendCount();
 
             if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
         }
@@ -158,27 +159,27 @@ public class ReviewResponse {
         @Getter
         @ToString
         public static class FindByUserIdDTO {
-            private Long reviewId;
+            private Long id;
             private double rating;
             private String content;
             private LocalDateTime createdAt;
             private String storeImage;
             private String storeName;
-            private List<String> imageUrls;
             private String relativeTime;
             private boolean isUpdated = false;
+            private int numOfLikes;
 
 
-            public FindByUserIdDTO(Review review, String relativeTime, List<String> imageUrls) {
-                this.reviewId = review.getId();
+            public FindByUserIdDTO(Review review, String relativeTime) {
+                this.id = review.getId();
                 this.rating = review.getRating();
                 this.content = review.getContent();
                 this.createdAt = review.getCreatedAt();
                 this.storeImage = review.getStore().getStoreImageUrl();
                 this.storeName = review.getStore().getName();
-                this.imageUrls = imageUrls;
                 this.relativeTime = relativeTime;
                 if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+                this.numOfLikes = review.getRecommendCount();
             }
         }
     }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LikeReviewRestController {
     private final LikeReviewService likeReviewService;
 
+    // 리뷰 좋아요 상태 전환하기 (좋아요 등록<->좋아요 취소)
     @PostMapping("reviews/{reviewId}/like")
     public ResponseEntity<?> toggleLikeForReview(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         boolean isLikeAdded = likeReviewService.toggleLikeForReview(reviewId, userPrincipal.getEmail());

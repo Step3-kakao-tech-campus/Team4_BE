@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -28,10 +29,10 @@ public class ReviewRestController {
     private final ImageService imageService;
 
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
-    @PostMapping("/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiUtils.ApiResult<?>> createTemporaryReview(@PathVariable Long storeId,
                                                                        @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
-                                                                       @RequestPart("images") List<MultipartFile> images,
+                                                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
                                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             //파일 검증
@@ -66,9 +67,9 @@ public class ReviewRestController {
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
                                               @RequestParam(defaultValue = "6") Long cursorId,
-                                              @RequestParam(defaultValue = "5.0") double cursorRating
+                                              @RequestParam(defaultValue = "1000") int cursorLikes
     ) {
-        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorRating);
+        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
 
         ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
         return ResponseEntity.ok(apiResult);
