@@ -67,8 +67,8 @@ public class ReviewRestController {
                                               @RequestParam(defaultValue = "6") Long cursorId,
                                               @RequestParam(defaultValue = "1000") int cursorLikes
     ) {
-        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
-        return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTOs));
+        ReviewResponse.FindPageByStoreIdDTO responseDTO = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
+        return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTO));
     }
 
 
