@@ -51,7 +51,7 @@ public class ReviewService {
     private final MessageSourceAccessor messageSourceAccessor;
     private final EntityManager entityManager;
 
-    private final int DEFAULT_PAGE_SIZE = 5;
+    private static final int DEFAULT_PAGE_SIZE = 8;
     final static Long MIN = 60L;
     final static Long HOUR = MIN*60;
     final static Long DAY = HOUR*24;
@@ -162,7 +162,7 @@ public class ReviewService {
         };
 
         if (reviews.isEmpty()) {
-            throw new NoSuchElementException("storeId-" + storeId + ": 음식점에 등록된 리뷰가 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
         }
 
         List<ReviewResponse.FindPageByStoreIdDTO.StoreReviewDTO> reviewDTOs = new ArrayList<>();
@@ -199,7 +199,7 @@ public class ReviewService {
 
 
         if (reviews.isEmpty()) {
-            throw new NoSuchElementException("user-" + userId + ": 회원이 작성한 리뷰가 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
         }
 
         List<ReviewResponse.FindPageByUserIdDTO.UserReviewDTO> reviewDTOs = new ArrayList<>();
@@ -244,7 +244,7 @@ public class ReviewService {
     }
 
     //TODO: Locale 이슈
-    private String getRelativeTime(LocalDateTime time) {
+    public String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
         long seconds = duration.getSeconds();
         TimeUnit unit = TimeUnit.getAppropriateUnit(seconds);
