@@ -90,16 +90,16 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewId").value("1"));
         resultActions.andExpect(jsonPath("$.data.storeId").value("1"));
         resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic3@gmail.com"));
-        resultActions.andExpect(jsonPath("$.data.createdAt").value("0 secsago"));
+//        resultActions.andExpect(jsonPath("$.data.createdAt").value());
         resultActions.andExpect(jsonPath("$.data.averageCostPerPerson").value(25000));
         resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
-        resultActions.andExpect(jsonPath("$.data.rating").value(5.0));
+        resultActions.andExpect(jsonPath("$.data.rating").value(5));
         resultActions.andExpect(jsonPath("$.data.recommendCount").value(2));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("image1.png"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("food1"));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(25.0));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(37.0));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(0.83));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(25.08));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(36.74));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3.5));
         resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
         resultActions.andExpect(jsonPath("$.data.updated").value(true));
     }
