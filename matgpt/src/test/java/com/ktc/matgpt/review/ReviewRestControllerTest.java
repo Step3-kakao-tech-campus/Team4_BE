@@ -183,21 +183,26 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
     }
 
-    @Disabled
-    @DisplayName("리뷰 생성 완료") //TODO : 테스트 코드 작성 실패
+
+    @DisplayName("전체 리뷰 저장 완료")
     @Test
     public void completeReview_test() throws Exception {
         //given
+        // custom_modified.sql로 저장되어 있는 기존 리뷰 reviewId:2 (storeId:1, userId:2)에 Tag, Image 등록하기
         Long storeId = 1L;
-        Long reviewId = 1L;
+        Long reviewId = 2L;
         String requestDTOJson = TestHelper.constructCompleteDTO();
-        String url = String.format("/stores/%d/complete/%d", storeId, reviewId);
+        UserPrincipal mockUserPrincipal = new UserPrincipal(2L, "female@gmail.com", false, Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_GUEST")));
+        String url = String.format("/stores/%d/reviews/%d", storeId, reviewId);
+        String successMsg = "리뷰가 성공적으로 완료되었습니다.";
 
-        //when
+        //when - 1. 전체 리뷰 저장
         ResultActions resultActions = mvc.perform(
                 post(url)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(requestDTOJson) // 리뷰 세부 정보 포함
+                .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
 
         //console
@@ -205,7 +210,37 @@ public class ReviewRestControllerTest {
         System.out.println("테스트 : " + responseBody);
 
         // verify
-        resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data").value(successMsg));
+
+        //when - 2. 저장 완료된 리뷰 조회(Image, Tag가 저장됐는지 확인)
+        resultActions = mvc.perform(
+                get(url)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
+        );
+
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+        // verify
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviewId").value(2));
+        resultActions.andExpect(jsonPath("$.data.storeId").value(1));
+        // TestHelper의 Image, Tag 데이터 기반 검증
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("https://example.com/image1.jpg"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("짜장면"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(50));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(100));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(4.5));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[1].name").value("짬뽕"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[2].name").value("탕수육"));
+        // custom_modified.sql의 기존 reviewId:2 리뷰 기반 검증
+        resultActions.andExpect(jsonPath("$.data.content").value("참말로 맛있네용"));
+        resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
+        resultActions.andExpect(jsonPath("$.data.totalPrice").value(30000));
+        resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
     }
 
 
