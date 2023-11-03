@@ -7,6 +7,7 @@ import com.ktc.matgpt.food.Food;
 import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.Image;
 import com.ktc.matgpt.image.ImageService;
+import com.ktc.matgpt.like.likeReview.LikeReviewService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
@@ -46,8 +47,7 @@ public class ReviewService {
     private final TagService tagService;
     private final UserService userService;
     private final StoreService storeService;
-    // TODO: LikeReviewService <-> ReviewService 순환참조 발생 해결
-//    private final LikeReviewService likeReviewService;
+    private final LikeReviewService likeReviewService;
     private final MessageSourceAccessor messageSourceAccessor;
     private final EntityManager entityManager;
 
@@ -224,8 +224,7 @@ public class ReviewService {
         Store store = storeService.findById(review.getStore().getId());
         store.removeReview(review.getRating());
         // 리뷰 삭제
-        // TODO: 리뷰에 등록된 좋아요 삭제 과정이 필요함, 현재 순환참조 관계로 구현하지 못함
-//        likeReviewService.deleteAllByReviewId(reviewId);
+        likeReviewService.deleteAllByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
         log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
     }
