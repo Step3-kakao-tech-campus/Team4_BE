@@ -104,7 +104,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.updated").value(true));
     }
 
-    @Disabled
+
     @DisplayName("임시 리뷰 저장")
     @Test
     public void createTemporaryReview_test() throws Exception {
@@ -118,6 +118,7 @@ public class ReviewRestControllerTest {
         // 예시 데이터, 실제 데이터는 S3 사전 서명된 URL 생성 로직을 통해 얻어야 함
         String exampleFileName = "image.jpg";
         URL examplePresignedUrl = new URL("https://example-bucket.s3.amazonaws.com/" + exampleFileName + "?AWSAccessKeyId=EXAMPLEKEY&Expires=1570000000&Signature=EXAMPLESIGNATURE");
+
 
         // 객체 생성 및 목록에 추가
         presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(exampleFileName, examplePresignedUrl));
@@ -139,7 +140,7 @@ public class ReviewRestControllerTest {
         String requestDTOJson = TestHelper.constructTempReviewCreateDTO();
         MockMultipartFile dataPart = new MockMultipartFile("data", "", "application/json", requestDTOJson.getBytes());
 
-        //when
+        //when - 임시 리뷰 저장을 수행합니다.
         ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/stores/{storeId}/reviews/temp", 1)
                         .file(dataPart)
                         .file(imageFile)
@@ -151,8 +152,35 @@ public class ReviewRestControllerTest {
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
 
-        // verify
-        resultActions.andExpect(jsonPath("$.success").value("true"));
+        // verify - 임시 리뷰 저장의 응답을 검증합니다.
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviewUuid").exists());
+        resultActions.andExpect(jsonPath("$.data.presignedUrls[0].presignedUrl").exists());
+        resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
+
+        // given
+        int reviewId = 20; // custom_modified.sql 기반 reviewId: 1~19까지 존재
+
+        //when - 2. 저장된 임시 리뷰 조회
+        resultActions = mvc.perform(
+                get("/stores/"+ storeId +"/reviews/"+reviewId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
+        );
+
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+        // verify - TestHelper의 임시 리뷰 데이터 기반 검증
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviewId").value(20));
+        resultActions.andExpect(jsonPath("$.data.storeId").value(1));
+        resultActions.andExpect(jsonPath("$.data.content").value("이것은 테스트 리뷰입니다."));
+        resultActions.andExpect(jsonPath("$.data.rating").value(4.5));
+        resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
+        resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
+        resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
     }
 
     @Disabled
