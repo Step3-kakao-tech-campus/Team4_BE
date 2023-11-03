@@ -16,23 +16,17 @@ import java.util.List;
 @Service
 public class LikeReviewService {
     private final UserService userService;
-    private final ReviewService reviewService;
     private final LikeReviewJPARepository likeReviewJPARepository;
-    final static int DEFAULT_PAGE_SIZE = 5;
+    private static final int DEFAULT_PAGE_SIZE = 5;
 
     @Transactional
-    public boolean toggleLikeForReview(Long reviewId, String email) {
-
-        User userRef = userService.getReferenceByEmail(email);
-        Review review = reviewService.findReviewByIdOrThrow(reviewId);
+    public boolean toggleLikeForReview(User userRef, Review review) {
 
         if (isLikeAlreadyExists(userRef, review)) {
             deleteLikeToReview(userRef, review);
-            review.minusRecommendCount();
             return false;
         } else {
             addLikeToReview(userRef, review);
-            review.plusRecommendCount();
             return true;
         }
     }
@@ -41,8 +35,8 @@ public class LikeReviewService {
         User user = userService.findById(userId);
         PageRequest page = PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE);
         List<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserIdAndOrderByIdDesc(user.getId(), page).stream().toList();
-        LikeReviewResponseDTO.FindLikeReviewsDTO responseDTO = new LikeReviewResponseDTO.FindLikeReviewsDTO(likeReviewList);
-        return responseDTO;
+
+        return new LikeReviewResponseDTO.FindLikeReviewsDTO(likeReviewList);
     }
 
     @Transactional

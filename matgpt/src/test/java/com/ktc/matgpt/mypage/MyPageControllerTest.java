@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -19,6 +20,7 @@ import java.util.Collections;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+@Sql(value = "classpath:custom_modified.sql")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -33,7 +35,7 @@ public class MyPageControllerTest {
     @Test
     public void findReviewsByUserIdWithOffsetPagingSortByLatest_test() throws Exception{
         //given
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
         String sortBy = "latest";
         String pageNum = "1";
@@ -57,7 +59,7 @@ public class MyPageControllerTest {
     @Test
     public void findReviewsByUserIdWithOffsetPagingSortByRating_test() throws Exception{
         //given
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
         String sortBy = "rating";
         String pageNum = "1";

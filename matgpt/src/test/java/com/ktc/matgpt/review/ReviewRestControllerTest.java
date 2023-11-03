@@ -2,6 +2,7 @@ package com.ktc.matgpt.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.TestHelper;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
@@ -9,7 +10,6 @@ import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.store.StoreService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -90,21 +90,22 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewId").value("1"));
         resultActions.andExpect(jsonPath("$.data.storeId").value("1"));
         resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic3@gmail.com"));
-        resultActions.andExpect(jsonPath("$.data.createdAt").value("0 secsago"));
+        // TODO: createdAt 검증
+//        resultActions.andExpect(jsonPath("$.data.createdAt").value());
         resultActions.andExpect(jsonPath("$.data.averageCostPerPerson").value(25000));
         resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
-        resultActions.andExpect(jsonPath("$.data.rating").value(5.0));
+        resultActions.andExpect(jsonPath("$.data.rating").value(5));
         resultActions.andExpect(jsonPath("$.data.recommendCount").value(2));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("image1.png"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("food1"));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(25.0));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(37.0));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(0.83));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(25.08));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(36.74));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3.5));
         resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
         resultActions.andExpect(jsonPath("$.data.updated").value(true));
     }
 
-    @Disabled
+
     @DisplayName("임시 리뷰 저장")
     @Test
     public void createTemporaryReview_test() throws Exception {
@@ -118,6 +119,7 @@ public class ReviewRestControllerTest {
         // 예시 데이터, 실제 데이터는 S3 사전 서명된 URL 생성 로직을 통해 얻어야 함
         String exampleFileName = "image.jpg";
         URL examplePresignedUrl = new URL("https://example-bucket.s3.amazonaws.com/" + exampleFileName + "?AWSAccessKeyId=EXAMPLEKEY&Expires=1570000000&Signature=EXAMPLESIGNATURE");
+
 
         // 객체 생성 및 목록에 추가
         presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(exampleFileName, examplePresignedUrl));
@@ -139,7 +141,7 @@ public class ReviewRestControllerTest {
         String requestDTOJson = TestHelper.constructTempReviewCreateDTO();
         MockMultipartFile dataPart = new MockMultipartFile("data", "", "application/json", requestDTOJson.getBytes());
 
-        //when
+        //when - 임시 리뷰 저장을 수행합니다.
         ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/stores/{storeId}/reviews/temp", 1)
                         .file(dataPart)
                         .file(imageFile)
@@ -151,25 +153,57 @@ public class ReviewRestControllerTest {
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
 
-        // verify
-        resultActions.andExpect(jsonPath("$.success").value("true"));
+        // verify - 임시 리뷰 저장의 응답을 검증합니다.
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviewUuid").exists());
+        resultActions.andExpect(jsonPath("$.data.presignedUrls[0].presignedUrl").exists());
+        resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
+
+        // given
+        int reviewId = 20; // custom_modified.sql 기반 reviewId: 1~19까지 존재
+
+        //when - 2. 저장된 임시 리뷰 조회
+        resultActions = mvc.perform(
+                get("/stores/"+ storeId +"/reviews/"+reviewId)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
+        );
+
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+        // verify - TestHelper의 임시 리뷰 데이터 기반 검증
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviewId").value(20));
+        resultActions.andExpect(jsonPath("$.data.storeId").value(1));
+        resultActions.andExpect(jsonPath("$.data.content").value("이것은 테스트 리뷰입니다."));
+        resultActions.andExpect(jsonPath("$.data.rating").value(4.5));
+        resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
+        resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
+        resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
     }
 
-    @Disabled
-    @DisplayName("리뷰 생성 완료") //TODO : 테스트 코드 작성 실패
+
+    @DisplayName("전체 리뷰 저장 완료")
     @Test
     public void completeReview_test() throws Exception {
         //given
+        // custom_modified.sql로 저장되어 있는 기존 리뷰 reviewId:2 (storeId:1, userId:2)에 Tag, Image 등록하기
         Long storeId = 1L;
-        Long reviewId = 1L;
+        Long reviewId = 2L;
         String requestDTOJson = TestHelper.constructCompleteDTO();
-        String url = String.format("/stores/%d/complete/%d", storeId, reviewId);
+        UserPrincipal mockUserPrincipal = new UserPrincipal(2L, "female@gmail.com", false, Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_GUEST")));
+        String url = String.format("/stores/%d/reviews/%d", storeId, reviewId);
+        String successMsg = "리뷰가 성공적으로 완료되었습니다.";
 
-        //when
+        //when - 1. 전체 리뷰 저장
         ResultActions resultActions = mvc.perform(
                 post(url)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(requestDTOJson) // 리뷰 세부 정보 포함
+                .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
 
         //console
@@ -177,7 +211,37 @@ public class ReviewRestControllerTest {
         System.out.println("테스트 : " + responseBody);
 
         // verify
-        resultActions.andExpect(jsonPath("$.success").value("true"));
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data").value(successMsg));
+
+        //when - 2. 저장 완료된 리뷰 조회(Image, Tag가 저장됐는지 확인)
+        resultActions = mvc.perform(
+                get(url)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
+        );
+
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+        // verify
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviewId").value(2));
+        resultActions.andExpect(jsonPath("$.data.storeId").value(1));
+        // TestHelper의 Image, Tag 데이터 기반 검증
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("https://example.com/image1.jpg"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("짜장면"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(50));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(100));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(4.5));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[1].name").value("짬뽕"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[2].name").value("탕수육"));
+        // custom_modified.sql의 기존 reviewId:2 리뷰 기반 검증
+        resultActions.andExpect(jsonPath("$.data.content").value("참말로 맛있네용"));
+        resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
+        resultActions.andExpect(jsonPath("$.data.totalPrice").value(30000));
+        resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
     }
 
 
@@ -307,13 +371,14 @@ public class ReviewRestControllerTest {
         String storeId = "1";
         String reviewId = "1";
         String content = "리뷰-1의 내용이 수정된 결과입니다.";
+        String successMsg = "리뷰 내용이 수정되었습니다.";
 
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         String requestBody = ob.writeValueAsString(new ReviewRequest.UpdateDTO(content));
 
-        //when - 리뷰 수정 수행
+        //when - 1. 리뷰 수정 수행
         ResultActions resultActions = mvc.perform(
                 put("/stores/"+ storeId +"/reviews/"+reviewId)
                         .content(requestBody)
@@ -323,7 +388,11 @@ public class ReviewRestControllerTest {
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
 
-        // when - 수정한 리뷰 조회
+        // verify
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data").value(successMsg));
+
+        // when - 2. 수정한 리뷰 조회
         resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -337,31 +406,33 @@ public class ReviewRestControllerTest {
     }
 
 
-    @Disabled
-    @DisplayName("리뷰 삭제")   // TODO: Review 삭제 시 LikeReview도 삭제되도록
+    @DisplayName("리뷰 삭제")
     @Test
     public void deleteReview_test() throws Exception{
         //given
         String storeId = "1";
         String reviewId = "1";
+        String successMsg = "리뷰가 삭제되었습니다.";
 
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
-        String notFoundMessage = "[MatGPT] 요청한 리뷰를 찾을 수 없습니다.";
 
-        //when - 리뷰 삭제 수행
+        //when - 1. 리뷰 삭제 수행
         ResultActions resultActions = mvc.perform(
                 delete("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
+
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
-        // verify
-        resultActions.andExpect(jsonPath("$.success").value("true"));
 
-        //when - 삭제된 리뷰 id 조회
+        // verify
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data").value(successMsg));
+
+        //when - 2. 삭제된 리뷰 id 조회
         resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -372,6 +443,6 @@ public class ReviewRestControllerTest {
         System.out.println("테스트 : "+responseBody);
         // verify
         resultActions.andExpect(jsonPath("$.errorCode").value(404));
-        resultActions.andExpect(jsonPath("$.message").value(notFoundMessage));
+        resultActions.andExpect(jsonPath("$.message").value(ErrorCode.REVIEW_NOT_FOUND.getMessage()));
     }
 }

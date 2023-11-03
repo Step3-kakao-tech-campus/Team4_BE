@@ -109,7 +109,7 @@ public class ReviewResponse {
                     this.name = tag.getFood().getFoodName();
                     this.location_x = tag.getLocationX();
                     this.location_y = tag.getLocationY();
-                    this.rating = tag.getFood().getAverageRating();
+                    this.rating = tag.getMenuRating();
                 }
             }
         }

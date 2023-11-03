@@ -7,6 +7,7 @@ import com.ktc.matgpt.food.Food;
 import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.Image;
 import com.ktc.matgpt.image.ImageService;
+import com.ktc.matgpt.like.likeReview.LikeReviewService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
@@ -46,8 +47,7 @@ public class ReviewService {
     private final TagService tagService;
     private final UserService userService;
     private final StoreService storeService;
-    // TODO: LikeReviewService <-> ReviewService 순환참조 발생 해결
-//    private final LikeReviewService likeReviewService;
+    private final LikeReviewService likeReviewService;
     private final MessageSourceAccessor messageSourceAccessor;
     private final EntityManager entityManager;
 
@@ -68,7 +68,7 @@ public class ReviewService {
         Store storeRef = storeService.getReferenceById(storeId);
         Review review = findReviewByIdOrThrow(reviewId);
 
-        // TODO: 리뷰 생성 시 Store의 리뷰수와 평점 업데이트 구현 - Store 프록시 객체를 사용하고 있어 보류
+        // TODO: 리뷰 생성 시 Store의 리뷰 개수와 평점 업데이트 구현 - Store 프록시 객체를 사용하고 있어 보류
 
         for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
             Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
@@ -219,13 +219,13 @@ public class ReviewService {
         }
         // 이미지(+태그) 삭제
         imageService.deleteImagesByReviewId(reviewId);
-        // Store 업데이트
-        // TODO: Store의 리뷰수 및 평점 업데이트 - 반영되지 않음
+
+        // Store 리뷰 개수, 평점 필드 업데이트
         Store store = storeService.findById(review.getStore().getId());
         store.removeReview(review.getRating());
+
         // 리뷰 삭제
-        // TODO: 리뷰에 등록된 좋아요 삭제 과정이 필요함, 현재 순환참조 관계로 구현하지 못함
-//        likeReviewService.deleteAllByReviewId(reviewId);
+        likeReviewService.deleteAllByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
         log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
     }
