@@ -68,7 +68,7 @@ public class ReviewService {
         Store storeRef = storeService.getReferenceById(storeId);
         Review review = findReviewByIdOrThrow(reviewId);
 
-        // TODO: 리뷰 생성 시 Store의 리뷰수와 평점 업데이트 구현 - Store 프록시 객체를 사용하고 있어 보류
+        // TODO: 리뷰 생성 시 Store의 리뷰 개수와 평점 업데이트 구현 - Store 프록시 객체를 사용하고 있어 보류
 
         for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
             Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
@@ -219,10 +219,11 @@ public class ReviewService {
         }
         // 이미지(+태그) 삭제
         imageService.deleteImagesByReviewId(reviewId);
-        // Store 업데이트
-        // TODO: Store의 리뷰수 및 평점 업데이트 - 반영되지 않음
+
+        // Store 리뷰 개수, 평점 필드 업데이트
         Store store = storeService.findById(review.getStore().getId());
         store.removeReview(review.getRating());
+
         // 리뷰 삭제
         likeReviewService.deleteAllByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
