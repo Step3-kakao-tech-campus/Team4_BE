@@ -2,6 +2,7 @@ package com.ktc.matgpt.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.TestHelper;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
@@ -9,7 +10,6 @@ import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.store.StoreService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -405,31 +405,33 @@ public class ReviewRestControllerTest {
     }
 
 
-    @Disabled
-    @DisplayName("리뷰 삭제")   // TODO: Review 삭제 시 LikeReview도 삭제되도록
+    @DisplayName("리뷰 삭제")
     @Test
     public void deleteReview_test() throws Exception{
         //given
         String storeId = "1";
         String reviewId = "1";
+        String successMsg = "리뷰가 삭제되었습니다.";
 
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
-        String notFoundMessage = "[MatGPT] 요청한 리뷰를 찾을 수 없습니다.";
 
-        //when - 리뷰 삭제 수행
+        //when - 1. 리뷰 삭제 수행
         ResultActions resultActions = mvc.perform(
                 delete("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
+
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
-        // verify
-        resultActions.andExpect(jsonPath("$.success").value("true"));
 
-        //when - 삭제된 리뷰 id 조회
+        // verify
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data").value(successMsg));
+
+        //when - 2. 삭제된 리뷰 id 조회
         resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -440,6 +442,6 @@ public class ReviewRestControllerTest {
         System.out.println("테스트 : "+responseBody);
         // verify
         resultActions.andExpect(jsonPath("$.errorCode").value(404));
-        resultActions.andExpect(jsonPath("$.message").value(notFoundMessage));
+        resultActions.andExpect(jsonPath("$.message").value(ErrorCode.REVIEW_NOT_FOUND.getMessage()));
     }
 }
