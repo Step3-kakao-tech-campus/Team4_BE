@@ -370,13 +370,14 @@ public class ReviewRestControllerTest {
         String storeId = "1";
         String reviewId = "1";
         String content = "리뷰-1의 내용이 수정된 결과입니다.";
+        String successMsg = "리뷰 내용이 수정되었습니다.";
 
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         String requestBody = ob.writeValueAsString(new ReviewRequest.UpdateDTO(content));
 
-        //when - 리뷰 수정 수행
+        //when - 1. 리뷰 수정 수행
         ResultActions resultActions = mvc.perform(
                 put("/stores/"+ storeId +"/reviews/"+reviewId)
                         .content(requestBody)
@@ -386,7 +387,11 @@ public class ReviewRestControllerTest {
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
 
-        // when - 수정한 리뷰 조회
+        // verify
+        resultActions.andExpect(status().isOk());;
+        resultActions.andExpect(jsonPath("$.data").value(successMsg));
+
+        // when - 2. 수정한 리뷰 조회
         resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
