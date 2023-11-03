@@ -1,11 +1,11 @@
 package com.ktc.matgpt.review.mypage;
 
-import com.ktc.matgpt.like.likeReview.LikeReviewResponseDTO;
-import com.ktc.matgpt.like.likeReview.LikeReviewService;
+import com.ktc.matgpt.like.likeReview.LikeReviewResponse;
+import com.ktc.matgpt.like.usecase.LikeReviewUseCase;
 import com.ktc.matgpt.review.ReviewService;
 import com.ktc.matgpt.review.dto.ReviewResponse;
-import com.ktc.matgpt.feature_review.utils.ApiUtils;
 import com.ktc.matgpt.security.UserPrincipal;
+import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MyPageController {
     private final ReviewService reviewService;
-    private final LikeReviewService likeReviewService;
+    private final LikeReviewUseCase likeReviewUseCase;
+
+    private static final String MAX_REVIEW_ID = "10000";
+    private static final String MAX_LIKE_REVIEW_ID = "10000";
+    private static final String MAX_LIKES_NUM = "10000";
 
     // 마이페이지 작성한 리뷰 조회
     @GetMapping("/my-reviews")
@@ -36,10 +40,10 @@ public class MyPageController {
 
     // 마이페이지 좋아요한 리뷰 조회
     @GetMapping("/liked-reviews")
-    public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(defaultValue = "1") int pageNum,
+    public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(defaultValue = MAX_LIKE_REVIEW_ID) Long cursorId,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        LikeReviewResponseDTO.FindLikeReviewsDTO responseDTO
-                = likeReviewService.findReviewsByUserId(userPrincipal.getId(), pageNum);
+        LikeReviewResponse.FindLikeReviewPageDTO responseDTO
+                = likeReviewUseCase.executeFindLikeReviews(userPrincipal.getEmail(), cursorId);
         return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
 }
