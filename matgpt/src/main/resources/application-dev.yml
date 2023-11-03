@@ -5,8 +5,8 @@ spring:
 #    username: "piggle"
 #    password: "123456789"
   datasource:
-    driver-class-name: org.h2.Driverorg.hibernate.dialect.MySQLDialect
-    url: jdbc:h2:mem:testMODE=MySQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:test;MODE=MySQL
 
   h2:
     console:
@@ -29,7 +29,7 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
         show_sql: true
 
