@@ -90,6 +90,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewId").value("1"));
         resultActions.andExpect(jsonPath("$.data.storeId").value("1"));
         resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic3@gmail.com"));
+        // TODO: createdAt 검증
 //        resultActions.andExpect(jsonPath("$.data.createdAt").value());
         resultActions.andExpect(jsonPath("$.data.averageCostPerPerson").value(25000));
         resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
@@ -388,7 +389,7 @@ public class ReviewRestControllerTest {
         System.out.println("테스트 : "+responseBody);
 
         // verify
-        resultActions.andExpect(status().isOk());;
+        resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.data").value(successMsg));
 
         // when - 2. 수정한 리뷰 조회
