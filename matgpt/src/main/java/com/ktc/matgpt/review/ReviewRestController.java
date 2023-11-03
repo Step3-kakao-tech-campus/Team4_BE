@@ -78,8 +78,7 @@ public class ReviewRestController {
                                     @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         reviewService.updateContent(reviewId, userPrincipal.getId(), requestDTO);
-        String msg = "review-" + reviewId + " updated";
-        return ResponseEntity.ok(ApiUtils.success(msg));
+        return ResponseEntity.ok(ApiUtils.success("리뷰 내용이 수정되었습니다."));
     }
 
     // 개별 리뷰 상세조회
@@ -94,6 +93,6 @@ public class ReviewRestController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         reviewService.delete(reviewId, userPrincipal.getId());
-        return ResponseEntity.ok(ApiUtils.success(null));
+        return ResponseEntity.ok(ApiUtils.success("리뷰가 삭제되었습니다."));
     }
 }
