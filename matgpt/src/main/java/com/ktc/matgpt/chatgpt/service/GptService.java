@@ -23,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.*;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -47,9 +44,9 @@ public class GptService {
     private final RestTemplate restTemplate;
     private final AsyncConfig asyncConfig;
 
+    private static final List<String> summaryTypes = List.of("best", "worst");
 
     public List<GptResponse> generateReviewSummarys(Long storeId) {
-        List<String> summaryTypes = List.of("BEST", "WORST");
         return summaryTypes.stream()
                 .map(summaryType -> generateReviewSummary(storeId, summaryType))
                 .filter(Objects::nonNull)
@@ -69,10 +66,16 @@ public class GptService {
         return new GptResponse(storeId, summaryType, gptApiResponse);
     }
 
-    public String findReviewSummaryByStoreIdAndSummaryType(Long storeId, String summaryType) {
-        GptReview gptReview = gptReviewRepository.findByStoreIdAndSummaryType(storeId, summaryType).orElseThrow(
-                () -> new NoSuchElementException("storeId-" + storeId + ": 해당 음식점에는 리뷰 요약이 존재하지 않습니다."));
-        return gptReview.getContent();
+    public GptResponseDto<Map<String, String>> findReviewSummaryByStoreId(Long storeId) {
+        Map<String, String> contents = new HashMap<>();
+        for (String summaryType: summaryTypes) {
+            GptReview gptReview = gptReviewRepository.findByStoreIdAndSummaryType(storeId, summaryType).orElse(null);
+            if (gptReview == null) {
+                return new GptResponseDto<>(false, null);
+            }
+            contents.put(summaryType, gptReview.getContent());
+        }
+        return new GptResponseDto<>(true, contents);
     }
 
     @Transactional

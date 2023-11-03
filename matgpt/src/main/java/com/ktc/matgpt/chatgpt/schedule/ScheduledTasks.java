@@ -31,10 +31,10 @@ public class ScheduledTasks {
      * chatGpt review Summary를 갱신합니다.
      */
     @Timer
-    @Scheduled(cron = "0 40 * * * SUN")
+    @Scheduled(cron = "0 0 4 * * SUN")
     public void getReviewSummarysFromChatGptApi() {
 
-        List<GptResponse> gptResponses = storeService.findAll().stream()
+        List<GptResponse> gptResponses = storeService.findAllForGpt().stream()
                 .filter(store -> getReviewDifference(store) >= API_CALL_TRIGGER)
                 .map(store -> gptService.generateReviewSummarys(store.getStoreId()))
                 .flatMap(List::stream)

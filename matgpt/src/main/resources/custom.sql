@@ -5,10 +5,10 @@ INSERT INTO category_tb (id, name) VALUES
                                        (3, 'DESSERT'),
                                        (4, 'JAPANESE');
 -- User Table Initalization
-INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, PROVIDER, PROVIDER_ID)
-VALUES (2, null, 1, 'nstgic3@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KAKAO', 3038773712);
-INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, PROVIDER, PROVIDER_ID)
-VALUES (2, null, 2, 'female@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KAKAO', 3038733712);
+INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, LOCALE, IS_FIRST_LOGIN, PROVIDER, PROVIDER_ID)
+VALUES (2, null, 1, 'nstgic@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7','korean',true, 'KAKAO', 3038773712);
+INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, LOCALE, IS_FIRST_LOGIN, PROVIDER, PROVIDER_ID)
+VALUES (2, null, 2, 'female@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd2','french',true, 'KAKAO', 3038733712);
 
 
 -- DetailedCategory Table Initialization
@@ -115,11 +115,9 @@ VALUES
     (40, 4, 12, '자주 방문하려고요. 정말 맛있어요!', 5, 'uuiduuiduuiduuid040', 5, 50000, 25000, 2, now(), now());
 
 -- LikeStore Table Initalization
-INSERT INTO likereview_tb(review_id, user_id)VALUES (1 ,1);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 1);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (3, 1);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 1);
-INSERT INTO likereview_tb(review_id, user_id)VALUES (1, 2);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 2);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);

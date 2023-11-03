@@ -6,13 +6,10 @@ import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
-import com.ktc.matgpt.aws.S3Service;
-import com.ktc.matgpt.feature_review.utils.ApiUtils;
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.store.StoreService;
+import com.ktc.matgpt.utils.ApiUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,7 +27,7 @@ public class ReviewRestController {
 
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
     @PostMapping(value = "/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiUtils.ApiResult<?>> createTemporaryReview(@PathVariable Long storeId,
+    public ResponseEntity<?> createTemporaryReview(@PathVariable Long storeId,
                                                                        @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
                                                                        @RequestPart(value = "images", required = false) List<MultipartFile> images,
                                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -39,20 +36,21 @@ public class ReviewRestController {
             for (MultipartFile image : images) {
                 imageService.validateImageFile(image);
             }
-            String reviewUuid = reviewService.createTemporaryReview(userPrincipal.getId(),storeId, requestDTO);
+            String reviewUuid = reviewService.createTemporaryReview(userPrincipal.getId(), storeId, requestDTO);
             List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = reviewService.createPresignedUrls(reviewUuid, images.size());
             return ResponseEntity.ok(ApiUtils.success(new ReviewResponse.UploadS3DTO(reviewUuid, presignedUrls)));
         } catch (FileValidator.FileValidationException e) {
-            return ResponseEntity.badRequest().body(ApiUtils.error(e.getMessage(), HttpStatus.BAD_REQUEST));
+            throw new CustomException(ErrorCode.S3_FILE_VALIDATION_ERROR);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiUtils.error("서버 내부 오류 발생", HttpStatus.INTERNAL_SERVER_ERROR));
+            throw new CustomException(ErrorCode.REVIEW_PROCESS_ERROR);
         }
     }
 
 
     // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
     @PostMapping("/{reviewId}")
-    public ResponseEntity<?> completeReview(@PathVariable Long storeId,Long reviewId,
+    public ResponseEntity<?> completeReview(@PathVariable(value = "storeId") Long storeId,
+                                            @PathVariable(value = "reviewId") Long reviewId,
                                             @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
         try {
             reviewService.completeReviewUpload(storeId, reviewId, requestDTO);
@@ -70,9 +68,7 @@ public class ReviewRestController {
                                               @RequestParam(defaultValue = "1000") int cursorLikes
     ) {
         List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
-
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTOs);
-        return ResponseEntity.ok(apiResult);
+        return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTOs));
     }
 
 
@@ -83,19 +79,14 @@ public class ReviewRestController {
                                     @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         reviewService.updateContent(reviewId, userPrincipal.getId(), requestDTO);
-        String msg = "review-" + reviewId + " updated";
-
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(msg);
-        return ResponseEntity.ok(apiResult);
+        return ResponseEntity.ok(ApiUtils.success("리뷰 내용이 수정되었습니다."));
     }
 
     // 개별 리뷰 상세조회
     @GetMapping("/{reviewId}")
     public ResponseEntity<?> findById(@PathVariable Long reviewId) {
         ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findDetailByReviewId(reviewId);
-
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(responseDTO);
-        return ResponseEntity.ok(apiResult);
+        return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
 
     // TODO: s3 삭제 구현
@@ -103,8 +94,6 @@ public class ReviewRestController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         reviewService.delete(reviewId, userPrincipal.getId());
-
-        ApiUtils.ApiResult<?> apiResult = ApiUtils.success(null);
-        return ResponseEntity.ok(apiResult);
+        return ResponseEntity.ok(ApiUtils.success("리뷰가 삭제되었습니다."));
     }
 }

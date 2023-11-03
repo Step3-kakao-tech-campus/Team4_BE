@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Locale;
+
 
 @Entity
 @Builder
@@ -42,10 +44,21 @@ public class User {
     @Column(nullable = true)
     private Boolean emailVerified = false;
 
+    @Column(nullable = true)
+    @Convert(converter = LocaleConverter.class)
+    private Locale locale;
+
+    @Column(nullable = false)
+    private boolean isFirstLogin = true;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private MatgptOAuth2Provider provider;
 
     private String providerId;
+
+    public void completeFirstLogin() {
+        this.isFirstLogin = false;
+    }
 
 }
