@@ -250,7 +250,7 @@ INSERT INTO likestore_tb(id,store_id,user_id)VALUES (8,6,2);
 
 -- Review Table Initalization
 
--- Store1에 User 1~10이 작성한 리뷰 10개 (reviewId: 1~11)
+-- Store1에 User 1~10이 작성한 리뷰 11개 (reviewId: 1~11)
 INSERT INTO review_tb
 (store_id, user_id, content, rating, review_uuid, recommend_count, total_price, cost_per_person, people_count, created_at, updated_at, created_by, updated_by)
 VALUES
