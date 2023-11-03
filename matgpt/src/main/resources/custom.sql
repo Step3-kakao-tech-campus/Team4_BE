@@ -82,8 +82,7 @@ VALUES
     (8, 1, 8, '수육 진짜 최고에요,,, 꼭 드세요ㅠㅠ', 2,'uuiduuiduuiduuid008', 1, 50000, 25000, 2, now(), now()),
     (9, 1, 9, '주말 아침에 방문했는데일본관광객들이 많이 오네요~^^
 아침 든든하게 잘해결했어요~', 5,'uuiduuiduuiduuid009', 1, 50000, 25000, 2, now(), now()),
-    (10, 1, 10, '아주 맛집이에요 명동에 또 온다면 다시 오고싶어요
-수육 첫점부터 맛있었어요', 5,'uuiduuiduuiduuid010', 1, 50000, 25000, 2, now(), now()),
+    (10, 1, 10, '아주 맛집이에요 명동에 또 온다면 다시 오고싶어요 수육 첫점부터 맛있었어요', 5,'uuiduuiduuiduuid010', 1, 50000, 25000, 2, now(), now()),
     (11, 1, 11, '단출한 메뉴에 집중해서 좋아요. 늘 혼자 가서 수육은 먹어보지 못해 아쉽네요.', 5, 'uuiduuiduuiduuid011',1, 50000, 25000, 2, now(), now()),
     (12, 1, 12, '맛있는데 좀 짜요', 4,'uuiduuiduuiduuid012', 1, 50000, 25000, 2, now(), now()),
     (13, 1, 13, '이것이 맛있나요?', 3,'uuiduuiduuiduuid013', 1, 50000, 25000, 2, now(), now()),
@@ -109,4 +108,18 @@ VALUES
     (33, 3, 33, '맛있는 커피와 디저트, 그리고 멋진 인테리어까지, 이 카페는 정말 매력적인 곳입니다.', 5, 'uuiduuiduuiduuid033', 1, 50000, 25000, 2, now(), now()),
     (34, 3, 34, '카페 분위기가 너무 좋고, 커피랑 디저트도 맛있어요. 직원분들도 친절해서 편안하게 즐길 수 있는 곳입니다.', 5, 'uuiduuiduuiduuid034', 1, 50000, 25000, 2, now(), now()),
     (35, 3, 35, '카페 인테리어가 예쁘고, 커피 맛도 좋아요. 직원분들도 친절해서 기분 좋은 시간을 보낼 수 있었습니다.', 5, 'uuiduuiduuiduuid035', 1, 50000, 25000, 2, now(), now()),
-    (36, 3, 36, '카페가 아름답고 분위기도 좋아요. 커피와 디저트도 맛있고, 직원분들도 친절해서 좋은 경험이었습니다.', 5, 'uuiduuiduuiduuid036', 1, 50000, 25000, 2, now(), now());
+    (36, 3, 36, '카페가 아름답고 분위기도 좋아요. 커피와 디저트도 맛있고, 직원분들도 친절해서 좋은 경험이었습니다.', 5, 'uuiduuiduuiduuid036', 1, 50000, 25000, 2, now(), now()),
+    (37, 4, 9, '서비스도 좋고, 음식 맛도 최고!', 5, 'uuiduuiduuiduuid037', 5, 50000, 25000, 2, now(), now()),
+    (38, 4, 10, '완전 추천합니다!', 5, 'uuiduuiduuiduuid038', 5, 50000, 25000, 2, now(), now()),
+    (39, 4, 11, '최고의 음식, 최고의 서비스!', 5, 'uuiduuiduuiduuid039', 5, 50000, 25000, 2, now(), now()),
+    (40, 4, 12, '자주 방문하려고요. 정말 맛있어요!', 5, 'uuiduuiduuiduuid040', 5, 50000, 25000, 2, now(), now());
+
+-- LikeStore Table Initalization
+INSERT INTO likereview_tb(review_id, user_id)VALUES (1 ,1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (3, 1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 1);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (1, 2);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 2);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
+INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);

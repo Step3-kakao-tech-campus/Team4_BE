@@ -29,7 +29,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.time.Duration;
@@ -47,6 +46,8 @@ public class ReviewService {
     private final TagService tagService;
     private final UserService userService;
     private final StoreService storeService;
+    // TODO: LikeReviewService <-> ReviewService 순환참조 발생 해결
+//    private final LikeReviewService likeReviewService;
     private final MessageSourceAccessor messageSourceAccessor;
     private final EntityManager entityManager;
 
@@ -66,6 +67,8 @@ public class ReviewService {
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
         Review review = findReviewByIdOrThrow(reviewId);
+
+        // TODO: 리뷰 생성 시 Store의 리뷰수와 평점 업데이트 구현 - Store 프록시 객체를 사용하고 있어 보류
 
         for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
             Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
@@ -119,14 +122,13 @@ public class ReviewService {
 
 
     @Transactional
-    public void update(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
+    public void updateContent(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
         Review review = findReviewByIdOrThrow(reviewId);
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
         }
         review.updateContent(requestDTO.getContent());
     }
-
 
     public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId) {
 
@@ -151,13 +153,11 @@ public class ReviewService {
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime);
     }
 
-
-    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, double cursorRating) {
-
+    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, int cursorLikes) {
 
         List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE);
-            case "rating" -> reviewJPARepository.findAllByStoreIdAndOrderByRatingDesc(storeId, cursorId, cursorRating, DEFAULT_PAGE_SIZE);
+            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesDesc(storeId, cursorId, cursorLikes, DEFAULT_PAGE_SIZE);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
@@ -192,7 +192,7 @@ public class ReviewService {
     public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, int pageNum) {
         Page<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
-            case "rating" -> reviewJPARepository.findAllByUserIdAndOrderByRatingDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
@@ -204,13 +204,8 @@ public class ReviewService {
         List<ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO> reviewDTOs = new ArrayList<>();
 
         for (Review review : reviews) {
-            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
-            if (imageUrls.isEmpty()) {
-                log.info("reviewId-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
-            }
-
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO(review, relativeTime, imageUrls));
+            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO(review, relativeTime));
         }
         return new ReviewResponse.FindPageByUserIdDTO(reviewDTOs, reviews);
     }
@@ -222,7 +217,15 @@ public class ReviewService {
         if (review.getUserId() != userId) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
         }
+        // 이미지(+태그) 삭제
         imageService.deleteImagesByReviewId(reviewId);
+        // Store 업데이트
+        // TODO: Store의 리뷰수 및 평점 업데이트 - 반영되지 않음
+        Store store = storeService.findById(review.getStore().getId());
+        store.removeReview(review.getRating());
+        // 리뷰 삭제
+        // TODO: 리뷰에 등록된 좋아요 삭제 과정이 필요함, 현재 순환참조 관계로 구현하지 못함
+//        likeReviewService.deleteAllByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
         log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
     }
@@ -234,7 +237,7 @@ public class ReviewService {
 
         return ReviewResponse.FindByReviewIdDTO.ReviewerDTO.builder()
                         .userName(user.getName())
-                        .profileImage("default profileImage")
+                        .profileImage(user.getProfileImageUrl())
                         .email(user.getEmail())
                         .build();
     }
@@ -263,5 +266,4 @@ public class ReviewService {
             throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
         }
     }
-
 }

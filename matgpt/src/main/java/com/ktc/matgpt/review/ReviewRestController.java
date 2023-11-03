@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@RequestMapping(value = "/stores", produces = {"application/json; charset=UTF-8"})
+@RequestMapping(value = "/stores/{storeId}/reviews", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
 @RestController
 public class ReviewRestController {
@@ -26,11 +26,11 @@ public class ReviewRestController {
     private final ImageService imageService;
 
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
-    @PostMapping(value = "/{storeId}/reviews/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createTemporaryReview(@PathVariable Long storeId,
-                                                                        @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
-                                                                        @RequestPart("images") List<MultipartFile> images,
-                                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+                                                                       @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
+                                                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
+                                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             //파일 검증
             for (MultipartFile image : images) {
@@ -48,7 +48,7 @@ public class ReviewRestController {
 
 
     // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
-    @PostMapping("/{storeId}/complete/{reviewId}")
+    @PostMapping("/{reviewId}")
     public ResponseEntity<?> completeReview(@PathVariable Long storeId,Long reviewId,
                                             @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
         try {
@@ -60,13 +60,14 @@ public class ReviewRestController {
     }
 
     // 음식점 리뷰 목록 조회
-    @GetMapping("/{storeId}/reviews")
+    @GetMapping("")
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
                                               @RequestParam(defaultValue = "6") Long cursorId,
-                                              @RequestParam(defaultValue = "5.0") double cursorRating) {
-        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorRating);
-        return ResponseEntity.ok(ApiUtils.success(responseDTOs));
+                                              @RequestParam(defaultValue = "1000") int cursorLikes
+    ) {
+        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
+        return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTOs));
     }
 
 
@@ -74,8 +75,9 @@ public class ReviewRestController {
     @PutMapping("/{reviewId}")
     public ResponseEntity<?> update(@PathVariable Long reviewId,
                                     @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO,
-                                    @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        reviewService.update(reviewId, userPrincipal.getId(), requestDTO);
+                                    @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        reviewService.updateContent(reviewId, userPrincipal.getId(), requestDTO);
         String msg = "review-" + reviewId + " updated";
         return ResponseEntity.ok(ApiUtils.success(msg));
     }

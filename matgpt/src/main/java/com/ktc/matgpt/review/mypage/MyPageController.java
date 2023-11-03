@@ -1,9 +1,11 @@
 package com.ktc.matgpt.review.mypage;
 
+import com.ktc.matgpt.like.likeReview.LikeReviewResponseDTO;
+import com.ktc.matgpt.like.likeReview.LikeReviewService;
 import com.ktc.matgpt.review.ReviewService;
 import com.ktc.matgpt.review.dto.ReviewResponse;
+import com.ktc.matgpt.feature_review.utils.ApiUtils;
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MyPageController {
     private final ReviewService reviewService;
+    private final LikeReviewService likeReviewService;
 
     // 마이페이지 작성한 리뷰 조회
     @GetMapping("/my-reviews")
@@ -30,14 +33,12 @@ public class MyPageController {
         return ResponseEntity.ok(ApiUtils.success(responseDTOs));
     }
 
+    // 마이페이지 좋아요한 리뷰 조회
     @GetMapping("/liked-reviews")
-    public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(defaultValue = "latest") String sortBy,
-                                                      @RequestParam(defaultValue = "1") int pageNum,
+    public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(defaultValue = "1") int pageNum,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        ReviewResponse.FindPageByUserIdDTO responseDTOs =
-                reviewService.findAllByUserId(userPrincipal.getId(), sortBy, pageNum);
-
-        return ResponseEntity.ok(ApiUtils.success(responseDTOs));
+        LikeReviewResponseDTO.FindLikeReviewsDTO responseDTO
+                = likeReviewService.findReviewsByUserId(userPrincipal.getId(), pageNum);
+        return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
-
 }

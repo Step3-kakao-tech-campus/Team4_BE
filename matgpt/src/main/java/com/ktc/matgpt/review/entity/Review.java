@@ -1,7 +1,7 @@
 package com.ktc.matgpt.review.entity;
 
 import com.ktc.matgpt.store.Store;
-import com.ktc.matgpt.utils.BaseTimeEntity;
+import com.ktc.matgpt.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review_tb")
-public class Review extends BaseTimeEntity {
+public class Review extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,8 +45,8 @@ public class Review extends BaseTimeEntity {
     @Column(updatable = false)
     private int costPerPerson;
 
-    @Column(updatable = false)
-    private int recommendCount = 0;
+    @Column
+    private int recommendCount;
 
     public Review(Store store, Long userId, String content, double rating,
                   int peopleCount, int totalPrice) {
