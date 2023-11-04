@@ -16,23 +16,21 @@ public class ReviewResponse {
     @Getter
     @ToString
     public static class UploadS3DTO {
-        private String reviewUuid;
+        private Long reviewId;
         private List<PresignedUrlDTO> presignedUrls;
 
-        public UploadS3DTO(String reviewUuid, List<PresignedUrlDTO> presignedUrls) {
-            this.reviewUuid = reviewUuid;
+        public UploadS3DTO(Long reviewId, List<PresignedUrlDTO> presignedUrls) {
+            this.reviewId = reviewId;
             this.presignedUrls = presignedUrls;
         }
 
         @Getter
         @ToString
         public static class PresignedUrlDTO {
-            private String objectKey;
             private URL presignedUrl;
 
             @Builder
-            public PresignedUrlDTO(String objectKey, URL presignedUrl) {
-                this.objectKey = objectKey;
+            public PresignedUrlDTO(URL presignedUrl) {
                 this.presignedUrl = presignedUrl;
             }
         }
