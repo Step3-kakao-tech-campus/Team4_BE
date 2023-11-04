@@ -1,6 +1,6 @@
 package com.ktc.matgpt.like.likeReview;
 
-import com.ktc.matgpt.like.usecase.CreateLikeReviewUseCase;
+import com.ktc.matgpt.like.usecase.LikeReviewUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class LikeReviewRestController {
-    private final CreateLikeReviewUseCase createLikeReviewUseCase;
+    private final LikeReviewUseCase createLikeReviewUseCase;
 
     // 리뷰 좋아요 상태 전환하기 (좋아요 등록<->좋아요 취소)
     @PostMapping("reviews/{reviewId}/like")
     public ResponseEntity<?> toggleLikeForReview(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        boolean isLikeAdded = createLikeReviewUseCase.execute(reviewId, userPrincipal.getEmail());
+        boolean isLikeAdded = createLikeReviewUseCase.executeToggleLike(reviewId, userPrincipal.getEmail());
 
         String message = isLikeAdded ? "리뷰 좋아요 등록" : "리뷰 좋아요 취소";
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(message);

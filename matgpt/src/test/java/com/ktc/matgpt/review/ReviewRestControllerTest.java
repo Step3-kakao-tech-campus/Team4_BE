@@ -245,110 +245,107 @@ public class ReviewRestControllerTest {
     }
 
 
-    @DisplayName("음식점 리뷰 목록(5개 단위) 조회 최신순")
+    @DisplayName("음식점 리뷰 목록(8개 단위) 조회 최신순")
     @Test
     public void findReviewsByStoreIdWithCursorPagingSortByLatest_test() throws Exception {
         //given
-        String sortBy = "latest";
-        String cursorId = "40";
+        // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
+        String sortBy = "latest";
+        String cursorId = "";
 
-        //when
+        //when - 최초 조회 요청 (cursorId 없을 경우 default:10000)
         ResultActions resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
+
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
-        // verify
 
-        resultActions.andExpect(jsonPath("$.data[0].reviewId").value("11"));
-        resultActions.andExpect(jsonPath("$.data[1].reviewId").value("10"));
-        resultActions.andExpect(jsonPath("$.data[2].reviewId").value("9"));
-        resultActions.andExpect(jsonPath("$.data[3].reviewId").value("8"));
-        resultActions.andExpect(jsonPath("$.data[4].reviewId").value("7"));
+        // verify
+        // 리뷰 데이터 응답 검증
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value("11"));
+        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value("10"));
+        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value("9"));
+        resultActions.andExpect(jsonPath("$.data.reviews[3].reviewId").value("8"));
+        resultActions.andExpect(jsonPath("$.data.reviews[4].reviewId").value("7"));
+        resultActions.andExpect(jsonPath("$.data.reviews[5].reviewId").value("6"));
+        resultActions.andExpect(jsonPath("$.data.reviews[6].reviewId").value("5"));
+        resultActions.andExpect(jsonPath("$.data.reviews[7].reviewId").value("4"));
+        // 페이징 관련 데이터 응답 검증
+        resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
+        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
 
         //given
-        cursorId = "7";
-        //when
+        cursorId = "4";
+
+        //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id)
         resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         // verify
-        resultActions.andExpect(jsonPath("$.data[0].reviewId").value("6"));
-        resultActions.andExpect(jsonPath("$.data[1].reviewId").value("5"));
-        resultActions.andExpect(jsonPath("$.data[2].reviewId").value("4"));
-        resultActions.andExpect(jsonPath("$.data[3].reviewId").value("3"));
-        resultActions.andExpect(jsonPath("$.data[4].reviewId").value("2"));
-
-        //given
-        cursorId = "2";
-        //when
-        resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-        );
-        // verify
-        resultActions.andExpect(jsonPath("$.data[0].reviewId").value("1"));
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value("3"));
+        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value("2"));
+        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value("1"));
+        // 페이징 관련 데이터 응답 검증
+        resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
+        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 
-    @DisplayName("음식점 리뷰 목록(5개 단위) 조회 추천순")
+    @DisplayName("음식점 리뷰 목록(8개 단위) 조회 추천순")
     @Test
     public void findReviewsByStoreIdWithCursorPagingSortByLikes_test() throws Exception{
         //given
+        // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
         String sortBy = "likes";
-        String cursorId = "41";
-        String cursorLikes = "100";
+        String cursorId = "";
+        String cursorLikes = "";
 
-        //when
+        //when - 최초 요청 (cursorId, cursorLikes 없을 경우 default:1000)
         ResultActions resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
+
         //console
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
+
         // verify
-        resultActions.andExpect(jsonPath("$.data[0].reviewId").value("11"));
-        resultActions.andExpect(jsonPath("$.data[0].numOfLikes").value("5"));
-        resultActions.andExpect(jsonPath("$.data[1].reviewId").value("9"));
-        resultActions.andExpect(jsonPath("$.data[1].numOfLikes").value("3"));
-        resultActions.andExpect(jsonPath("$.data[2].reviewId").value("2"));
-        resultActions.andExpect(jsonPath("$.data[2].numOfLikes").value("3"));
-        resultActions.andExpect(jsonPath("$.data[3].reviewId").value("1"));
-        resultActions.andExpect(jsonPath("$.data[3].numOfLikes").value("2"));
-        resultActions.andExpect(jsonPath("$.data[4].reviewId").value("7"));
-        resultActions.andExpect(jsonPath("$.data[4].numOfLikes").value("1"));
+        // 리뷰 데이터 응답 검증
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value(11));
+        resultActions.andExpect(jsonPath("$.data.reviews[0].numOfLikes").value(5));
+        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value(9));
+        resultActions.andExpect(jsonPath("$.data.reviews[1].numOfLikes").value(3));
+        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value(2));
+        resultActions.andExpect(jsonPath("$.data.reviews[2].numOfLikes").value(3));
+        resultActions.andExpect(jsonPath("$.data.reviews[3].reviewId").value(1));
+        resultActions.andExpect(jsonPath("$.data.reviews[3].numOfLikes").value(2));
+        resultActions.andExpect(jsonPath("$.data.reviews[4].reviewId").value(7));
+        resultActions.andExpect(jsonPath("$.data.reviews[4].numOfLikes").value(1));
+        resultActions.andExpect(jsonPath("$.data.reviews[5].reviewId").value(3));
+        resultActions.andExpect(jsonPath("$.data.reviews[5].numOfLikes").value(1));
+        resultActions.andExpect(jsonPath("$.data.reviews[6].reviewId").value(10));
+        resultActions.andExpect(jsonPath("$.data.reviews[6].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.reviews[7].reviewId").value(8));
+        resultActions.andExpect(jsonPath("$.data.reviews[7].numOfLikes").value(0));
+        // 페이징 관련 데이터 응답 검증
+        resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
+        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(8));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
 
-        //given
-        cursorId = "7";
-        cursorLikes = "1";
-        //when
-        resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-        );
-        //console
-        responseBody = resultActions.andReturn().getResponse().getContentAsString();
-        System.out.println("테스트 : "+responseBody);
-        // verify
-        resultActions.andExpect(jsonPath("$.data[0].reviewId").value("3"));
-        resultActions.andExpect(jsonPath("$.data[0].numOfLikes").value("1"));
-        resultActions.andExpect(jsonPath("$.data[1].reviewId").value("10"));
-        resultActions.andExpect(jsonPath("$.data[1].numOfLikes").value("0"));
-        resultActions.andExpect(jsonPath("$.data[2].reviewId").value("8"));
-        resultActions.andExpect(jsonPath("$.data[2].numOfLikes").value("0"));
-        resultActions.andExpect(jsonPath("$.data[3].reviewId").value("6"));
-        resultActions.andExpect(jsonPath("$.data[3].numOfLikes").value("0"));
-        resultActions.andExpect(jsonPath("$.data[4].reviewId").value("5"));
-        resultActions.andExpect(jsonPath("$.data[4].numOfLikes").value("0"));
-
-
-        //given
-        cursorId = "5";
+        //given - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id, numOfLikes)
+        cursorId = "8";
         cursorLikes = "0";
         //when
         resultActions = mvc.perform(
@@ -358,9 +355,20 @@ public class ReviewRestControllerTest {
         //console
         responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
+
         // verify
-        resultActions.andExpect(jsonPath("$.data[0].reviewId").value("4"));
-        resultActions.andExpect(jsonPath("$.data[0].numOfLikes").value("0"));
+        // 리뷰 데이터 응답 검증
+        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value(6));
+        resultActions.andExpect(jsonPath("$.data.reviews[0].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value(5));
+        resultActions.andExpect(jsonPath("$.data.reviews[1].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value(4));
+        resultActions.andExpect(jsonPath("$.data.reviews[2].numOfLikes").value(0));
+        // 페이징 관련 데이터 응답 검증
+        resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
+        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
     }
 
     @DisplayName("리뷰 수정")

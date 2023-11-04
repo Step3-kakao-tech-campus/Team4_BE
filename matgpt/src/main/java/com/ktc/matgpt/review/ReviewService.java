@@ -51,7 +51,7 @@ public class ReviewService {
     private final MessageSourceAccessor messageSourceAccessor;
     private final EntityManager entityManager;
 
-    private final int DEFAULT_PAGE_SIZE = 5;
+    private static final int DEFAULT_PAGE_SIZE = 8;
     final static Long MIN = 60L;
     final static Long HOUR = MIN*60;
     final static Long DAY = HOUR*24;
@@ -153,19 +153,19 @@ public class ReviewService {
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime);
     }
 
-    public List<ReviewResponse.FindAllByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, int cursorLikes) {
-
-        List<Review> reviews = switch (sortBy) {
-            case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, DEFAULT_PAGE_SIZE);
-            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesDesc(storeId, cursorId, cursorLikes, DEFAULT_PAGE_SIZE);
+    public ReviewResponse.FindPageByStoreIdDTO findAllByStoreId(Long storeId, String sortBy, Long cursorId, int cursorLikes) {
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
+        Page<Review> reviews = switch (sortBy) {
+            case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, page);
+            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursorLikes, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
         if (reviews.isEmpty()) {
-            throw new NoSuchElementException("storeId-" + storeId + ": 음식점에 등록된 리뷰가 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
         }
 
-        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = new ArrayList<>();
+        List<ReviewResponse.FindPageByStoreIdDTO.StoreReviewDTO> reviewDTOs = new ArrayList<>();
         for (Review review : reviews) {
             List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
 
@@ -174,9 +174,9 @@ public class ReviewService {
             }
 
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            responseDTOs.add(new ReviewResponse.FindAllByStoreIdDTO(review, relativeTime, imageUrls));
+            reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO.StoreReviewDTO(review, relativeTime, imageUrls));
         }
-        return responseDTOs;
+        return new ReviewResponse.FindPageByStoreIdDTO(reviews, reviewDTOs);
     }
 
     public List<Review> findByStoreIdAndSummaryType(Long storeId, String summaryType, int limit) {
@@ -189,25 +189,26 @@ public class ReviewService {
         return reviewJPARepository.findByStoreId(storeId, pageable);
     }
 
-    public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, int pageNum) {
+    public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, Long cursorId, int cursorLikes) {
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
         Page<Review> reviews = switch (sortBy) {
-            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
-            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesDesc(userId, PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE));
+            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, cursorId, page);
+            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userId, cursorId, cursorLikes, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
 
         if (reviews.isEmpty()) {
-            throw new NoSuchElementException("user-" + userId + ": 회원이 작성한 리뷰가 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
         }
 
-        List<ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO> reviewDTOs = new ArrayList<>();
+        List<ReviewResponse.FindPageByUserIdDTO.UserReviewDTO> reviewDTOs = new ArrayList<>();
 
         for (Review review : reviews) {
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.FindByUserIdDTO(review, relativeTime));
+            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.UserReviewDTO(review, relativeTime));
         }
-        return new ReviewResponse.FindPageByUserIdDTO(reviewDTOs, reviews);
+        return new ReviewResponse.FindPageByUserIdDTO(reviews, reviewDTOs);
     }
 
 
@@ -243,7 +244,7 @@ public class ReviewService {
     }
 
     //TODO: Locale 이슈
-    private String getRelativeTime(LocalDateTime time) {
+    public String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
         long seconds = duration.getSeconds();
         TimeUnit unit = TimeUnit.getAppropriateUnit(seconds);

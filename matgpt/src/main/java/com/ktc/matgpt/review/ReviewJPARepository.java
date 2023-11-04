@@ -14,25 +14,28 @@ import java.util.List;
 public interface ReviewJPARepository extends JpaRepository<Review, Long> {
     List<Review> findByStoreId(Long storeId, Pageable pageable);
 
-    @Query(nativeQuery = true, value =
-            "SELECT * FROM review_tb r " +
-            "WHERE store_id = :storeId AND id < :cursorId " +
-            "ORDER BY id DESC " +
-            "LIMIT :size")
-    List<Review> findAllByStoreIdAndOrderByIdDesc(Long storeId, Long cursorId, int size);
+    // 음식점 리뷰 목록 조회 - 최신순, 커서 기반
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.store.id = :storeId AND r.id < :cursorId " +
+            "ORDER BY r.id DESC")
+    Page<Review> findAllByStoreIdAndOrderByIdDesc(Long storeId, Long cursorId, Pageable page);
 
-    @Query(nativeQuery = true, value =
-            "SELECT * FROM review_tb r " +
-            "WHERE store_id = :storeId AND (recommend_count < :cursorLikes OR (recommend_count= :cursorLikes AND id < :cursorId)) " +
-            "ORDER BY recommend_count DESC, id DESC " +
-            "LIMIT :size")
-    List<Review> findAllByStoreIdAndOrderByLikesDesc(Long storeId, Long cursorId, int cursorLikes, int size);
+    // 음식점 리뷰 목록 조회 - 추천순, 커서 기반
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.store.id = :storeId AND (r.recommendCount < :cursorLikes OR (r.recommendCount= :cursorLikes AND r.id < :cursorId)) " +
+            "ORDER BY r.recommendCount DESC, r.id DESC")
+    Page<Review> findAllByStoreIdAndOrderByLikesAndIdDesc(Long storeId, Long cursorId, int cursorLikes, Pageable page);
 
 
-    @Query("select r FROM Review r JOIN FETCH r.store WHERE r.userId = :userId ORDER BY r.id DESC")
-    Page<Review> findAllByUserIdAndOrderByIdDesc(Long userId, Pageable page);
+    // 마이페이지 작성한 리뷰 조회 - 최신순, 커서 기반
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.userId = :userId AND r.id < :cursorId " +
+            "ORDER BY r.id DESC")
+    Page<Review> findAllByUserIdAndOrderByIdDesc(Long userId, Long cursorId, Pageable page);
 
-    @Query("SELECT r FROM Review r JOIN FETCH r.store WHERE r.userId = :userId ORDER BY r.recommendCount DESC, r.id DESC")
-    Page<Review> findAllByUserIdAndOrderByLikesDesc(Long userId, Pageable page);
-
+    // 마이페이지 작성한 리뷰 조회 - 추천순, 커서 기반
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.userId = :userId AND (r.recommendCount < :cursorLikes OR (r.recommendCount= :cursorLikes AND r.id < :cursorId)) " +
+            "ORDER BY r.recommendCount DESC, r.id DESC")
+    Page<Review> findAllByUserIdAndOrderByLikesAndIdDesc(Long userId, Long cursorId, int cursorLikes, Pageable page);
 }
