@@ -53,6 +53,7 @@ public class ImageService {
         return imageJPARepository.findAllImagesByReviewId(reviewId);
     }
 
+    @Deprecated
     public void validateImageFile(MultipartFile image) throws FileValidator.FileValidationException {
         FileValidator.validateFile(image);
     }
