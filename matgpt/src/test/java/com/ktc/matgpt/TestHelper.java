@@ -16,8 +16,9 @@ public class TestHelper {
         double rating = 4.5;
         int peopleCount = 2;
         int totalPrice = 50000;
+        int imageCount = 5;
 
-        return objectMapper.writeValueAsString(new ReviewRequest.SimpleCreateDTO(content, rating, peopleCount, totalPrice));
+        return objectMapper.writeValueAsString(new ReviewRequest.SimpleCreateDTO(content, rating, peopleCount, totalPrice, imageCount));
     }
 
     // 기존 테스트 클래스 내에 추가
@@ -32,11 +33,6 @@ public class TestHelper {
 
         List<ReviewRequest.CreateCompleteDTO.ImageDTO> reviewImages = Arrays.asList(imageDTO);
 
-        String content = "테스트 리뷰 내용";
-        double rating = 4.5;
-        int peopleCount = 2;
-        int totalPrice = 50000;
-
-        return objectMapper.writeValueAsString(new ReviewRequest.CreateCompleteDTO(reviewImages, content, rating, peopleCount, totalPrice));
+        return objectMapper.writeValueAsString(new ReviewRequest.CreateCompleteDTO(reviewImages));
     }
 }
