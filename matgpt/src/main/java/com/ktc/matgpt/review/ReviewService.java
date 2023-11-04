@@ -84,25 +84,23 @@ public class ReviewService {
     }
 
     // 리뷰 생성 메서드
-    public String createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
+    public Review createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
         // 리뷰 데이터 저장
         Review review = Review.create(userId, storeRef, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
-        return review.getReviewUuid();
+        return review;
     }
 
     // Presigned URL 생성 메서드
-    public List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> createPresignedUrls(String reviewUuid, int imageCount) throws FileValidator.FileValidationException {
+    public List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> createPresignedUrls(String reviewUuid, int imageCount) {
         List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = new ArrayList<>();
 
         for (int i = 1; i <= imageCount; i++) {
-            String objectKey = generateObjectKey(reviewUuid, i); // 숫자를 사용하여 객체 키 생성
-            URL presignedUrl = s3Service.getPresignedUrl(objectKey);
-
-            presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(objectKey, presignedUrl));
+            URL presignedUrl = s3Service.getPresignedUrl(generateObjectKey(reviewUuid, i));
+            presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(presignedUrl));
         }
 
         return presignedUrls;

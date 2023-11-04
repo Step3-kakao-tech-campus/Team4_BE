@@ -7,6 +7,7 @@ import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
+import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.store.StoreService;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,21 +123,12 @@ public class ReviewRestControllerTest {
 
 
         // 객체 생성 및 목록에 추가
-        presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(exampleFileName, examplePresignedUrl));
+        presignedUrls.add(new ReviewResponse.UploadS3DTO.PresignedUrlDTO(examplePresignedUrl));
 
-        when(reviewService.createTemporaryReview(any(Long.class), any(Long.class), any(ReviewRequest.SimpleCreateDTO.class)))
-                .thenReturn(reviewUuid);
         when(reviewService.createPresignedUrls(eq(reviewUuid), any(Integer.class)))
                 .thenReturn(presignedUrls);
 
         // 가상의 이미지 파일을 준비합니다.
-        MockMultipartFile imageFile = new MockMultipartFile("images", "image.jpg", "image/jpeg", "image content".getBytes());
-
-        // 파일 정보를 맵으로 변환합니다.
-        Map<String, String> fileInfo = new HashMap<>();
-        fileInfo.put("name", imageFile.getOriginalFilename());
-        fileInfo.put("contentType", imageFile.getContentType());
-
         // 리뷰 데이터 DTO를 준비합니다.
         String requestDTOJson = TestHelper.constructTempReviewCreateDTO();
         MockMultipartFile dataPart = new MockMultipartFile("data", "", "application/json", requestDTOJson.getBytes());
@@ -144,7 +136,6 @@ public class ReviewRestControllerTest {
         //when - 임시 리뷰 저장을 수행합니다.
         ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/stores/{storeId}/reviews/temp", 1)
                         .file(dataPart)
-                        .file(imageFile)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal)))
                         .andExpect(status().isOk());
@@ -155,7 +146,7 @@ public class ReviewRestControllerTest {
 
         // verify - 임시 리뷰 저장의 응답을 검증합니다.
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviewUuid").exists());
+        resultActions.andExpect(jsonPath("$.data.reviewId").exists());
         resultActions.andExpect(jsonPath("$.data.presignedUrls[0].presignedUrl").exists());
         resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
 
