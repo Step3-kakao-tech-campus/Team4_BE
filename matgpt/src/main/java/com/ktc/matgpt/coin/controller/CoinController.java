@@ -49,7 +49,7 @@ public class CoinController {
     @GetMapping("/history/usage")
     public ResponseEntity<?> getCoinUsageHistory(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                  @RequestParam(required = false) LocalDateTime cursor,
-                                                 @RequestParam(required = false, defaultValue = "cursorid") Long cursorId) {
+                                                 @RequestParam(required = false, value = "cursorid") Long cursorId) {
 
         PageResponse<?, CoinResponse.UsageHistoryDto> usageHistoriesDto = coinService.getCoinUsageHistory(userPrincipal.getId(), cursor, cursorId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(usageHistoriesDto);
@@ -59,7 +59,7 @@ public class CoinController {
     @GetMapping("/history/earning")
     public ResponseEntity<?> getCoinEarningHistory(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                    @RequestParam(required = false) LocalDateTime cursor,
-                                                   @RequestParam(required = false, defaultValue = "cursorid") Long cursorId) {
+                                                   @RequestParam(required = false, value = "cursorid") Long cursorId) {
 
         PageResponse<?, CoinResponse.EarningHistoryDto> earningHistoriesDto = coinService.getCoinEarningHistory(userPrincipal.getId(), cursor, cursorId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(earningHistoriesDto);

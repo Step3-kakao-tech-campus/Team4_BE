@@ -90,8 +90,10 @@ public class CoinService {
             size -= 1;
         }
 
-        Long nextCursor = coinEarningHistories.get(size - 1).getId();
-        Paging<Long> paging = new Paging<>(hasNext, size, nextCursor, nextCursor);
+        CoinEarningHistory lastHistory = coinEarningHistories.get(size - 1);
+        LocalDateTime nextCursor = lastHistory.getEarnedAt();
+        Long nextCursorId = lastHistory.getId();
+        Paging<LocalDateTime> paging = new Paging<>(hasNext, size, nextCursor, nextCursorId);
         return new PageResponse<>(paging, coinEarningHistories.stream()
                 .map(CoinResponse.EarningHistoryDto::new)
                 .toList());
@@ -116,8 +118,10 @@ public class CoinService {
             size -= 1;
         }
 
-        Long nextCursor = coinUsageHistories.get(size - 1).getId();
-        Paging<Long> paging = new Paging<>(hasNext, size, nextCursor, nextCursor);
+        CoinUsageHistory lastHistory = coinUsageHistories.get(size - 1);
+        LocalDateTime nextCursor = lastHistory.getUsedAt();
+        Long nextCursorId = lastHistory.getId();
+        Paging<LocalDateTime> paging = new Paging<>(hasNext, size, nextCursor, nextCursorId);
         return new PageResponse<>(paging, coinUsageHistories.stream()
                 .map(CoinResponse.UsageHistoryDto::new)
                 .toList());
