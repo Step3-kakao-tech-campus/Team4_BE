@@ -14,12 +14,12 @@ public class ReviewRequest {
     @NoArgsConstructor
     public static class SimpleCreateDTO {
         private String content;
-        private double rating;
+        private int rating;
         private int peopleCount;
         private int totalPrice;
 
         @Builder
-        public SimpleCreateDTO(String content, double rating, int peopleCount, int totalPrice) {
+        public SimpleCreateDTO(String content, int rating, int peopleCount, int totalPrice) {
             this.content = content;
             this.rating = rating;
             this.peopleCount = peopleCount;
@@ -66,7 +66,7 @@ public class ReviewRequest {
                 private String name;
                 private double locationX;
                 private double locationY;
-                private double rating;
+                private int rating;
 
                 public TagDTO(String name, double locationX, double locationY, double rating) {
                     this.name = name;

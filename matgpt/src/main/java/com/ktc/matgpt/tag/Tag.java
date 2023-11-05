@@ -26,7 +26,7 @@ public class Tag {
     private Food food;
 
     @Column
-    private double menuRating;
+    private int menuRating;
 
     @Column
     private double locationX;
@@ -34,7 +34,7 @@ public class Tag {
     @Column
     private double locationY;
 
-    public Tag(Image image, Food food, double menuRating, double locationX, double locationY) {
+    public Tag(Image image, Food food, int menuRating, double locationX, double locationY) {
         this.image = image;
         this.food = food;
         this.menuRating = menuRating;
@@ -42,7 +42,7 @@ public class Tag {
         this.locationY = locationY;
     }
 
-    public static Tag create(Image image, Food food, double menuRating, double locationX, double locationY) {
+    public static Tag create(Image image, Food food, int menuRating, double locationX, double locationY) {
         return new Tag(image, food, menuRating, locationX, locationY);
     }
 
