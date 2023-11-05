@@ -68,7 +68,7 @@ public class ReviewRequest {
                 private double locationY;
                 private int rating;
 
-                public TagDTO(String name, double locationX, double locationY, double rating) {
+                public TagDTO(String name, double locationX, double locationY, int rating) {
                     this.name = name;
                     this.locationX = locationX;
                     this.locationY = locationY;
@@ -112,7 +112,7 @@ public class ReviewRequest {
                 private String name;
                 private int locationX;
                 private int locationY;
-                private double rating;
+                private int rating;
             }
         }
     }
