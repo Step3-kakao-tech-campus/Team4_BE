@@ -6,6 +6,7 @@ import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
+import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
 import jakarta.validation.Valid;
@@ -23,7 +24,6 @@ import java.util.List;
 @RestController
 public class ReviewRestController {
     private final ReviewService reviewService;
-    private final ImageService imageService;
 
     private static final String MAX_REVIEW_ID = "10000";
     private static final String MAX_LIKES_NUM = "10000";
@@ -32,18 +32,12 @@ public class ReviewRestController {
     @PostMapping(value = "/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createTemporaryReview(@PathVariable Long storeId,
                                                                        @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
-                                                                       @RequestPart(value = "images", required = false) List<MultipartFile> images,
                                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
-            //파일 검증
-            for (MultipartFile image : images) {
-                imageService.validateImageFile(image);
-            }
-            String reviewUuid = reviewService.createTemporaryReview(userPrincipal.getId(), storeId, requestDTO);
-            List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = reviewService.createPresignedUrls(reviewUuid, images.size());
-            return ResponseEntity.ok(ApiUtils.success(new ReviewResponse.UploadS3DTO(reviewUuid, presignedUrls)));
-        } catch (FileValidator.FileValidationException e) {
-            throw new CustomException(ErrorCode.S3_FILE_VALIDATION_ERROR);
+            //파일 검증 로직 삭제
+            Review review = reviewService.createTemporaryReview(userPrincipal.getId(), storeId, requestDTO);
+            List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = reviewService.createPresignedUrls(review.getReviewUuid(), requestDTO.getImageCount());
+            return ResponseEntity.ok(ApiUtils.success(new ReviewResponse.UploadS3DTO(review.getId(), presignedUrls)));
         } catch (Exception e) {
             throw new CustomException(ErrorCode.REVIEW_PROCESS_ERROR);
         }

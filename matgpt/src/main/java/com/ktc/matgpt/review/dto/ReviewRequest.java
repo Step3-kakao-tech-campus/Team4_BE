@@ -17,13 +17,15 @@ public class ReviewRequest {
         private int rating;
         private int peopleCount;
         private int totalPrice;
+        private int imageCount; //TODO: enum PriceRange 타입 변환 메서드 만들어야할 것
 
-        @Builder
-        public SimpleCreateDTO(String content, int rating, int peopleCount, int totalPrice) {
+
+        public SimpleCreateDTO(String content, double rating, int peopleCount, int totalPrice, int imageCount) {
             this.content = content;
             this.rating = rating;
             this.peopleCount = peopleCount;
             this.totalPrice = totalPrice;
+            this.imageCount = imageCount;
         }
     }
 
@@ -32,20 +34,9 @@ public class ReviewRequest {
     @ToString
     public static class CreateCompleteDTO {
         private List<ImageDTO> reviewImages;
-        private String content;
-        private double rating;
-        @Min(1)
-        private int peopleCount;
-        @Min(0)
-        private int totalPrice;     //TODO: enum PriceRange 타입 변환 메서드 만들어야할 것
 
-        public CreateCompleteDTO(List<ImageDTO> reviewImages, String content,
-                                 double rating, int peopleCount, int totalPrice) {
+        public CreateCompleteDTO(List<ImageDTO> reviewImages) {
             this.reviewImages = reviewImages;
-            this.content = content;
-            this.rating = rating;
-            this.peopleCount = peopleCount;
-            this.totalPrice = totalPrice;
         }
 
         @Getter
