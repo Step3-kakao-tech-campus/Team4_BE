@@ -26,7 +26,7 @@ public class GptRestController {
 
     private final GptService gptService;
 
-    @GetMapping("/store/{storeId}/review")
+    @GetMapping("/stores/{storeId}/review")
     public ResponseEntity<?> getReviewSummarys(@PathVariable Long storeId) {
         GptResponseDto<Map<String, String>> gptResponseDto = gptService.findReviewSummaryByStoreId(storeId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(gptResponseDto);
@@ -41,7 +41,7 @@ public class GptRestController {
     }
 
     // 테스트 전용 API 입니다. 실제로 이 API는 사용되지 않습니다.
-    @PostMapping("/store/{storeId}/review")
+    @PostMapping("/stores/{storeId}/review")
     public ResponseEntity<?> generateReviewSummary(@PathVariable Long storeId) {
         List<GptResponse> gptResponses = gptService.generateReviewSummarys(storeId);
         gptResponses.forEach(gptResponse -> {
