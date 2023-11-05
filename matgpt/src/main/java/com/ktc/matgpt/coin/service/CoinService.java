@@ -12,12 +12,13 @@ import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.utils.PageResponse;
 import com.ktc.matgpt.utils.Paging;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class CoinService {
     private final CoinRepository coinRepository;
     private final CoinUsageHistoryRepository coinUsageHistoryRepository;
     private final CoinEarningHistoryRepository coinEarningHistoryRepository;
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE_PLUS_ONE = 10 + 1;
 
     @Transactional(readOnly = true)
     public CoinResponse.BalanceDto getCoinBalance(Long userId) {
@@ -71,48 +72,52 @@ public class CoinService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<?, CoinResponse.EarningHistoryDto> getCoinEarningHistory(Long userId, Long cursor) {
-        Pageable pageable = PageRequest.ofSize(PAGE_SIZE);
+    public PageResponse<?, CoinResponse.EarningHistoryDto> getCoinEarningHistory(Long userId, LocalDateTime cursor, Long cursorId) {
+        Pageable pageable = PageRequest.ofSize(PAGE_SIZE_PLUS_ONE);
         Coin coin = getCoinByUserId(userId);
-        Page<CoinEarningHistory> coinEarningHistories;
-
-        if (cursor == null) {
-            coinEarningHistories = coinEarningHistoryRepository.findAllByCoinIdOrderByHistoryIdDesc(coin.getId(), pageable);
-        } else {
-            coinEarningHistories = coinEarningHistoryRepository.findAllByCoinIdLessThanCursor(coin.getId(), cursor, pageable);
-        }
+        cursor = Paging.convertNullCursorToMaxValue(cursor);
+        List<CoinEarningHistory> coinEarningHistories = coinEarningHistoryRepository.findAllByCoinIdLessThanCursor(coin.getId(), cursor, cursorId, pageable);
 
         if (coinEarningHistories.isEmpty()) {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
 
-        int size = coinEarningHistories.getNumberOfElements();
-        Long nextCursor = coinEarningHistories.getContent().get(size - 1).getId();
-        Paging<Long> paging = new Paging<>(coinEarningHistories.hasNext(), size, nextCursor, nextCursor);
+        boolean hasNext = false;
+        int size = coinEarningHistories.size();
+        if (size == PAGE_SIZE_PLUS_ONE) {
+            coinEarningHistories.remove(size - 1);
+            hasNext = true;
+            size -= 1;
+        }
+
+        Long nextCursor = coinEarningHistories.get(size - 1).getId();
+        Paging<Long> paging = new Paging<>(hasNext, size, nextCursor, nextCursor);
         return new PageResponse<>(paging, coinEarningHistories.stream()
                 .map(CoinResponse.EarningHistoryDto::new)
                 .toList());
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<?, CoinResponse.UsageHistoryDto> getCoinUsageHistory(Long userId, Long cursor) {
-        Pageable pageable = PageRequest.ofSize(PAGE_SIZE);
+    public PageResponse<?, CoinResponse.UsageHistoryDto> getCoinUsageHistory(Long userId, LocalDateTime cursor, Long cursorId) {
+        Pageable pageable = PageRequest.ofSize(PAGE_SIZE_PLUS_ONE);
         Coin coin = getCoinByUserId(userId);
-        Page<CoinUsageHistory> coinUsageHistories;
-
-        if (cursor == null) {
-            coinUsageHistories = coinUsageHistoryRepository.findAllByCoinIdOrderByHistoryIdDesc(coin.getId(), pageable);
-        } else {
-            coinUsageHistories = coinUsageHistoryRepository.findAllByCoinIdLessThanCursor(coin.getId(), cursor, pageable);
-        }
+        cursor = Paging.convertNullCursorToMaxValue(cursor);
+        List<CoinUsageHistory> coinUsageHistories = coinUsageHistoryRepository.findAllByCoinIdLessThanCursor(coin.getId(), cursor, cursorId, pageable);
 
         if (coinUsageHistories.isEmpty()) {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
 
-        int size = coinUsageHistories.getNumberOfElements();
-        Long nextCursor = coinUsageHistories.getContent().get(size - 1).getId();
-        Paging<Long> paging = new Paging<>(coinUsageHistories.hasNext(), size, nextCursor, nextCursor);
+        boolean hasNext = false;
+        int size = coinUsageHistories.size();
+        if (size == PAGE_SIZE_PLUS_ONE) {
+            coinUsageHistories.remove(size - 1);
+            hasNext = true;
+            size -= 1;
+        }
+
+        Long nextCursor = coinUsageHistories.get(size - 1).getId();
+        Paging<Long> paging = new Paging<>(hasNext, size, nextCursor, nextCursor);
         return new PageResponse<>(paging, coinUsageHistories.stream()
                 .map(CoinResponse.UsageHistoryDto::new)
                 .toList());

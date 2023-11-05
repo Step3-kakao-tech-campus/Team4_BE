@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RequiredArgsConstructor
 @RequestMapping("/coin")
 @RestController
@@ -46,18 +48,20 @@ public class CoinController {
 
     @GetMapping("/history/usage")
     public ResponseEntity<?> getCoinUsageHistory(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                 @RequestParam(required = false) Long cursor) {
+                                                 @RequestParam(required = false) LocalDateTime cursor,
+                                                 @RequestParam(required = false, defaultValue = "cursorid") Long cursorId) {
 
-        PageResponse<?, CoinResponse.UsageHistoryDto> usageHistoriesDto = coinService.getCoinUsageHistory(userPrincipal.getId(), cursor);
+        PageResponse<?, CoinResponse.UsageHistoryDto> usageHistoriesDto = coinService.getCoinUsageHistory(userPrincipal.getId(), cursor, cursorId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(usageHistoriesDto);
         return ResponseEntity.ok(apiResult);
     }
 
     @GetMapping("/history/earning")
     public ResponseEntity<?> getCoinEarningHistory(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                   @RequestParam(required = false) Long cursor) {
+                                                   @RequestParam(required = false) LocalDateTime cursor,
+                                                   @RequestParam(required = false, defaultValue = "cursorid") Long cursorId) {
 
-        PageResponse<?, CoinResponse.EarningHistoryDto> earningHistoriesDto = coinService.getCoinEarningHistory(userPrincipal.getId(), cursor);
+        PageResponse<?, CoinResponse.EarningHistoryDto> earningHistoriesDto = coinService.getCoinEarningHistory(userPrincipal.getId(), cursor, cursorId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(earningHistoriesDto);
         return ResponseEntity.ok(apiResult);
     }
