@@ -1,7 +1,9 @@
 package com.ktc.matgpt.security.oauth2;
 
 
-import com.ktc.matgpt.exception.OAuth2AuthenticationProcessingException;
+import com.ktc.matgpt.coin.service.CoinService;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfo;
 import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfoFactory;
@@ -26,6 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
 
+    private final CoinService coinService;
     private final UserRepository userRepository;
     // 유저 불러오기
     @Override
@@ -46,7 +49,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oauth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, userAttributes);
 
         if (isInvalidUserInfo(oauth2UserInfo)) {
-            throw new OAuth2AuthenticationProcessingException("some message");
+            throw new CustomException(ErrorCode.OAUTH2_PROCESSING_EXCEPTION);
         }
 
         Optional<User> userOptional = userRepository.findByEmail(oauth2UserInfo.getEmail());
@@ -59,6 +62,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
         } else {
             //유저가 존재하지 않는 경우 회원가입 진행
             user = registerUser(oAuth2UserRequest, oauth2UserInfo);
+            coinService.createCoin(user);
         }
         return UserPrincipal.create(user, oauth2UserInfo);
     }
@@ -97,6 +101,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
                 .email(oauth2UserInfo.getEmail())
                 .gender(oauth2UserInfo.getGender())
                 .ageGroup(oauth2UserInfo.getAgeGroup())
+                .isFirstLogin(true)
                 .provider(provider)
                 .providerId(oauth2UserInfo.getId())
                 .build();

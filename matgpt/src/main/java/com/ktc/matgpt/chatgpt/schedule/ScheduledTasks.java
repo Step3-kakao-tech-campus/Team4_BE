@@ -1,17 +1,18 @@
 package com.ktc.matgpt.chatgpt.schedule;
 
 import com.ktc.matgpt.chatgpt.annotation.Timer;
-import com.ktc.matgpt.chatgpt.entity.GptReview;
+import com.ktc.matgpt.chatgpt.dto.GptApiResponse;
+import com.ktc.matgpt.chatgpt.dto.GptResponse;
 import com.ktc.matgpt.chatgpt.service.GptService;
-import com.ktc.matgpt.feature_review.review.ReviewService;
+import com.ktc.matgpt.chatgpt.utils.UnixTimeConverter;
 import com.ktc.matgpt.store.StoreResponse;
 import com.ktc.matgpt.store.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -30,23 +31,40 @@ public class ScheduledTasks {
      * chatGpt review Summary를 갱신합니다.
      */
     @Timer
-    @Transactional
     @Scheduled(cron = "0 0 4 * * SUN")
-    public void callChatGPTApi() {
+    public void getReviewSummarysFromChatGptApi() {
 
-        List<StoreResponse.FindAllStoreDTO> stores = storeService.findAll();
+        List<GptResponse> gptResponses = storeService.findAllForGpt().stream()
+                .filter(store -> getReviewDifference(store) >= API_CALL_TRIGGER)
+                .map(store -> gptService.generateReviewSummarys(store.getStoreId()))
+                .flatMap(List::stream)
+                .toList();
 
-        for (StoreResponse.FindAllStoreDTO store: stores) {
+        processGptResponses(gptResponses);
+    }
 
-            int numsOfReview = store.getNumsOfReview();
+    private void processGptResponses(List<GptResponse> gptResponses) {
+        gptResponses.forEach(gptResponse -> {
+            GptApiResponse gptApiResponse = gptResponse.gptApiResponse().join();
 
-            Long storeId = store.getStoreId();
-            int lastNumsOfReview = gptService.getLastNumsOfReview(storeId);
-
-            if (numsOfReview - lastNumsOfReview >= API_CALL_TRIGGER) {
-                gptService.generateReviewSummary(storeId);
-                log.info("[ChatGPT API] : Store-" + storeId + " Review Summary Updated!");
+            if (gptApiResponse == null) {
+                log.error("[ChatGPT API] : storeId-{} GptApiResponse : null", gptResponse.storeId());
+                return;
             }
-        }
+
+            String reviewSummary = gptApiResponse.getContent();
+            LocalDateTime createdAt = UnixTimeConverter.toLocalDateTime(gptApiResponse.created());
+
+            if (reviewSummary == null) {
+                log.error("[ChatGPT API] : storeId-{} 리뷰 요약을 생성하는데 실패했습니다.", gptResponse.storeId());
+                return;
+            }
+
+            gptService.updateOrCreateGptReview(gptResponse.storeId(), gptResponse.summaryType(), reviewSummary, createdAt);
+        });
+    }
+
+    private int getReviewDifference(StoreResponse.FindAllDTO store) {
+        return store.getNumsOfReview() - gptService.getLastNumsOfReview(store.getStoreId());
     }
 }

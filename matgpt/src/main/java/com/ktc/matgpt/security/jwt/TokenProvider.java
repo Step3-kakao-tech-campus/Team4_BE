@@ -1,6 +1,7 @@
 package com.ktc.matgpt.security.jwt;
 
-import com.ktc.matgpt.exception.InvalidTokenException;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.security.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -95,7 +96,7 @@ public class TokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new InvalidTokenException("권한 정보가 없는 토큰입니다.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN_EXCEPTION);
         }
 
 
@@ -111,7 +112,7 @@ public class TokenProvider {
 
 
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new UserPrincipal(userId,claims.get(USER_EMAIL).toString(), authorities);
+        UserDetails principal = new UserPrincipal(userId,claims.get(USER_EMAIL).toString(),false, authorities);//첫 가입 이후이므로 false 로 두어도 무방함
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
 
