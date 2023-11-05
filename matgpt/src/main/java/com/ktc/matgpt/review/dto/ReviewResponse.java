@@ -232,6 +232,29 @@ public class ReviewResponse {
         }
     }
 
+    @ToString
+    @Getter
+    public static class RecentReviewDTO {
+        private Long id;
+        private double rating;
+        private String content;
+        private LocalDateTime createdAt;
+        private String storeImage;
+        private String storeName;
+        private String relativeTime;
+        private int numOfLikes;
+        private int peopleCount;
 
-
+        public RecentReviewDTO(Review review, String relativeTime) {
+            this.id = review.getId();
+            this.rating = review.getRating();
+            this.content = review.getContent();
+            this.createdAt = review.getCreatedAt();
+            this.storeImage = review.getStore().getStoreImageUrl();
+            this.storeName = review.getStore().getName();
+            this.relativeTime = relativeTime;
+            this.numOfLikes = review.getRecommendCount();
+            this.peopleCount = review.getPeopleCount();
+        }
+    }
 }
