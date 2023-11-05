@@ -14,12 +14,12 @@ public class ReviewRequest {
     @NoArgsConstructor
     public static class SimpleCreateDTO {
         private String content;
-        private double rating;
+        private int rating;
         private int peopleCount;
         private int totalPrice;
         private int imageCount; //TODO: enum PriceRange 타입 변환 메서드 만들어야할 것
 
-        @Builder
+
         public SimpleCreateDTO(String content, double rating, int peopleCount, int totalPrice, int imageCount) {
             this.content = content;
             this.rating = rating;
@@ -57,9 +57,9 @@ public class ReviewRequest {
                 private String name;
                 private double locationX;
                 private double locationY;
-                private double rating;
+                private int rating;
 
-                public TagDTO(String name, double locationX, double locationY, double rating) {
+                public TagDTO(String name, double locationX, double locationY, int rating) {
                     this.name = name;
                     this.locationX = locationX;
                     this.locationY = locationY;
@@ -103,7 +103,7 @@ public class ReviewRequest {
                 private String name;
                 private int locationX;
                 private int locationY;
-                private double rating;
+                private int rating;
             }
         }
     }

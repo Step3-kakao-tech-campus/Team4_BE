@@ -31,7 +31,7 @@ public class Review extends BaseEntity {
     private String content;
 
     @Column(updatable = false)
-    private double rating;
+    private int rating;
 
     @Column(nullable = false, unique = true)
     private String reviewUuid;
@@ -48,7 +48,7 @@ public class Review extends BaseEntity {
     @Column
     private int recommendCount;
 
-    public Review(Store store, Long userId, String content, double rating,
+    public Review(Store store, Long userId, String content, int rating,
                   int peopleCount, int totalPrice) {
         this.store = store;
         this.userId = userId;
@@ -60,7 +60,7 @@ public class Review extends BaseEntity {
         this.costPerPerson = totalPrice / peopleCount;
     }
 
-    public static Review create(Long userId, Store store, String content, double rating, int peopleCount, int totalPrice) {
+    public static Review create(Long userId, Store store, String content, int rating, int peopleCount, int totalPrice) {
         return new Review(store, userId, content, rating, peopleCount, totalPrice);
     }
 

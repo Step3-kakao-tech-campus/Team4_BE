@@ -101,7 +101,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("food1"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(25.08));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(36.74));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3.5));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3));
         resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
         resultActions.andExpect(jsonPath("$.data.updated").value(true));
     }
@@ -169,7 +169,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewId").value(20));
         resultActions.andExpect(jsonPath("$.data.storeId").value(1));
         resultActions.andExpect(jsonPath("$.data.content").value("이것은 테스트 리뷰입니다."));
-        resultActions.andExpect(jsonPath("$.data.rating").value(4.5));
+        resultActions.andExpect(jsonPath("$.data.rating").value(5));
         resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
         resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
         resultActions.andExpect(jsonPath("$.errorCode").doesNotExist());
@@ -225,7 +225,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("짜장면"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(50));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(100));
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(4.5));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[1].name").value("짬뽕"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[2].name").value("탕수육"));
         // custom_modified.sql의 기존 reviewId:2 리뷰 기반 검증

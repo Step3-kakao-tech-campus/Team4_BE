@@ -46,7 +46,7 @@ public class ReviewResponse {
         private int averageCostPerPerson;
         private int peopleCount;
         private String createdAt;
-        private double rating;
+        private int rating;
         private int recommendCount;
         private String content;
         private List<FindByReviewIdDTO.ImageDTO> reviewImages;
@@ -101,7 +101,7 @@ public class ReviewResponse {
                 private String name;
                 private double location_x;
                 private double location_y;
-                private double rating;
+                private int rating;
 
                 public TagDTO(Tag tag) {
                     this.name = tag.getFood().getFoodName();
@@ -147,7 +147,7 @@ public class ReviewResponse {
         @ToString
         public static class StoreReviewDTO {
             private Long reviewId;
-            private double rating;
+            private int rating;
             private String content;
             private LocalDateTime createdAt;
             private List<String> imageUrls;
@@ -206,7 +206,7 @@ public class ReviewResponse {
         @ToString
         public static class UserReviewDTO {
             private Long id;
-            private double rating;
+            private int rating;
             private String content;
             private LocalDateTime createdAt;
             private String storeImage;
