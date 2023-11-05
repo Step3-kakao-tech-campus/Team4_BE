@@ -25,6 +25,9 @@ public class ReviewRestController {
     private final ReviewService reviewService;
     private final ImageService imageService;
 
+    private static final String MAX_REVIEW_ID = "10000";
+    private static final String MAX_LIKES_NUM = "10000";
+
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
     @PostMapping(value = "/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createTemporaryReview(@PathVariable Long storeId,
@@ -49,7 +52,8 @@ public class ReviewRestController {
 
     // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
     @PostMapping("/{reviewId}")
-    public ResponseEntity<?> completeReview(@PathVariable Long storeId,Long reviewId,
+    public ResponseEntity<?> completeReview(@PathVariable(value = "storeId") Long storeId,
+                                            @PathVariable(value = "reviewId") Long reviewId,
                                             @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
         try {
             reviewService.completeReviewUpload(storeId, reviewId, requestDTO);
@@ -63,11 +67,11 @@ public class ReviewRestController {
     @GetMapping("")
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
-                                              @RequestParam(defaultValue = "6") Long cursorId,
-                                              @RequestParam(defaultValue = "1000") int cursorLikes
+                                              @RequestParam(defaultValue = MAX_REVIEW_ID) Long cursorId,
+                                              @RequestParam(defaultValue = MAX_LIKES_NUM) int cursorLikes
     ) {
-        List<ReviewResponse.FindAllByStoreIdDTO> responseDTOs = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
-        return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTOs));
+        ReviewResponse.FindPageByStoreIdDTO responseDTO = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
+        return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTO));
     }
 
 
@@ -78,8 +82,7 @@ public class ReviewRestController {
                                     @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
         reviewService.updateContent(reviewId, userPrincipal.getId(), requestDTO);
-        String msg = "review-" + reviewId + " updated";
-        return ResponseEntity.ok(ApiUtils.success(msg));
+        return ResponseEntity.ok(ApiUtils.success("리뷰 내용이 수정되었습니다."));
     }
 
     // 개별 리뷰 상세조회
@@ -94,6 +97,6 @@ public class ReviewRestController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         reviewService.delete(reviewId, userPrincipal.getId());
-        return ResponseEntity.ok(ApiUtils.success(null));
+        return ResponseEntity.ok(ApiUtils.success("리뷰가 삭제되었습니다."));
     }
 }

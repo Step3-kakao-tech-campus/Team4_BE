@@ -32,7 +32,7 @@ public class UserControllerTest {
         Long mockUserId = 2L;
         String mockUsername = "test@example.com";
 
-        UserPrincipal userPrincipal = new UserPrincipal(mockUserId,mockUsername, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(mockUserId,mockUsername, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mockMvc.perform(get("/auth/userinfo")
                         .with(oauth2Login().oauth2User(userPrincipal))

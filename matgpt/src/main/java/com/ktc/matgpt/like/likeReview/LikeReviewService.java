@@ -1,48 +1,46 @@
 package com.ktc.matgpt.like.likeReview;
 
-import com.ktc.matgpt.review.ReviewService;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.user.entity.User;
-import com.ktc.matgpt.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class LikeReviewService {
-    private final UserService userService;
-    private final ReviewService reviewService;
     private final LikeReviewJPARepository likeReviewJPARepository;
-    final static int DEFAULT_PAGE_SIZE = 5;
+    private static final int DEFAULT_PAGE_SIZE = 8;
 
     @Transactional
-    public boolean toggleLikeForReview(Long reviewId, String email) {
-
-        User userRef = userService.getReferenceByEmail(email);
-        Review review = reviewService.findReviewByIdOrThrow(reviewId);
+    public boolean toggleLikeForReview(User userRef, Review review) {
 
         if (isLikeAlreadyExists(userRef, review)) {
             deleteLikeToReview(userRef, review);
-            review.minusRecommendCount();
+            log.info("review-%d: 리뷰에 좋아요가 해제되었습니다.", review.getId());
             return false;
         } else {
             addLikeToReview(userRef, review);
-            review.plusRecommendCount();
+            log.info("review-%d: 리뷰에 좋아요가 등록되었습니다.", review.getId());
             return true;
         }
     }
 
-    public LikeReviewResponseDTO.FindLikeReviewsDTO findReviewsByUserId(Long userId, int pageNum) {
-        User user = userService.findById(userId);
-        PageRequest page = PageRequest.of(pageNum-1, DEFAULT_PAGE_SIZE);
-        List<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserIdAndOrderByIdDesc(user.getId(), page).stream().toList();
-        LikeReviewResponseDTO.FindLikeReviewsDTO responseDTO = new LikeReviewResponseDTO.FindLikeReviewsDTO(likeReviewList);
-        return responseDTO;
+    public Page<LikeReview> findReviewsByUserId(Long userId, Long cursorId) {
+        PageRequest page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
+        Page<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, cursorId, page);
+
+        if (likeReviewList.isEmpty()) {
+            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
+        }
+
+        return likeReviewList;
     }
 
     @Transactional

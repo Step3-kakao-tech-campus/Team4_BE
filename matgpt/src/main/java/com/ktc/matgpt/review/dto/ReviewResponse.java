@@ -48,7 +48,7 @@ public class ReviewResponse {
         private int averageCostPerPerson;
         private int peopleCount;
         private String createdAt;
-        private double rating;
+        private int rating;
         private int recommendCount;
         private String content;
         private List<FindByReviewIdDTO.ImageDTO> reviewImages;
@@ -103,13 +103,13 @@ public class ReviewResponse {
                 private String name;
                 private double location_x;
                 private double location_y;
-                private double rating;
+                private int rating;
 
                 public TagDTO(Tag tag) {
                     this.name = tag.getFood().getFoodName();
                     this.location_x = tag.getLocationX();
                     this.location_y = tag.getLocationY();
-                    this.rating = tag.getFood().getAverageRating();
+                    this.rating = tag.getMenuRating();
                 }
             }
         }
@@ -118,49 +118,97 @@ public class ReviewResponse {
 
     @Getter
     @ToString
-    public static class FindAllByStoreIdDTO {
-        private Long reviewId;
-        private double rating;
-        private String content;
-        private LocalDateTime createdAt;
-        private List<String> imageUrls;
-        private boolean isUpdated = false;
-        private String relativeTime;
-        private int numOfLikes;
+    public static class FindPageByStoreIdDTO {
+        private PageInfoDTO paging;
+        private List<StoreReviewDTO> reviews;
 
-
-        public FindAllByStoreIdDTO(Review review, String relativeTime, List<String> imageUrls) {
-            this.reviewId = review.getId();
-            this.imageUrls = imageUrls;
-            this.content = review.getContent();
-            this.rating = review.getRating();
-            this.createdAt = review.getCreatedAt();
-            this.relativeTime = relativeTime;
-            this.numOfLikes = review.getRecommendCount();
-
-            if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
-        }
-    }
-
-    @Getter
-    @ToString
-    public static class FindPageByUserIdDTO {
-        List<FindByUserIdDTO> reviews;
-        private int totalPageCount;
-        private int currentReviewCount;
-        private boolean hasNextPage;
-        public FindPageByUserIdDTO(List<FindByUserIdDTO> reviewDTOs, Page<Review> reviewPage) {
-            this.reviews = reviewDTOs;
-            this.totalPageCount = reviewPage.getTotalPages();
-            this.currentReviewCount = reviewPage.getNumberOfElements();
-            this.hasNextPage = reviewPage.hasNext();
+        public FindPageByStoreIdDTO(Page<Review> page, List<StoreReviewDTO> reviews) {
+            this.paging = new PageInfoDTO(page);
+            this.reviews = reviews;
         }
 
         @Getter
         @ToString
-        public static class FindByUserIdDTO {
+        public class PageInfoDTO {
+            private boolean hasNext;
+            private int countOfReviews;
+            private Long nextCursorId;
+            private int nextCursorLikes;
+            public PageInfoDTO(Page<Review> page) {
+                int count = page.getNumberOfElements();
+                Review lastReview = page.getContent().get(count-1);
+
+                this.hasNext = page.hasNext();
+                this.countOfReviews = count;
+                this.nextCursorId = lastReview.getId();
+                this.nextCursorLikes = lastReview.getRecommendCount();
+            }
+        }
+
+        @Getter
+        @ToString
+        public static class StoreReviewDTO {
+            private Long reviewId;
+            private int rating;
+            private String content;
+            private LocalDateTime createdAt;
+            private List<String> imageUrls;
+            private boolean isUpdated = false;
+            private String relativeTime;
+            private int numOfLikes;
+
+            public StoreReviewDTO(Review review, String relativeTime, List<String> imageUrls) {
+                this.reviewId = review.getId();
+                this.imageUrls = imageUrls;
+                this.content = review.getContent();
+                this.rating = review.getRating();
+                this.createdAt = review.getCreatedAt();
+                this.relativeTime = relativeTime;
+                this.numOfLikes = review.getRecommendCount();
+
+                if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+            }
+        }
+    }
+
+
+
+
+    @Getter
+    @ToString
+    public static class FindPageByUserIdDTO {
+
+        private PageInfoDTO paging;
+        List<UserReviewDTO> reviews;
+
+        public FindPageByUserIdDTO(Page<Review> page, List<UserReviewDTO> reviews) {
+            this.paging = new PageInfoDTO(page);
+            this.reviews = reviews;
+        }
+
+        @Getter
+        @ToString
+        public class PageInfoDTO {
+            private boolean hasNext;
+            private int countOfReviews;
+            private Long nextCursorId;
+            private int nextCursorLikes;
+            public PageInfoDTO(Page<Review> page) {
+                int count = page.getNumberOfElements();
+                Review lastReview = page.getContent().get(count-1);
+
+                this.hasNext = page.hasNext();
+                this.countOfReviews = count;
+                this.nextCursorId = lastReview.getId();
+                this.nextCursorLikes = lastReview.getRecommendCount();
+            }
+        }
+
+        @Getter
+        @ToString
+        public static class UserReviewDTO {
             private Long id;
-            private double rating;
+            private int rating;
             private String content;
             private LocalDateTime createdAt;
             private String storeImage;
@@ -168,9 +216,10 @@ public class ReviewResponse {
             private String relativeTime;
             private boolean isUpdated = false;
             private int numOfLikes;
+            private int peopleCount;
 
 
-            public FindByUserIdDTO(Review review, String relativeTime) {
+            public UserReviewDTO(Review review, String relativeTime) {
                 this.id = review.getId();
                 this.rating = review.getRating();
                 this.content = review.getContent();
@@ -180,7 +229,11 @@ public class ReviewResponse {
                 this.relativeTime = relativeTime;
                 if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
                 this.numOfLikes = review.getRecommendCount();
+                this.peopleCount = review.getPeopleCount();
             }
         }
     }
+
+
+
 }

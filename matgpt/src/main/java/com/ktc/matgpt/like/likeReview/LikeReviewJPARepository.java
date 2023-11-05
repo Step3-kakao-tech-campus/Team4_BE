@@ -21,6 +21,10 @@ public interface LikeReviewJPARepository extends JpaRepository<LikeReview, Long>
 
     boolean existsByUserAndReview(User userRef, Review reviewRef);
 
-    @Query("select lr FROM LikeReview lr JOIN FETCH lr.review JOIN FETCH lr.user WHERE lr.user.id = :userId ORDER BY lr.id DESC")
-    Page<LikeReview> findAllByUserIdAndOrderByIdDesc(Long userId, Pageable page);
+    @Query("SELECT lr FROM LikeReview lr " +
+            "JOIN FETCH lr.review " +
+            "JOIN FETCH lr.user " +
+            "WHERE lr.user.id = :userId AND lr.id < :cursorId " +
+            "ORDER BY lr.id DESC")
+    Page<LikeReview> findAllByUserIdAndOrderByIdDesc(Long userId, Long cursorId, Pageable page);
 }

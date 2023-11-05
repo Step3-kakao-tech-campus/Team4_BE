@@ -4,6 +4,7 @@ package com.ktc.matgpt.likeStore;
 import com.ktc.matgpt.like.likeStore.LikeStoreService;
 import com.ktc.matgpt.like.usecase.CreateLikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class LikeStoreRestControllerTest {
         Long mockUserId = 1L;
         String mockEmail = "nstgic3@gmail.com";
 
-        UserPrincipal userPrincipal = new UserPrincipal(mockUserId, mockEmail, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(mockUserId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mockMvc.perform(get("/stores/like")
                         .with(oauth2Login().oauth2User(userPrincipal))
@@ -60,7 +61,7 @@ public class LikeStoreRestControllerTest {
         String mockUsername = "nstgic3@gmail.com";
         Long mockStoreId = 1L;  // Assuming a store id for the test
 
-        UserPrincipal userPrincipal = new UserPrincipal(mockUserId, mockUsername, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(mockUserId, mockUsername, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mockMvc.perform(post("/stores/" + mockStoreId + "/like")
                         .with(oauth2Login().oauth2User(userPrincipal))
@@ -93,7 +94,7 @@ public class LikeStoreRestControllerTest {
 
         when(createLikeStoreUsecase.execute(mockStoreId, mockEmail)).thenReturn(false);
 
-        UserPrincipal userPrincipal = new UserPrincipal(null, mockEmail, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(null, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mockMvc.perform(post("/stores/" + mockStoreId + "/like")
                         .with(oauth2Login().oauth2User(userPrincipal))
