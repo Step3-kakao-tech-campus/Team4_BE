@@ -1,6 +1,7 @@
 package com.ktc.matgpt.security.oauth2;
 
 
+import com.ktc.matgpt.coin.service.CoinService;
 import com.ktc.matgpt.exception.CustomException;
 import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.security.UserPrincipal;
@@ -27,6 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
 
+    private final CoinService coinService;
     private final UserRepository userRepository;
     // 유저 불러오기
     @Override
@@ -60,6 +62,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
         } else {
             //유저가 존재하지 않는 경우 회원가입 진행
             user = registerUser(oAuth2UserRequest, oauth2UserInfo);
+            coinService.createCoin(user);
         }
         return UserPrincipal.create(user, oauth2UserInfo);
     }

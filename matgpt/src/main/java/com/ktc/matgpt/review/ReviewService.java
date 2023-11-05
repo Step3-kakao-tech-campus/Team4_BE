@@ -18,6 +18,8 @@ import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
+import com.ktc.matgpt.utils.PageResponse;
+import com.ktc.matgpt.utils.Paging;
 import com.ktc.matgpt.utils.TimeUnit;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -52,6 +54,7 @@ public class ReviewService {
     private final EntityManager entityManager;
 
     private static final int DEFAULT_PAGE_SIZE = 8;
+    private static final int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
     final static Long MIN = 60L;
     final static Long HOUR = MIN*60;
     final static Long DAY = HOUR*24;
@@ -227,6 +230,32 @@ public class ReviewService {
         likeReviewService.deleteAllByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
         log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
+    }
+
+    public PageResponse<LocalDateTime, ReviewResponse.RecentReviewDTO> getRecentlyReviewedStores(Long cursorId, LocalDateTime cursor) {
+        Pageable page = Pageable.ofSize(DEFAULT_PAGE_SIZE_PLUS_ONE);
+        List<Review> reviews = reviewJPARepository.findAllLessThanCursorOrderByCreatedAtDesc(cursorId, cursor, page);
+        if (reviews.isEmpty()) {
+            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
+        }
+
+        boolean hasNext = false;
+        int size = reviews.size();
+        if (size == DEFAULT_PAGE_SIZE_PLUS_ONE) {
+            reviews.remove(size - 1);
+            size -= 1;
+            hasNext = true;
+        }
+
+        Review lastReview = reviews.get(size - 1);
+
+        List<ReviewResponse.RecentReviewDTO> reviewDTOs = new ArrayList<>();
+        for (Review review : reviews) {
+            String relativeTime = getRelativeTime(review.getCreatedAt());
+            reviewDTOs.add(new ReviewResponse.RecentReviewDTO(review, relativeTime));
+        }
+
+        return new PageResponse<>(new Paging<>(hasNext, size, lastReview.getCreatedAt(), lastReview.getId()), reviewDTOs);
     }
 
 

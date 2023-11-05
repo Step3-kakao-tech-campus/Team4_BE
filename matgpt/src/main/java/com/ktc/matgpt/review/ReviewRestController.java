@@ -1,9 +1,7 @@
 package com.ktc.matgpt.review;
 
-import com.ktc.matgpt.aws.FileValidator;
 import com.ktc.matgpt.exception.CustomException;
 import com.ktc.matgpt.exception.ErrorCode;
-import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
@@ -15,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -71,7 +68,8 @@ public class ReviewRestController {
 
     // 리뷰 수정
     @PutMapping("/{reviewId}")
-    public ResponseEntity<?> update(@PathVariable Long reviewId,
+    public ResponseEntity<?> update(@PathVariable Long storeId,
+                                    @PathVariable Long reviewId,
                                     @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO,
                                     @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
@@ -81,7 +79,8 @@ public class ReviewRestController {
 
     // 개별 리뷰 상세조회
     @GetMapping("/{reviewId}")
-    public ResponseEntity<?> findById(@PathVariable Long reviewId) {
+    public ResponseEntity<?> findById(@PathVariable Long storeId,
+                                      @PathVariable Long reviewId) {
         ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findDetailByReviewId(reviewId);
         return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
@@ -89,7 +88,8 @@ public class ReviewRestController {
     // TODO: s3 삭제 구현
     // 리뷰 삭제
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<?> delete(@PathVariable Long storeId,
+                                    @PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         reviewService.delete(reviewId, userPrincipal.getId());
         return ResponseEntity.ok(ApiUtils.success("리뷰가 삭제되었습니다."));
     }

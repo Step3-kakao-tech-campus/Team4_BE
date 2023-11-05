@@ -1,4 +1,0 @@
-[submodule "matgpt/src/main/resources/secret"]
-	path = matgpt/src/main/resources/secret
-	url = https://github.com/nimunsang/secret.git
-    branch = main
