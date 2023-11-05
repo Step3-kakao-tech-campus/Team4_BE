@@ -332,6 +332,13 @@ INSERT INTO likereview_tb (review_id, user_id) VALUES (13, 8);
 INSERT INTO likereview_tb (review_id, user_id) VALUES (11, 9);
 INSERT INTO likereview_tb (review_id, user_id) VALUES (12, 9);
 INSERT INTO likereview_tb (review_id, user_id) VALUES (13, 9);
+INSERT INTO likereview_tb (review_id, user_id) VALUES (15, 9);
+INSERT INTO likereview_tb (review_id, user_id) VALUES (13, 10);
+INSERT INTO likereview_tb (review_id, user_id) VALUES (15, 10);
+INSERT INTO likereview_tb (review_id, user_id) VALUES (17, 10);
+INSERT INTO likereview_tb (review_id, user_id) VALUES (18, 10);
+INSERT INTO likereview_tb (review_id, user_id) VALUES (13, 11);
+INSERT INTO likereview_tb (review_id, user_id) VALUES (15, 11);
 
 INSERT INTO image_tb (review_id, url) VALUES (1, 'image1.png');
 INSERT INTO food_tb (store_id, food_name, food_description, review_count, total_rating, created_at, updated_at) VALUES (1, 'food1', 'description', 3, 2.5, now(), now());
