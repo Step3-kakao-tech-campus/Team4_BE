@@ -29,7 +29,7 @@ public enum FinishReason {
             }
         }
 
-        log.info("[ChatGPT API] UnknownFinishReason : " + value);
+        log.error("[ChatGPT API] UnknownFinishReasonException : " + value);
         throw new ApiException.UnknownFinishReasonException();
     }
 }

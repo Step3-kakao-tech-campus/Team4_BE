@@ -1,11 +1,12 @@
 spring:
-  config:
-    import:
-      - classpath:/application-secret.yml
-
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/myGPT?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    username: "piggle"
+#    password: "123456789"
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test
+    url: jdbc:h2:mem:test;MODE=MySQL
 
   h2:
     console:
@@ -14,6 +15,15 @@ spring:
       settings:
         web-allow-others: true
 
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQLDialect
+#        format_sql: true
+#        show_sql: true
+#    open-in-view: false
   jpa:
     hibernate:
       ddl-auto: create
@@ -22,28 +32,6 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
         show_sql: true
-
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: "biznstgic3@gmail.com"
-    password: "smhljpwmnuxosjtm"
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
-  logging:
-    level:
-      root: INFO
-
-  server:
-    port: 8080
-
-jwt:
-  secret: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWw
 
 springdoc:
   enable-data-rest: false

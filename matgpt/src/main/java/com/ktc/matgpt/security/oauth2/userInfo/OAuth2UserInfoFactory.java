@@ -1,7 +1,8 @@
 package com.ktc.matgpt.security.oauth2.userInfo;
 
 
-import com.ktc.matgpt.exception.OAuth2AuthenticationProcessingException;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.security.oauth2.MatgptOAuth2Provider;
 
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class OAuth2UserInfoFactory {
         if (supplier != null) {
             return supplier.apply(attributes);
         } else {
-            throw new OAuth2AuthenticationProcessingException("Sorry! Login with " + registrationId + " is not supported yet.");
+            throw new CustomException(ErrorCode.OAUTH2_PROCESSING_EXCEPTION);
         }
     }
 }

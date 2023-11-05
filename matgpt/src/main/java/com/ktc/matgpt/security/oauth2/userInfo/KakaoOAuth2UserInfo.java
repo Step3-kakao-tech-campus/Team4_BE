@@ -37,7 +37,6 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
         };
     }
 
-
     @Override
     public AgeGroup getAgeGroup(){
         String ageRange = (String) getAccount().get("age_range");
