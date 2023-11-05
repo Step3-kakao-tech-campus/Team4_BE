@@ -121,3 +121,6 @@ INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 1);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 2);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
+
+INSERT INTO coin_tb(id, user_id, balance) VALUES (1, 1, 0);
+INSERT INTO coin_tb(id, user_id, balance) VALUES (2, 2, 0);
