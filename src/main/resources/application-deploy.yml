@@ -1,0 +1,85 @@
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8080
+
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/matgpt_db?useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: ${MYSQLUSERNAME}
+    password: ${MYSQLPASSWORD}
+  
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+      default_batch_fetch_size: 100
+    open-in-view: false
+
+  
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLECLIENTID}
+            client-secret: ${GOOGLECLIENTSECRET}
+          kakao:
+            client-id: ${KAKAOCLIENTID}
+            client-secret: ${KAKAOCLIENTSECRET}
+
+
+              
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: ${USERNAME}
+  password: ${PASSWORD}
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+
+logging:
+  level:
+    root: INFO
+
+
+jwt:
+  secret: ${JWTSECRET}
+
+
+springdoc:
+  enable-data-rest: false
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+
+chatgpt:
+  api:
+    key: ${GPTAPIKEY}
+
+
+cloud:
+  aws:
+    s3:
+      bucket: matgpt-dev
+    credentials:
+      access-key: ${AWSACCESSKEY}
+      secret-key: ${AWSSECRETKEY}
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+
