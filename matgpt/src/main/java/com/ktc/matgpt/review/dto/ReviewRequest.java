@@ -32,6 +32,7 @@ public class ReviewRequest {
     //이미지 업로드 후 리뷰 저장을 위한 DTO
     @Getter
     @ToString
+    @NoArgsConstructor
     public static class CreateCompleteDTO {
         private List<ImageDTO> reviewImages;
 
@@ -41,7 +42,7 @@ public class ReviewRequest {
 
         @Getter
         @ToString
-        @NoArgsConstructor(force = true)
+        @NoArgsConstructor
         public static class ImageDTO {
             private String imageUrl;
             private List<TagDTO> tags;
@@ -53,6 +54,7 @@ public class ReviewRequest {
 
             @Getter
             @ToString
+            @NoArgsConstructor
             public static class TagDTO {
                 private String name;
                 private double locationX;

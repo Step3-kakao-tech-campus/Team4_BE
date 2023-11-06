@@ -34,7 +34,8 @@ public class TagService {
             return;
         }
 
-        deleteTagsAndRelatedReviews(tags);
+        updateFoodBeforeDelete(tags); // 필요한 업데이트를 먼저 처리
+        bulkDeleteTags(tags); // 태그들을 Bulk Delete를 통해 삭제
     }
 
     public List<Tag> getTagsByImageId(Long imageId) {
@@ -42,17 +43,16 @@ public class TagService {
     }
 
 
-    private void deleteTagsAndRelatedReviews(List<Tag> tags) {
-        for (Tag tag : tags) {
-            removeReviewFromFood(tag);
-            tagJPARepository.delete(tag);
-            log.info("tag-%d: 태그를 삭제했습니다.", tag.getId());
-        }
+    private void updateFoodBeforeDelete(List<Tag> tags) {
+        tags.forEach(tag -> {
+            Food food = tag.getFood();
+            food.removeReview(tag.getMenuRating());
+        });
     }
 
-    private void removeReviewFromFood(Tag tag) {
-        Food food = tag.getFood();
-        food.removeReview(tag.getMenuRating());
+    private void bulkDeleteTags(List<Tag> tags) {
+        tagJPARepository.deleteAllInBatch(tags); // Spring Data JPA의 Bulk Delete를 수행
+        tags.forEach(tag -> log.info("tag-%d: 태그를 삭제했습니다.", tag.getId()));
     }
 
 
