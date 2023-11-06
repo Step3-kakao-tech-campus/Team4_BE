@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ktc.matgpt.chatgpt.utils.UnixTimeConverter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -30,12 +31,16 @@ public record GptApiResponse(@JsonProperty("created") int created,
         return this.choices().get(0).message().content();
     }
 
+    public LocalDateTime getCreatedLocalDateTime() {
+        return UnixTimeConverter.toLocalDateTime(this.created());
+    }
+
     public FinishReason getFinishReason() {
         return this.choices().get(0).finishReason();
     }
 
     public void log() {
-        log.info("[ChatGPT API] Response CreatedAt: {}", UnixTimeConverter.toLocalDateTime(this.created()));
+        log.info("[ChatGPT API] Response CreatedAt: {}", this.getCreatedLocalDateTime());
         log.info("[ChatGPT API] Response Content: {}", this.getContent());
     }
 }
