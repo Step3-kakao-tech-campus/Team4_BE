@@ -18,7 +18,7 @@ spec:
         - name: backend
           # 여러분의 backend image 주소를 입력해주세요. -> 빌드 후 빌드 이미지 경로 새로 넣기
           image: krmp-d2hub-idock.9rum.cc/dev-test/repo_947b0799f76b
-          # imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: USERNAME
               valueFrom: 
