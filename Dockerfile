@@ -10,6 +10,12 @@ COPY . .
 # gradle 빌드 시 proxy 설정을 gradle.properties에 추가
 RUN echo "systemProp.http.proxyHost=krmp-proxy.9rum.cc\nsystemProp.http.proxyPort=3128\nsystemProp.https.proxyHost=krmp-proxy.9rum.cc\nsystemProp.https.proxyPort=3128" > /root/.gradle/gradle.properties
 
+# gradle 초기화
+RUN gradle init
+
+# gradle wrapper를 프로젝트에 추가
+RUN gradle wrapper
+
 # gradlew를 이용한 프로젝트 필드
 RUN ./gradlew clean build -x test
 
