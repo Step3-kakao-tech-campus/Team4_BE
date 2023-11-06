@@ -1,5 +1,5 @@
 application-secret.yml
-./k8s/secret.yml
+k8s/secret.yml
 
 HELP.md
 .gradle
