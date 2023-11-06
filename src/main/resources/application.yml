@@ -2,10 +2,6 @@ spring:
   profiles:
     active: dev
 
-  config:
-    import:
-      - classpath:/application-secret.yml
-
 server:
   port: 8080
   error:
