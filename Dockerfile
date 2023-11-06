@@ -20,7 +20,8 @@ RUN gradle wrapper
 RUN ./gradlew clean build -x test
 
 # DATABASE_URL을 환경 변수로 삽입
-ENV DATABASE_URL=jdbc:mysql://mysql/matgpt_db
+ENV DATABASE_URI=${DATABASE_URI}
+ENV DATABASE_PASSWORD=${DATABASE_PASSWORD}
 
 
 # 빌드 결과 jar 파일을 실행
