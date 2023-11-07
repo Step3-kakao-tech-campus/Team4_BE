@@ -78,7 +78,7 @@ public class ReviewService {
 
     private void saveTagsForImage(Image image, ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO, Store store) {
         for (ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
-            Food food = foodService.saveOrUpdateFoodByTag(tagDTO, store.getId()); //TODO: 태그에 들어갈 음식 검색하고 추가하는 로직
+            Food food = foodService.saveOrUpdateFoodByTagName(tagDTO, store.getId()); //TODO: 태그에 들어갈 음식 검색하고 추가하는 로직
             tagService.saveTag(image, food, tagDTO);
         }
     }

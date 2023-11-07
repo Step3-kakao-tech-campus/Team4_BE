@@ -1,6 +1,7 @@
 package com.ktc.matgpt.tag;
 
 import com.ktc.matgpt.food.Food;
+import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.Image;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,11 @@ import java.util.List;
 @Service
 public class TagService {
     private final TagJPARepository tagJPARepository;
+    private final FoodService foodService;
 
 
     public Tag saveTag(Image image, Food food, ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO) {
-        Tag tag = Tag.create(image,food, tagDTO.getRating(), tagDTO.getLocationX(),tagDTO.getLocationY());
+        Tag tag = Tag.create(image,food, tagDTO.getName(), tagDTO.getRating(), tagDTO.getLocationX(),tagDTO.getLocationY());
         tagJPARepository.save(tag);
         log.info("tag-%d: 태그가 저장되었습니다.", tag.getId());
         return tag;
@@ -44,10 +46,7 @@ public class TagService {
 
 
     private void updateFoodBeforeDelete(List<Tag> tags) {
-        tags.forEach(tag -> {
-            Food food = tag.getFood();
-            food.removeReview(tag.getMenuRating());
-        });
+        tags.forEach(tag -> foodService.removeRatingByTagName(tag));
     }
 
     private void bulkDeleteTags(List<Tag> tags) {
