@@ -84,7 +84,9 @@ public class ReviewService {
     }
 
     // 리뷰 생성 메서드
-    public Review createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
+    public Review createTemporaryReview(String userEmail, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
+        User user = userService.getReferenceByEmail(userEmail);
+
         //Store 리뷰 개수 및 평점 업데이트
         Store store = storeService.findById(storeId);
         if (simpleDTO.getPeopleCount() == 0) {
@@ -94,7 +96,7 @@ public class ReviewService {
         store.addReview(simpleDTO.getRating(), simpleDTO.getPeopleCount(), costPerPerson);
 
         // 리뷰 데이터 저장
-        Review review = Review.create(userId, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
+        Review review = Review.create(user, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
         return review;
@@ -126,23 +128,21 @@ public class ReviewService {
 
 
     @Transactional
-    public void updateContent(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
+    public void updateContent(Long reviewId, String userEmail, ReviewRequest.UpdateDTO requestDTO) {
         Review review = findReviewByIdOrThrow(reviewId);
-        if (review.getUserId() != userId) {
+        if (!userEmail.equals(review.getUser().getEmail())) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
         }
         review.updateContent(requestDTO.getContent());
     }
 
-    public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId) {
+    public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId, String userEmail) {
 
         Review review = findReviewByIdOrThrow(reviewId);
-
         ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO = getReviewerDTO(review);
 
         List<Image> images = imageService.getImagesByReviewId(reviewId);
         if (images.isEmpty()) log.info("review-" + review.getId() + "리뷰에 등록된 이미지가 없습니다.");
-
 
         List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = new ArrayList<>();
 
@@ -193,11 +193,12 @@ public class ReviewService {
         return reviewJPARepository.findByStoreId(storeId, pageable);
     }
 
-    public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, Long cursorId, int cursorLikes) {
+    public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findAllByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
+        User userRef = userService.getReferenceByEmail(userEmail);
         Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
         Page<Review> reviews = switch (sortBy) {
-            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, cursorId, page);
-            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userId, cursorId, cursorLikes, page);
+            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userRef.getId(), cursorId, page);
+            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursorLikes, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
@@ -217,9 +218,9 @@ public class ReviewService {
 
 
     @Transactional
-    public void delete(Long reviewId, Long userId) {
+    public void delete(Long reviewId, String userEmail) {
         Review review = findReviewByIdOrThrow(reviewId);
-        if (review.getUserId() != userId) {
+        if (!userEmail.equals(review.getUser().getEmail())) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
         }
         // 이미지(+태그) 삭제
@@ -264,7 +265,7 @@ public class ReviewService {
 
 
     private ReviewResponse.FindByReviewIdDTO.ReviewerDTO getReviewerDTO(Review review) {
-        User user = userService.findById(review.getUserId());
+        User user = userService.findByEmail(review.getUser().getEmail());
 
         return ReviewResponse.FindByReviewIdDTO.ReviewerDTO.builder()
                         .userName(user.getName())
