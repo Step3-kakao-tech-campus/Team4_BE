@@ -118,11 +118,11 @@ public class ReviewResponse {
     @ToString
     public static class FindPageByStoreIdDTO {
         private PageInfoDTO paging;
-        private List<StoreReviewDTO> reviews;
+        private List<StoreReviewDTO> body;
 
         public FindPageByStoreIdDTO(Page<Review> page, List<StoreReviewDTO> reviews) {
             this.paging = new PageInfoDTO(page);
-            this.reviews = reviews;
+            this.body = reviews;
         }
 
         @Getter
@@ -177,11 +177,11 @@ public class ReviewResponse {
     public static class FindPageByUserIdDTO {
 
         private PageInfoDTO paging;
-        List<UserReviewDTO> reviews;
+        List<UserReviewDTO> body;
 
         public FindPageByUserIdDTO(Page<Review> page, List<UserReviewDTO> reviews) {
             this.paging = new PageInfoDTO(page);
-            this.reviews = reviews;
+            this.body = reviews;
         }
 
         @Getter

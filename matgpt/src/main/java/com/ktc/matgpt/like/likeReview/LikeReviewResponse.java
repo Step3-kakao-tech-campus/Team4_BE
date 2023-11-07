@@ -15,10 +15,10 @@ public class LikeReviewResponse {
     @Getter @Setter
     public static class FindLikeReviewPageDTO {
         PageInfoDTO paging;
-        List<ReviewDTO> reviews;
+        List<ReviewDTO> body;
         public FindLikeReviewPageDTO(Page<LikeReview> likeReviews, List<ReviewDTO> reviews) {
             this.paging = new PageInfoDTO(likeReviews);
-            this.reviews = reviews;
+            this.body = reviews;
         }
 
         @Getter
