@@ -7,7 +7,6 @@ import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
-import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.store.StoreService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,14 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URL;
 import java.util.*;
@@ -131,12 +128,12 @@ public class ReviewRestControllerTest {
         // 가상의 이미지 파일을 준비합니다.
         // 리뷰 데이터 DTO를 준비합니다.
         String requestDTOJson = TestHelper.constructTempReviewCreateDTO();
-        MockMultipartFile dataPart = new MockMultipartFile("data", "", "application/json", requestDTOJson.getBytes());
 
         //when - 임시 리뷰 저장을 수행합니다.
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/stores/{storeId}/reviews/temp", 1)
-                        .file(dataPart)
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
+        ResultActions resultActions = mvc.perform(
+                post("/stores/"+ storeId +"/reviews/temp")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestDTOJson)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal)))
                         .andExpect(status().isOk());
 

@@ -43,8 +43,8 @@ public class ReviewRestController {
 
     // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
     @PostMapping("/{storeId}/reviews/{reviewId}")
-    public ResponseEntity<?> completeReview(@PathVariable(value = "storeId") Long storeId,
-                                            @PathVariable(value = "reviewId") Long reviewId,
+    public ResponseEntity<?> completeReview(@PathVariable Long storeId,
+                                            @PathVariable Long reviewId,
                                             @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
         try {
             reviewService.completeReviewUpload(storeId, reviewId, requestDTO);
@@ -55,7 +55,7 @@ public class ReviewRestController {
     }
 
     // 음식점 리뷰 목록 조회
-    @GetMapping("")
+    @GetMapping("/{storeId}/reviews")
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
                                               @RequestParam(defaultValue = MAX_REVIEW_ID) Long cursorId,
