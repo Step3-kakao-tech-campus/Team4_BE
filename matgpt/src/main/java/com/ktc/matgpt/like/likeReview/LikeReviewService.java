@@ -4,6 +4,8 @@ import com.ktc.matgpt.exception.CustomException;
 import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.user.entity.User;
+import com.ktc.matgpt.utils.PageResponse;
+import com.ktc.matgpt.utils.Paging;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,10 +37,6 @@ public class LikeReviewService {
     public Page<LikeReview> findReviewsByUserId(Long userId, Long cursorId) {
         PageRequest page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
         Page<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, cursorId, page);
-
-        if (likeReviewList.isEmpty()) {
-            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
-        }
 
         return likeReviewList;
     }

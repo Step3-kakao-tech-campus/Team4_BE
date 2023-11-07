@@ -46,7 +46,11 @@ public class LikeReviewUseCase {
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
         Page<LikeReview> likeReviews = likeReviewService.findReviewsByUserId(userRef.getId(), cursorId);
 
-        List<LikeReviewResponse.FindLikeReviewPageDTO.ReviewDTO> reviewDTOs = new ArrayList<>();
+        if (likeReviews.isEmpty()) {
+            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
+        }
+
+        List<LikeReviewResponse.FindLikeReviewPageDTO> reviewDTOs = new ArrayList<>();
         for (LikeReview likeReview : likeReviews) {
             Review review = likeReview.getReview();
             String relativeTime = reviewService.getRelativeTime(review.getCreatedAt());

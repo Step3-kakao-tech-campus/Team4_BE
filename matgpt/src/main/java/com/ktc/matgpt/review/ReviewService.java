@@ -175,7 +175,7 @@ public class ReviewService {
         };
 
         if (reviews.isEmpty()) {
-            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
+            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
 
         List<ReviewResponse.FindPageByStoreIdDTO> reviewDTOs = new ArrayList<>();
@@ -221,9 +221,8 @@ public class ReviewService {
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
-
         if (reviews.isEmpty()) {
-            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
+            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
 
         List<ReviewResponse.FindPageByUserIdDTO> reviewDTOs = new ArrayList<>();
