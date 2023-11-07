@@ -22,6 +22,7 @@ import com.ktc.matgpt.utils.Paging;
 import com.ktc.matgpt.utils.TimeUnit;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -168,7 +169,7 @@ public class ReviewService {
         cursor = Paging.convertNullCursorToMaxValue(cursor);
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
 
-        Page<Review> reviews = switch (sortBy) {
+        List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, page);
             case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursor, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
@@ -215,7 +216,7 @@ public class ReviewService {
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
 
-        Page<Review> reviews = switch (sortBy) {
+        List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userRef.getId(), cursorId, page);
             case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursor, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
