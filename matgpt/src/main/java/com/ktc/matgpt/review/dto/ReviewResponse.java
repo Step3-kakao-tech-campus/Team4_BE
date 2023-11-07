@@ -52,8 +52,9 @@ public class ReviewResponse {
         private List<FindByReviewIdDTO.ImageDTO> reviewImages;
         private int totalPrice;     // 범위로 받게 된다면 enum PriceRange 타입 이용
         private boolean isUpdated = false;
+        private boolean owner;
 
-        public FindByReviewIdDTO(Review review, ReviewerDTO reviewer, List<ImageDTO> reviewImages, String relativeTime) {
+        public FindByReviewIdDTO(Review review, ReviewerDTO reviewer, List<ImageDTO> reviewImages, String relativeTime, boolean owner) {
             this.storeId = review.getStore().getId();
             this.reviewId = review.getId();
             this.reviewer = reviewer;
@@ -66,6 +67,7 @@ public class ReviewResponse {
             this.averageCostPerPerson = review.getCostPerPerson();
             this.createdAt = relativeTime;
             if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+            this.owner = owner;
         }
 
         @Getter

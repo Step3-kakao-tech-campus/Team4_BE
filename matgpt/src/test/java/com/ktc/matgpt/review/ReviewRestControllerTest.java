@@ -101,6 +101,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3));
         resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
         resultActions.andExpect(jsonPath("$.data.updated").value(true));
+        resultActions.andExpect(jsonPath("$.data.owner").value(true));
     }
 
 

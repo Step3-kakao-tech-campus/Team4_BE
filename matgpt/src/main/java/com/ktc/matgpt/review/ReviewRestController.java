@@ -82,8 +82,10 @@ public class ReviewRestController {
     // 개별 리뷰 상세조회
     @GetMapping("/{reviewId}")
     public ResponseEntity<?> findById(@PathVariable Long storeId,
-                                      @PathVariable Long reviewId) {
-        ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findDetailByReviewId(reviewId);
+                                      @PathVariable Long reviewId,
+                                      @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        ReviewResponse.FindByReviewIdDTO responseDTO = reviewService.findDetailByReviewId(reviewId, userPrincipal.getEmail());
         return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
 

@@ -158,8 +158,9 @@ public class ReviewService {
             imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
         }
         String relativeTime = getRelativeTime(review.getCreatedAt());
+        boolean isOwner = (userEmail.equals(review.getUser().getEmail()) ? true : false);
 
-        return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime);
+        return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime, isOwner);
     }
 
     public ReviewResponse.FindPageByStoreIdDTO findAllByStoreId(Long storeId, String sortBy, Long cursorId, int cursorLikes) {
