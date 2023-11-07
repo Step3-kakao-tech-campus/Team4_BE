@@ -7,9 +7,9 @@ import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
+import com.ktc.matgpt.utils.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -60,7 +60,7 @@ public class ReviewRestController {
                                               @RequestParam(required = false) Long cursorId,
                                               @RequestParam(required = false) Integer cursor
     ) {
-        ReviewResponse.FindPageByStoreIdDTO responseDTO = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
+        PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> responseDTO = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursor);
         return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTO));
     }
 

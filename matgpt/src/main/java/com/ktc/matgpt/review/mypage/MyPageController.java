@@ -6,6 +6,7 @@ import com.ktc.matgpt.review.ReviewService;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
+import com.ktc.matgpt.utils.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,8 +39,8 @@ public class MyPageController {
     @GetMapping("/liked-reviews")
     public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(required = false) Long cursorId,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        LikeReviewResponse.FindLikeReviewPageDTO responseDTO
-                = likeReviewUseCase.executeFindLikeReviews(userPrincipal.getEmail(), cursorId);
+        PageResponse<?, LikeReviewResponse.FindLikeReviewPageDTO>  responseDTO
+                            = likeReviewUseCase.executeFindLikeReviews(userPrincipal.getEmail(), cursorId);
         return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
 }

@@ -178,7 +178,7 @@ public class ReviewService {
             throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
         }
 
-        List<ReviewResponse.FindPageByStoreIdDTO.StoreReviewDTO> reviewDTOs = new ArrayList<>();
+        List<ReviewResponse.FindPageByStoreIdDTO> reviewDTOs = new ArrayList<>();
         for (Review review : reviews) {
             List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
 
@@ -187,9 +187,15 @@ public class ReviewService {
             }
 
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO.StoreReviewDTO(review, relativeTime, imageUrls));
+            reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO(review, relativeTime, imageUrls));
         }
-        return new ReviewResponse.FindPageByStoreIdDTO(reviews, reviewDTOs);
+
+        Review lastReview = reviews.getContent().get(reviews.getNumberOfElements()-1);
+        Integer nextCursor = lastReview.getRecommendCount();
+        Long nextCursorId = lastReview.getId();
+
+        Paging<Integer> paging = new Paging<>(reviews.hasNext(), reviews.getNumberOfElements(), nextCursor, nextCursorId);
+        return new PageResponse<>(paging, reviewDTOs);
     }
 
     public List<Review> findByStoreIdAndSummaryType(Long storeId, String summaryType, int limit) {
@@ -220,13 +226,19 @@ public class ReviewService {
             throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
         }
 
-        List<ReviewResponse.FindPageByUserIdDTO.UserReviewDTO> reviewDTOs = new ArrayList<>();
-
+        List<ReviewResponse.FindPageByUserIdDTO> reviewDTOs = new ArrayList<>();
         for (Review review : reviews) {
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.UserReviewDTO(review, relativeTime));
+            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO(review, relativeTime));
         }
-        return new ReviewResponse.FindPageByUserIdDTO(reviews, reviewDTOs);
+
+        Review lastReview = reviews.getContent().get(reviews.getNumberOfElements()-1);
+        Integer nextCursor = lastReview.getRecommendCount();
+        Long nextCursorId = lastReview.getId();
+
+        Paging<Integer> paging = new Paging<>(reviews.hasNext(), reviews.getNumberOfElements(), nextCursor, nextCursorId);
+        return new PageResponse<>(paging, reviewDTOs);
+
     }
 
 
