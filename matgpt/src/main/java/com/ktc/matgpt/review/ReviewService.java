@@ -22,11 +22,9 @@ import com.ktc.matgpt.utils.Paging;
 import com.ktc.matgpt.utils.TimeUnit;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -165,7 +163,7 @@ public class ReviewService {
     }
 
     public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
 
@@ -179,10 +177,14 @@ public class ReviewService {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
 
+        Paging<Integer> paging = getPagingInfo(reviews);
         List<ReviewResponse.FindPageByStoreIdDTO> reviewDTOs = new ArrayList<>();
-        for (Review review : reviews) {
-            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
 
+        int count = 0;
+        for (Review review : reviews) {
+            if (++count > DEFAULT_PAGE_SIZE) break;
+
+            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
             if (imageUrls.isEmpty()) {
                 log.info("review-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
             }
@@ -191,11 +193,7 @@ public class ReviewService {
             reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO(review, relativeTime, imageUrls));
         }
 
-        Review lastReview = reviews.getContent().get(reviews.getNumberOfElements()-1);
-        Integer nextCursor = lastReview.getRecommendCount();
-        Long nextCursorId = lastReview.getId();
 
-        Paging<Integer> paging = new Paging<>(reviews.hasNext(), reviews.getNumberOfElements(), nextCursor, nextCursorId);
         return new PageResponse<>(paging, reviewDTOs);
     }
 
@@ -211,7 +209,7 @@ public class ReviewService {
 
     public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findAllByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
         User userRef = userService.getReferenceByEmail(userEmail);
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
 
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
@@ -225,18 +223,16 @@ public class ReviewService {
         if (reviews.isEmpty()) {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
+        Paging<Integer> paging = getPagingInfo(reviews);
 
         List<ReviewResponse.FindPageByUserIdDTO> reviewDTOs = new ArrayList<>();
+        int count = 0;
+
         for (Review review : reviews) {
+            if (++count > DEFAULT_PAGE_SIZE) break;
             String relativeTime = getRelativeTime(review.getCreatedAt());
             reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO(review, relativeTime));
         }
-
-        Review lastReview = reviews.getContent().get(reviews.getNumberOfElements()-1);
-        Integer nextCursor = lastReview.getRecommendCount();
-        Long nextCursorId = lastReview.getId();
-
-        Paging<Integer> paging = new Paging<>(reviews.hasNext(), reviews.getNumberOfElements(), nextCursor, nextCursorId);
         return new PageResponse<>(paging, reviewDTOs);
 
     }
@@ -287,6 +283,24 @@ public class ReviewService {
         return new PageResponse<>(new Paging<>(hasNext, size, lastReview.getCreatedAt(), lastReview.getId()), reviewDTOs);
     }
 
+
+    private Paging<Integer> getPagingInfo(List<Review> reviews) {
+        boolean hasNext = false;
+        int numsOfReviews = 0;
+
+        if (reviews.size() == DEFAULT_PAGE_SIZE+1) {
+            hasNext = true;
+            numsOfReviews = DEFAULT_PAGE_SIZE;
+        } else {
+            numsOfReviews = reviews.size();
+        }
+
+        Review lastReview = reviews.get(numsOfReviews-1);
+        Integer nextCursor = lastReview.getRecommendCount();
+        Long nextCursorId = lastReview.getId();
+
+        return new Paging<Integer>(hasNext, numsOfReviews, nextCursor, nextCursorId);
+    }
 
 
     private ReviewResponse.FindByReviewIdDTO.ReviewerDTO getReviewerDTO(Review review) {
