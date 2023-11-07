@@ -37,8 +37,8 @@ public interface StoreJPARepository extends JpaRepository<Store, Long> {
 
     // 별점 높은 순으로 가게 불러오기 - 커서 기반
     @Query("SELECT s FROM Store s " +
-            "WHERE s.name LIKE %:search% AND (s.ratingAvg < :cursor OR (s.ratingAvg = :cursor AND s.id < :lastid))" +
-            "ORDER by s.ratingAvg DESC, s.id DESC")
+            "WHERE s.name LIKE %:search% AND (s.avgRating < :cursor OR (s.avgRating = :cursor AND s.id < :lastid))" +
+            "ORDER by s.avgRating DESC, s.id DESC")
     List<Store> findAllBySearchAndRatingLessThanCursor(@Param("search")String search, @Param("cursor")Long cursor, @Param("lastid")Long lastId, Pageable pageable);
 
     // id 내림차순으로 가게 불러오기 - 커서 기반

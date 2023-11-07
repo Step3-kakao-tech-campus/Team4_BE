@@ -53,7 +53,7 @@ public class StoreResponse {
             this.storeId = store.getId();
             this.storeName = store.getName();
             this.category = new CategoryDTO(store.getSubCategory().getCategory());
-            this.ratingAvg = store.getRatingAvg();
+            this.ratingAvg = store.getAverageRating();
             this.numsOfReview = store.getNumsOfReview();
         }
 
@@ -82,7 +82,7 @@ public class StoreResponse {
         private String address;
         private String businessHours;
         private double avgCostPerPerson;
-        private int avgVisitCount;
+        private double avgVisitCount;
         private String storeImg;
         private int numsOfReview;
         private double ratingAvg;
@@ -95,10 +95,10 @@ public class StoreResponse {
             this.address = store.getAddress();
             this.businessHours = store.getBusinessHours();
             this.avgCostPerPerson = store.getAvgCostPerPerson();
-            this.avgVisitCount = store.getAvgVisitCount();
+            this.avgVisitCount = store.getAverageVisitCount();
             this.storeImg = store.getStoreImageUrl();
             this.numsOfReview = store.getNumsOfReview();
-            this.ratingAvg = store.getRatingAvg();
+            this.ratingAvg = store.getAverageRating();
         }
     }
 }

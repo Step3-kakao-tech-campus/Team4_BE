@@ -26,10 +26,10 @@ public class ReviewRestController {
     private static final String MAX_LIKES_NUM = "10000";
 
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
-    @PostMapping(value = "/temp", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/temp")
     public ResponseEntity<?> createTemporaryReview(@PathVariable Long storeId,
-                                                                       @RequestPart("data") ReviewRequest.SimpleCreateDTO requestDTO,
-                                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
+                                                   @RequestBody ReviewRequest.SimpleCreateDTO requestDTO,
+                                                   @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             //파일 검증 로직 삭제
             Review review = reviewService.createTemporaryReview(userPrincipal.getId(), storeId, requestDTO);
@@ -43,8 +43,8 @@ public class ReviewRestController {
 
     // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
     @PostMapping("/{reviewId}")
-    public ResponseEntity<?> completeReview(@PathVariable(value = "storeId") Long storeId,
-                                            @PathVariable(value = "reviewId") Long reviewId,
+    public ResponseEntity<?> completeReview(@PathVariable Long storeId,
+                                            @PathVariable Long reviewId,
                                             @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
         try {
             reviewService.completeReviewUpload(storeId, reviewId, requestDTO);
@@ -88,8 +88,7 @@ public class ReviewRestController {
     // TODO: s3 삭제 구현
     // 리뷰 삭제
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<?> delete(@PathVariable Long storeId,
-                                    @PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         reviewService.delete(reviewId, userPrincipal.getId());
         return ResponseEntity.ok(ApiUtils.success("리뷰가 삭제되었습니다."));
     }

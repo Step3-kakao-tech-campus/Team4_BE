@@ -45,31 +45,52 @@ public class Store {
     private Double longitude;
 
     @Column
-    private double avgCostPerPerson;
+    private int avgCostPerPerson;
 
     @Column
-    private int avgVisitCount;
+    private double avgVisitCount;
 
 
     @Column(nullable = false)
     private int numsOfReview;
 
     @Column(nullable = false)
-    private double ratingAvg;
+    private double avgRating;
 
-    public void addReview(double rating) {
-        this.ratingAvg = (this.ratingAvg * this.numsOfReview + rating) / (this.numsOfReview + 1);
+    public void addReview(int rating, int visitCount, int costPerPerson) {
+        this.avgRating = (this.avgRating * this.numsOfReview + rating) / (this.numsOfReview + 1);
+        this.avgVisitCount = (this.avgVisitCount * this.numsOfReview + visitCount) / (this.numsOfReview + 1);
+        this.avgCostPerPerson = (this.avgCostPerPerson * this.numsOfReview + costPerPerson) / (this.numsOfReview + 1);
         this.numsOfReview++;
     }
 
-    public void removeReview(double rating) {
+    public void removeReview(int rating, int visitCount, int costPerPerson) {
         if (this.numsOfReview == 1) {
-            this.ratingAvg = 0;
+            this.avgRating = 0;
+            this.avgVisitCount = 0;
             this.numsOfReview--;
+            this.avgCostPerPerson = 0;
             return;
         }
-        this.ratingAvg = (this.ratingAvg * this.numsOfReview - rating) / (this.numsOfReview - 1);
+        this.avgRating = (this.avgRating * this.numsOfReview - rating) / (this.numsOfReview - 1);
+        this.avgVisitCount = (this.avgVisitCount * this.numsOfReview - visitCount) / (this.numsOfReview - 1);
+        this.avgRating = (this.avgRating * this.numsOfReview - rating) / (this.numsOfReview - 1);
+        this.avgCostPerPerson = (this.avgCostPerPerson * this.numsOfReview - costPerPerson) / (this.numsOfReview - 1);
         this.numsOfReview--;
+    }
+
+    // Store 평점을 소수점 2번째까지만 나타냄(반올림)
+    public double getAverageRating() {
+        return Math.round(avgRating * 100) / 100.00;
+    }
+
+    // Store 평균 방문인원을 소수점 1번째까지만 나타냄(반올림)
+    public int getAverageVisitCount() {
+        return (int) avgVisitCount;
+    }
+
+    public int getAvgCostPerPerson() {
+        return avgCostPerPerson;
     }
 
     public double calculateDistanceFromLatLon(Double latitude, Double longitude) {

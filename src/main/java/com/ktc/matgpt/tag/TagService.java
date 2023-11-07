@@ -1,6 +1,7 @@
 package com.ktc.matgpt.tag;
 
 import com.ktc.matgpt.food.Food;
+import com.ktc.matgpt.food.FoodService;
 import com.ktc.matgpt.image.Image;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,11 @@ import java.util.List;
 @Service
 public class TagService {
     private final TagJPARepository tagJPARepository;
+    private final FoodService foodService;
 
 
     public Tag saveTag(Image image, Food food, ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO) {
-        Tag tag = Tag.create(image,food, tagDTO.getRating(), tagDTO.getLocationX(),tagDTO.getLocationY());
+        Tag tag = Tag.create(image,food, tagDTO.getName(), tagDTO.getRating(), tagDTO.getLocationX(),tagDTO.getLocationY());
         tagJPARepository.save(tag);
         log.info("tag-%d: 태그가 저장되었습니다.", tag.getId());
         return tag;
@@ -34,7 +36,8 @@ public class TagService {
             return;
         }
 
-        deleteTagsAndRelatedReviews(tags);
+        updateFoodBeforeDelete(tags); // 필요한 업데이트를 먼저 처리
+        bulkDeleteTags(tags); // 태그들을 Bulk Delete를 통해 삭제
     }
 
     public List<Tag> getTagsByImageId(Long imageId) {
@@ -42,17 +45,13 @@ public class TagService {
     }
 
 
-    private void deleteTagsAndRelatedReviews(List<Tag> tags) {
-        for (Tag tag : tags) {
-            removeReviewFromFood(tag);
-            tagJPARepository.delete(tag);
-            log.info("tag-%d: 태그를 삭제했습니다.", tag.getId());
-        }
+    private void updateFoodBeforeDelete(List<Tag> tags) {
+        tags.forEach(tag -> foodService.removeRatingByTagName(tag));
     }
 
-    private void removeReviewFromFood(Tag tag) {
-        Food food = tag.getFood();
-        food.removeReview(tag.getMenuRating());
+    private void bulkDeleteTags(List<Tag> tags) {
+        tagJPARepository.deleteAllInBatch(tags); // Spring Data JPA의 Bulk Delete를 수행
+        tags.forEach(tag -> log.info("tag-%d: 태그를 삭제했습니다.", tag.getId()));
     }
 
 
