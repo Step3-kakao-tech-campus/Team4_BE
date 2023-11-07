@@ -12,6 +12,7 @@ import com.ktc.matgpt.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
@@ -34,11 +36,15 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
+        log.info("유저 로드 완료");
+        
 
         try {
+            log.info("유저 oauth2 프로세싱");
             return processOAuth2User(oAuth2UserRequest, oAuth2User);
         //[리팩터링 요청] 예외 처리 구체화
         } catch (Exception ex) {
+            log.info("내부 인증 오류");
             throw new InternalAuthenticationServiceException("내부 인증오류");
         }
     }
@@ -51,6 +57,8 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
         if (isInvalidUserInfo(oauth2UserInfo)) {
             throw new CustomException(ErrorCode.OAUTH2_PROCESSING_EXCEPTION);
         }
+        log.info("유효한 유저 info");
+
 
         Optional<User> userOptional = userRepository.findByEmail(oauth2UserInfo.getEmail());
         User user;
@@ -58,10 +66,12 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
             user = userOptional.get();
             if (requiresUpdateUser(user, oauth2UserInfo, registrationId)) {
                 user = updateUser(user, oauth2UserInfo);
+                log.info("유저 업데이트 로직 완료");
             }
         } else {
             //유저가 존재하지 않는 경우 회원가입 진행
             user = registerUser(oAuth2UserRequest, oauth2UserInfo);
+            log.info("유저 가입 로직 완료");
             coinService.createCoin(user);
         }
         return UserPrincipal.create(user, oauth2UserInfo);
@@ -95,7 +105,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
 
     private User registerUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oauth2UserInfo) {
         MatgptOAuth2Provider provider = MatgptOAuth2Provider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
-
+        log.info("유저 가입 절차 provider 가져오기 완료");
         User user = User.builder()
                 .name(UUID.randomUUID().toString()) // TODO: 자동으로 생성할 닉네임 구현
                 .email(oauth2UserInfo.getEmail())
@@ -105,6 +115,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
                 .provider(provider)
                 .providerId(oauth2UserInfo.getId())
                 .build();
+
 
         return userRepository.save(user);
     }
