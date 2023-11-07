@@ -4,8 +4,10 @@ import com.ktc.matgpt.food.dto.FoodDTO;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
+import com.ktc.matgpt.tag.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,22 +17,19 @@ public class FoodService {
     private final FoodJPARepository foodJPARepository;
     private final StoreService storeService;
 
-    public Food saveOrUpdateFoodByTag(ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO, Long storeId) {
+    @Transactional
+    public Food saveOrUpdateFoodByTagName(ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO, Long storeId) {
         return foodJPARepository.findByFoodName(tagDTO.getName())
                 .map(food -> {
-                    updateFoodRating(food, tagDTO.getRating());
+                    food.addReview(tagDTO.getRating());
                     return food;
                 })
-                .orElseGet(() -> addFoodToStore(storeId,new FoodDTO.CreateDTO(tagDTO.getName(),"")));
+                .orElseGet(() -> addFoodToStore(storeId,new FoodDTO.CreateDTO(tagDTO.getName(),tagDTO.getName(), tagDTO.getRating())));
     }
 
-    private void updateFoodRating(Food food, double newRating) {
-        food.updateReview(food.getTotalRating(), newRating);
-    }
-
-    public void removeRatingByTagName(ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO) {
-        foodJPARepository.findByFoodName(tagDTO.getName())
-                .ifPresent(food -> food.removeReview(tagDTO.getRating()));
+    public void removeRatingByTagName(Tag tag) {
+        foodJPARepository.findByFoodName(tag.getTagName())
+                .ifPresent(food -> food.removeReview(tag.getMenuRating()));
     }
 
 
@@ -46,6 +45,6 @@ public class FoodService {
 
     public Food addFoodToStore(Long storeId,FoodDTO.CreateDTO dto) {
         Store store = storeService.findById(storeId);
-        return foodJPARepository.save(Food.create(dto.getFoodName(),dto.getFoodDescription(),store));
+        return foodJPARepository.save(Food.create(dto.getFoodName(),dto.getFoodDescription(), dto.getFirstRating(), store));
     }
 }

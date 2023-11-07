@@ -76,14 +76,14 @@ public class ReviewRequest {
     public static class CreateDTO {
         private List<ImageDTO> reviewImages;
         private String content;
-        private double rating;
+        private int rating;
         @Min(1)
         private int peopleCount;
         @Min(0)
         private int totalPrice;
 
         public CreateDTO(List<ImageDTO> reviewImages, String content,
-                         double rating, int peopleCount, int totalPrice) {
+                         int rating, int peopleCount, int totalPrice) {
             this.reviewImages = reviewImages;
             this.content = content;
             this.rating = rating;

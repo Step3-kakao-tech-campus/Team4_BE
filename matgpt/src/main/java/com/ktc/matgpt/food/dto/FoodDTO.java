@@ -10,10 +10,12 @@ public class FoodDTO {
     public static class CreateDTO {
         private String foodName;
         private String foodDescription;
+        private int firstRating;
 
-        public CreateDTO(String foodName, String foodDescrption) {
+        public CreateDTO(String foodName, String foodDescrption, int firstRating) {
             this.foodName = foodName;
             this.foodDescription = foodDescrption;
+            this.firstRating = firstRating;
         }
     }
 

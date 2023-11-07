@@ -28,44 +28,51 @@ public class Food extends BaseEntity {
     private String foodDescription;
 
     @Column
-    private int reviewCount;
+    private int numsOfReview;
 
     @Column
-    private double totalRating;
+    private double avgRating;
 
-    private Food(String foodName, String foodDescription) {
+    private Food(String foodName, String foodDescription, int firstRating) {
         this.foodName = foodName;
         this.foodDescription = foodDescription;
+        this.numsOfReview = 1;
+        this.avgRating = firstRating;
+
     }
 
     @Builder
-    public static Food create(String foodName, String foodDescription, Store store) {
-        Food food = new Food(foodName, foodDescription);
+    public static Food create(String foodName, String foodDescription, int firstRating, Store store) {
+        Food food = new Food(foodName, foodDescription, firstRating);
         food.store = store;
         return food;
     }
 
     // 소숫점 두자리로 반환
     public double getAverageRating() {
-        return reviewCount == 0 ? 0 : Math.round((totalRating / reviewCount) * 100) / 100.0;
+        return numsOfReview == 0 ? 0 : Math.round(avgRating * 100) / 100.0;
     }
 
-    public void addReview(double rating) {
-        this.totalRating += rating;
-        this.reviewCount++;
+    public void addReview(int rating) {
+        this.avgRating = (this.avgRating * this.numsOfReview + rating) / (this.numsOfReview + 1);
+        this.numsOfReview++;
     }
 
 
-    public void removeReview(double oldRating) {
-        if (this.reviewCount == 0) return;
-        this.totalRating -= oldRating;
-        this.reviewCount--;
+    public void removeReview(int oldRating) {
+        if (this.numsOfReview == 1) {
+            this.avgRating = 0;
+            this.numsOfReview--;
+            return;
+        }
+        this.avgRating = (this.avgRating * this.numsOfReview - oldRating) / (this.numsOfReview - 1);
+        this.numsOfReview--;
     }
 
-    public void updateReview(double oldRating, double newRating) {
-        this.removeReview(oldRating);
-        this.addReview(newRating);
-    }
+//    public void updateReview(double oldRating, double newRating) {
+//        this.removeReview(oldRating);
+//        this.addReview(newRating);
+//    }
 
 
 }
