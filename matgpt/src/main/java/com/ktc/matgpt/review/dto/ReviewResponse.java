@@ -50,7 +50,7 @@ public class ReviewResponse {
         private String content;
         private List<FindByReviewIdDTO.ImageDTO> reviewImages;
         private int totalPrice;     // 범위로 받게 된다면 enum PriceRange 타입 이용
-        private boolean isUpdated = false;
+        private boolean updated = false;
         private boolean owner;
 
         public FindByReviewIdDTO(Review review, ReviewerDTO reviewer, List<ImageDTO> reviewImages, String relativeTime, boolean owner) {
@@ -65,7 +65,7 @@ public class ReviewResponse {
             this.totalPrice = review.getTotalPrice();
             this.averageCostPerPerson = review.getCostPerPerson();
             this.createdAt = relativeTime;
-            if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+            if (review.getCreatedAt() != review.getUpdatedAt()) this.updated = true;
             this.owner = owner;
         }
 
@@ -123,7 +123,7 @@ public class ReviewResponse {
         private String content;
         private LocalDateTime createdAt;
         private List<String> imageUrls;
-        private boolean isUpdated = false;
+        private boolean updated = false;
         private String relativeTime;
         private int numOfLikes;
 
@@ -136,8 +136,7 @@ public class ReviewResponse {
             this.relativeTime = relativeTime;
             this.numOfLikes = review.getRecommendCount();
 
-                if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
-            }
+            if (review.getCreatedAt() != review.getUpdatedAt()) this.updated = true;
         }
     }
 
