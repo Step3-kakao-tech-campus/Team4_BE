@@ -26,7 +26,6 @@ public class SwaggerConfig {
                                 .bearerFormat("JWT")))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer"))
                 .servers(List.of(new Server().url("https://k04b53cc4de90a.user-app.krampoline.com/").description("Production server")));
-
     }
 }
 

@@ -1,4 +1,4 @@
-package com.ktc.matgpt.chatgpt.config;
+package com.ktc.matgpt.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +25,7 @@ public class HttpConnectionProxyConfig {
     public static final Duration API_RESPONSE_TIMEOUT = Duration.ofSeconds(60);
 
     @Value("${chatgpt.api.key}")
-    private String apiKey;
+    private String chatGptApiKey;
 
     @Bean
     public RestTemplate restTemplateWithGlobalProxy(RestTemplateBuilder builder) {
@@ -47,7 +47,7 @@ public class HttpConnectionProxyConfig {
 
                     // Add the Authorization header only for requests to the OpenAI API
                     if (request.getURI().getHost().equals("api.openai.com")) {
-                        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey);
+                        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + chatGptApiKey);
                     }
 
                     headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
