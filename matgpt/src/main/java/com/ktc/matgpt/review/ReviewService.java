@@ -62,13 +62,18 @@ public class ReviewService {
     final static Long YEAR = MONTH*12;
 
 
-    public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO) {
+    public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO, String userEmail) {
         // 이미지 업로드 완료 후 리뷰, 이미지, 태그 정보 저장 로직
         // 이 로직은 이미지 업로드가 완료된 후 호출됩니다.
+        // User 프록시객체
+        User user = userService.getReferenceByEmail(userEmail);
 
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
         Review review = findReviewByIdOrThrow(reviewId);
+        if (!userEmail.equals(review.getUser().getEmail())) {
+            throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 추가 정보를 저장할 수 없습니다.");
+        }
 
         for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
             Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장

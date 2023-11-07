@@ -45,9 +45,11 @@ public class ReviewRestController {
     @PostMapping("/{reviewId}")
     public ResponseEntity<?> completeReview(@PathVariable Long storeId,
                                             @PathVariable Long reviewId,
-                                            @RequestBody ReviewRequest.CreateCompleteDTO requestDTO) {
+                                            @RequestBody ReviewRequest.CreateCompleteDTO requestDTO,
+                                            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
         try {
-            reviewService.completeReviewUpload(storeId, reviewId, requestDTO);
+            reviewService.completeReviewUpload(storeId, reviewId, requestDTO, userPrincipal.getEmail());
             return ResponseEntity.ok(ApiUtils.success("리뷰가 성공적으로 완료되었습니다."));
         } catch (Exception e) {
             throw new CustomException(ErrorCode.REVIEW_PROCESS_ERROR);
