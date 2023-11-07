@@ -3,8 +3,6 @@ server:
     encoding:
       charset: utf-8
       force: true
-  port: 8080
-
 
 spring:
   datasource:
@@ -14,17 +12,16 @@ spring:
     password: ${MYSQLPASSWORD}
   
   jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+        show_sql: true
       default_batch_fetch_size: 100
     open-in-view: false
 
-  
   security:
     oauth2:
       client:
@@ -36,39 +33,16 @@ spring:
             client-id: ${KAKAOCLIENTID}
             client-secret: ${KAKAOCLIENTSECRET}
 
-
-              
-mail:
-  host: smtp.gmail.com
-  port: 587
-  username: ${USERNAME}
-  password: ${PASSWORD}
-  properties:
-    mail:
-      smtp:
-        auth: true
-        starttls:
-          enable: true
-
-logging:
-  level:
-    root: INFO
-
-
 jwt:
   secret: ${JWTSECRET}
 
-
 springdoc:
-  enable-data-rest: false
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
-
 
 chatgpt:
   api:
     key: ${GPTAPIKEY}
-
 
 cloud:
   aws:
