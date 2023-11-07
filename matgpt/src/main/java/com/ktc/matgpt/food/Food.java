@@ -24,8 +24,6 @@ public class Food extends BaseEntity {
     @Column(nullable = false)
     private String foodName;
 
-    @Column
-    private String foodDescription;
 
     @Column
     private int numsOfReview;
@@ -33,17 +31,16 @@ public class Food extends BaseEntity {
     @Column
     private double avgRating;
 
-    private Food(String foodName, String foodDescription, int firstRating) {
+    private Food(String foodName, int firstRating) {
         this.foodName = foodName;
-        this.foodDescription = foodDescription;
         this.numsOfReview = 1;
         this.avgRating = firstRating;
 
     }
 
     @Builder
-    public static Food create(String foodName, String foodDescription, int firstRating, Store store) {
-        Food food = new Food(foodName, foodDescription, firstRating);
+    public static Food create(String foodName, int firstRating, Store store) {
+        Food food = new Food(foodName, firstRating);
         food.store = store;
         return food;
     }
