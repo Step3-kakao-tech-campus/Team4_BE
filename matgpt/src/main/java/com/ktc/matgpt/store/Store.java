@@ -81,7 +81,7 @@ public class Store {
 
     // Store 평점을 소수점 2번째까지만 나타냄(반올림)
     public double getAverageRating() {
-        return Math.round(avgRating * 100) / 10.00;
+        return Math.round(avgRating * 100) / 100.00;
     }
 
     // Store 평균 방문인원을 소수점 1번째까지만 나타냄(반올림)
@@ -90,7 +90,7 @@ public class Store {
     }
 
     public int getAvgCostPerPerson() {
-        return (int) avgCostPerPerson;
+        return avgCostPerPerson;
     }
 
     public double calculateDistanceFromLatLon(Double latitude, Double longitude) {
