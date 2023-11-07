@@ -192,18 +192,18 @@
 # INSERT INTO category_tb (name) VALUES ('JAPANESE');
 
 # -- User Table Initalization
-# INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, EMAIL, GENDER, NAME, IS_FIRST_LOGIN, PROVIDER, PROVIDER_ID)
-# VALUES (2, null, 'nstgic3@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038773712),
-# (2, null, 'female@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user3@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user4@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user5@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user6@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user7@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user8@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user9@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user10@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
-# (2, null, 'user110@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712);
+INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, EMAIL, GENDER, NAME, IS_FIRST_LOGIN, PROVIDER, PROVIDER_ID)
+VALUES (2, null, 'nstgic3@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038773712),
+(2, null, 'female@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user3@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user4@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user5@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user6@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user7@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user8@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user9@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user10@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712),
+(2, null, 'user110@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', false, 'KAKAO', 3038733712);
 
 
 # -- DetailedCategory Table Initialization
