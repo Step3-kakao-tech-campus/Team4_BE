@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
 
+@Slf4j
 @Profile(value = {"deploy"})
 @Configuration
 public class HttpConnectionProxyConfig {
@@ -40,6 +41,8 @@ public class HttpConnectionProxyConfig {
                 .requestFactory(() -> clientHttpRequestFactory)
                 .additionalInterceptors((request, body, execution) -> {
                     HttpHeaders headers = request.getHeaders();
+                    
+                    log.info("apiKey : " + apiKey);
 
                     // Add the Authorization header only for requests to the OpenAI API
                     if (request.getURI().getHost().equals("api.openai.com")) {

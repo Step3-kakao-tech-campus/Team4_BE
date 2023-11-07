@@ -65,6 +65,9 @@ CREATE TABLE IF NOT EXISTS review_tb (
     updated_at TIMESTAMP NOT NULL,
     user_id BIGINT NOT NULL,
     content VARCHAR(1000) NOT NULL,
+    created_by      varchar(255)  null,
+    updated_by      varchar(255)  null,
+    review_uuid     varchar(255)  not null,
     PRIMARY KEY (id)
 );
 
