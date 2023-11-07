@@ -165,6 +165,11 @@ alter table if exists review_tb
     foreign key (store_id)
     references store_tb;
 
+alter table if exists review_tb
+    add constraint FK3po4getvgqcrdfofwpq8ar8cb
+    foreign key (user_id)
+    references user_tb;
+
 alter table if exists store_tb
     add constraint FK91imrex8mafierjwiax0qrx4h
     foreign key (sub_category_id)
