@@ -35,6 +35,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
     // 유저 불러오기
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
+        log.info("유저 로드 시작");
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
         log.info("유저 로드 완료");
         
