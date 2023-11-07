@@ -236,7 +236,7 @@ public class ReviewResponse {
     @Getter
     public static class RecentReviewDTO {
         private Long id;
-        private double rating;
+        private int rating;
         private String content;
         private LocalDateTime createdAt;
         private String storeImage;

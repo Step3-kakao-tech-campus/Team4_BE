@@ -40,7 +40,7 @@ public class LikeReviewResponse {
         @Getter @Setter
         public static class ReviewDTO {
             private Long id;
-            private double rating;
+            private int rating;
             private String content;
             private LocalDateTime createdAt;
             private String relativeTime;
