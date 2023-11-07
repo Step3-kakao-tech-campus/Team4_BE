@@ -30,13 +30,13 @@ public interface ReviewJPARepository extends JpaRepository<Review, Long> {
 
     // 마이페이지 작성한 리뷰 조회 - 최신순, 커서 기반
     @Query("SELECT r FROM Review r " +
-            "WHERE r.userId = :userId AND r.id < :cursorId " +
+            "WHERE r.user.id = :userId AND r.id < :cursorId " +
             "ORDER BY r.id DESC")
     Page<Review> findAllByUserIdAndOrderByIdDesc(Long userId, Long cursorId, Pageable page);
 
     // 마이페이지 작성한 리뷰 조회 - 추천순, 커서 기반
     @Query("SELECT r FROM Review r " +
-            "WHERE r.userId = :userId AND (r.recommendCount < :cursorLikes OR (r.recommendCount= :cursorLikes AND r.id < :cursorId)) " +
+            "WHERE r.user.id = :userId AND (r.recommendCount < :cursorLikes OR (r.recommendCount= :cursorLikes AND r.id < :cursorId)) " +
             "ORDER BY r.recommendCount DESC, r.id DESC")
     Page<Review> findAllByUserIdAndOrderByLikesAndIdDesc(Long userId, Long cursorId, int cursorLikes, Pageable page);
 
