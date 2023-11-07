@@ -32,8 +32,8 @@ public class MyPageController {
                                              @RequestParam(defaultValue = MAX_REVIEW_ID) Long cursorId,
                                              @RequestParam(defaultValue = MAX_LIKES_NUM) int cursorLikes,
                                              @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        ReviewResponse.FindPageByUserIdDTO responseDTOs =
-                reviewService.findAllByUserId(userPrincipal.getId(), sortBy, cursorId, cursorLikes);
+        PageResponse<?, ReviewResponse.FindPageByUserIdDTO> responseDTOs =
+                reviewService.findAllByUserId(userPrincipal.getEmail(), sortBy, cursorId, cursorLikes);
 
         return ResponseEntity.ok(ApiUtils.success(responseDTOs));
     }

@@ -32,7 +32,7 @@ public class ReviewRestController {
                                                    @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             //파일 검증 로직 삭제
-            Review review = reviewService.createTemporaryReview(userPrincipal.getId(), storeId, requestDTO);
+            Review review = reviewService.createTemporaryReview(userPrincipal.getEmail(), storeId, requestDTO);
             List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = reviewService.createPresignedUrls(review.getReviewUuid(), requestDTO.getImageCount());
             return ResponseEntity.ok(ApiUtils.success(new ReviewResponse.UploadS3DTO(review.getId(), presignedUrls)));
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class ReviewRestController {
                                     @RequestBody @Valid ReviewRequest.UpdateDTO requestDTO,
                                     @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
-        reviewService.updateContent(reviewId, userPrincipal.getId(), requestDTO);
+        reviewService.updateContent(reviewId, userPrincipal.getEmail(), requestDTO);
         return ResponseEntity.ok(ApiUtils.success("리뷰 내용이 수정되었습니다."));
     }
 
@@ -89,7 +89,7 @@ public class ReviewRestController {
     // 리뷰 삭제
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> delete(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        reviewService.delete(reviewId, userPrincipal.getId());
+        reviewService.delete(reviewId, userPrincipal.getEmail());
         return ResponseEntity.ok(ApiUtils.success("리뷰가 삭제되었습니다."));
     }
 }
