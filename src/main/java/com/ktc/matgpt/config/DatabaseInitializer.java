@@ -27,7 +27,7 @@ public class DatabaseInitializer implements ApplicationListener<ContextRefreshed
     }
 
     public void initializeDatabase() {
-        Resource resource = new ClassPathResource("custom_modified.sql");
+        Resource resource = new ClassPathResource("custom_prod.sql");
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator(resource);
 
         databasePopulator.execute(dataSource);
