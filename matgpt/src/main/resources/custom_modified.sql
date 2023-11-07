@@ -346,5 +346,5 @@ INSERT INTO likereview_tb (review_id, user_id) VALUES (13, 11);
 INSERT INTO likereview_tb (review_id, user_id) VALUES (15, 11);
 
 INSERT INTO image_tb (review_id, url) VALUES (1, 'image1.png');
-INSERT INTO food_tb (store_id, food_name, food_description, nums_of_review, avg_rating, created_at, updated_at) VALUES (1, 'food1', 'description', 3, 2.5, now(), now());
+INSERT INTO food_tb (store_id, food_name, nums_of_review, avg_rating, created_at, updated_at) VALUES (1, 'food1', 3, 2.5, now(), now());
 INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (1, 1, '볶음밥', 3, 25.08, 36.74);
