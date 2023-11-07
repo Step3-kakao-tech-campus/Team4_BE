@@ -268,7 +268,6 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[7].reviewId").value("4"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
 
         //given
@@ -286,7 +285,6 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 
@@ -330,9 +328,8 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[7].numOfLikes").value(0));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(8));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
 
         //given - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id, numOfLikes)
         Long cursorId = 8L;
@@ -356,9 +353,8 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[2].numOfLikes").value(0));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
     }
 
     @DisplayName("리뷰 수정")

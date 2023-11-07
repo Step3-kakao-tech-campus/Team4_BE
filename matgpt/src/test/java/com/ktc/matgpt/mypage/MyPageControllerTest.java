@@ -65,7 +65,6 @@ public class MyPageControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[7].id").value("12"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(12));
 
         //given
@@ -83,7 +82,6 @@ public class MyPageControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[1].id").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(2));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 
@@ -127,9 +125,8 @@ public class MyPageControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[7].numOfLikes").value("0"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(19));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
 
         //given
         Long cursorId = 19L;
@@ -154,9 +151,8 @@ public class MyPageControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[1].numOfLikes").value(0));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(2));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(14));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
     }
 
     @DisplayName("마이페이지 좋아요한 리뷰 목록(8개 단위) 조회 최신순")
@@ -188,7 +184,6 @@ public class MyPageControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[3].id").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(4));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 }
