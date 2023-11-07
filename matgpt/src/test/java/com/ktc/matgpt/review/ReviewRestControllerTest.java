@@ -73,11 +73,14 @@ public class ReviewRestControllerTest {
         //given
         String reviewId = "1";
         String storeId = "1";
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when
         ResultActions resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
 
         //console
