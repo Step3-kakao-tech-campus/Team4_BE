@@ -153,7 +153,7 @@ public class ReviewResponse {
             private String storeImage;
             private String storeName;
             private String relativeTime;
-            private boolean isUpdated = false;
+            private boolean updated = false;
             private int numOfLikes;
             private int peopleCount;
 
@@ -165,10 +165,9 @@ public class ReviewResponse {
                 this.storeImage = review.getStore().getStoreImageUrl();
                 this.storeName = review.getStore().getName();
                 this.relativeTime = relativeTime;
-                if (review.getCreatedAt() != review.getUpdatedAt()) this.isUpdated = true;
+                if (review.getCreatedAt() != review.getUpdatedAt()) this.updated = true;
                 this.numOfLikes = review.getRecommendCount();
                 this.peopleCount = review.getPeopleCount();
-            }
         }
     }
 
