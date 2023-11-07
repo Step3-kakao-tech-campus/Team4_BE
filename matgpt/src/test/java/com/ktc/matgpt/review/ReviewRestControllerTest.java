@@ -244,11 +244,10 @@ public class ReviewRestControllerTest {
         // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
         String sortBy = "latest";
-        String cursorId = "";
 
-        //when - 최초 조회 요청 (cursorId 없을 경우 default:10000)
+        //when - 최초 조회 요청 (cursorId 없을 경우 default -> 자동으로 max값)
         ResultActions resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -273,7 +272,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
 
         //given
-        cursorId = "4";
+        Long cursorId = 4L;
 
         //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id)
         resultActions = mvc.perform(
@@ -298,12 +297,11 @@ public class ReviewRestControllerTest {
         // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
         String sortBy = "likes";
-        String cursorId = "";
-        String cursorLikes = "";
 
-        //when - 최초 요청 (cursorId, cursorLikes 없을 경우 default:1000)
+
+        //when - 최초 요청 (cursorId, cursorLikes 없을 경우 default -> 자동으로 max값)
         ResultActions resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -337,11 +335,11 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
 
         //given - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id, numOfLikes)
-        cursorId = "8";
-        cursorLikes = "0";
+        Long cursorId = 8L;
+        Integer cursor = 0;
         //when
         resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursor="+ cursor)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console

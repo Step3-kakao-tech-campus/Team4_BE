@@ -38,13 +38,12 @@ public class MyPageControllerTest {
         //given
         // userId 1이 작성한 리뷰는 총 10개
         String sortBy = "latest";
-        String cursorId = "";
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        //when
+        //when - cursor 없으면 default -> 자동으로 max값
         ResultActions resultActions = mvc.perform(
-                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/mypage/my-reviews?sortBy="+ sortBy)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
@@ -70,7 +69,7 @@ public class MyPageControllerTest {
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(12));
 
         //given
-        cursorId = "12";
+        Long cursorId = 12L;
 
         //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id)
         resultActions = mvc.perform(
@@ -93,14 +92,12 @@ public class MyPageControllerTest {
     public void findReviewsByUserIdSortByRating_test() throws Exception{
         //given
         String sortBy = "likes";
-        String cursorId = "";
-        String cursorLikes = "";
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        //when
+        //when - cursor 없으면 default -> 자동으로 max값
         ResultActions resultActions = mvc.perform(
-                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/mypage/my-reviews?sortBy="+ sortBy)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
@@ -135,12 +132,12 @@ public class MyPageControllerTest {
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
 
         //given
-        cursorId = "19";
-        cursorLikes = "0";
+        Long cursorId = 19L;
+        Integer cursor = 0;
 
         //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id, numOfLikes)
         resultActions = mvc.perform(
-                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursor="+ cursor)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
@@ -168,13 +165,12 @@ public class MyPageControllerTest {
         //given
         // userId 1이 좋아요 누른 리뷰: 총 4개(reviewId: 1, 2, 3, 7)
         // 좋아요 누른 순서: 1 -> 2 -> 7 -> 3
-        String cursorId = "";
         UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when
         ResultActions resultActions = mvc.perform(
-                get("/mypage/liked-reviews?cursorId="+ cursorId)
+                get("/mypage/liked-reviews?")
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );

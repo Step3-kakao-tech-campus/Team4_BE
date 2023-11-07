@@ -22,9 +22,6 @@ import java.util.List;
 public class ReviewRestController {
     private final ReviewService reviewService;
 
-    private static final String MAX_REVIEW_ID = "10000";
-    private static final String MAX_LIKES_NUM = "10000";
-
     // 첫 번째 단계: 리뷰 임시 저장 및 Presigned URL 반환
     @PostMapping(value = "/temp")
     public ResponseEntity<?> createTemporaryReview(@PathVariable Long storeId,
@@ -60,8 +57,8 @@ public class ReviewRestController {
     @GetMapping("")
     public ResponseEntity<?> findAllByStoreId(@PathVariable Long storeId,
                                               @RequestParam(defaultValue = "latest") String sortBy,
-                                              @RequestParam(defaultValue = MAX_REVIEW_ID) Long cursorId,
-                                              @RequestParam(defaultValue = MAX_LIKES_NUM) int cursorLikes
+                                              @RequestParam(required = false) Long cursorId,
+                                              @RequestParam(required = false) Integer cursor
     ) {
         ReviewResponse.FindPageByStoreIdDTO responseDTO = reviewService.findAllByStoreId(storeId, sortBy, cursorId, cursorLikes);
         return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTO));

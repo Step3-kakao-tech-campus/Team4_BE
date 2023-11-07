@@ -41,6 +41,7 @@ public class LikeReviewUseCase {
 
     public LikeReviewResponse.FindLikeReviewPageDTO executeFindLikeReviews(String userEmail, Long cursorId) {
         User userRef = userService.getReferenceByEmail(userEmail);
+        cursorId = Paging.convertNullCursorToMaxValue(cursorId);
         Page<LikeReview> likeReviews = likeReviewService.findReviewsByUserId(userRef.getId(), cursorId);
 
         List<LikeReviewResponse.FindLikeReviewPageDTO.ReviewDTO> reviewDTOs = new ArrayList<>();

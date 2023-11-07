@@ -163,11 +163,14 @@ public class ReviewService {
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime, isOwner);
     }
 
-    public ReviewResponse.FindPageByStoreIdDTO findAllByStoreId(Long storeId, String sortBy, Long cursorId, int cursorLikes) {
+    public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
         Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
+        cursor = Paging.convertNullCursorToMaxValue(cursor);
+        cursorId = Paging.convertNullCursorToMaxValue(cursorId);
+
         Page<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, page);
-            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursorLikes, page);
+            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursor, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
@@ -202,9 +205,13 @@ public class ReviewService {
     public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findAllByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
         User userRef = userService.getReferenceByEmail(userEmail);
         Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
+
+        cursorId = Paging.convertNullCursorToMaxValue(cursorId);
+        cursor = Paging.convertNullCursorToMaxValue(cursor);
+
         Page<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userRef.getId(), cursorId, page);
-            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursorLikes, page);
+            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursor, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
