@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +42,8 @@ public class SecurityConfig {
     // Handler 추가
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    // Filter 추가
+    private final CorsFilter corsFilter;
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
@@ -80,6 +83,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http.addFilter(corsFilter);
         // CSRF 설정 Disable
         http.csrf(
                 csrfCustomizer -> csrfCustomizer

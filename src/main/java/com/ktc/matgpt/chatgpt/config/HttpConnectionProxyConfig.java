@@ -1,5 +1,6 @@
 package com.ktc.matgpt.chatgpt.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
 
+@Slf4j
 @Profile(value = {"deploy"})
 @Configuration
 public class HttpConnectionProxyConfig {
@@ -40,6 +42,8 @@ public class HttpConnectionProxyConfig {
                 .requestFactory(() -> clientHttpRequestFactory)
                 .additionalInterceptors((request, body, execution) -> {
                     HttpHeaders headers = request.getHeaders();
+                    
+                    log.info("apiKey : " + apiKey);
 
                     // Add the Authorization header only for requests to the OpenAI API
                     if (request.getURI().getHost().equals("api.openai.com")) {

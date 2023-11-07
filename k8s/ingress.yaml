@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
   labels:
     app.kubernetes.io/managed-by: kargocd
   name: krampoline
@@ -14,4 +14,5 @@ spec:
           - backend:
               serviceName: backend
               servicePort: 8080
-              path: /(/|$)(.*)
+              path: /
+              pathType: Prefix
