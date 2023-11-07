@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping(value = "/stores/{storeId}/reviews/", produces = {"application/json; charset=UTF-8"})
+@RequestMapping(value = "/stores/{storeId}/reviews", produces = {"application/json; charset=UTF-8"})
 @RequiredArgsConstructor
 @RestController
 public class ReviewRestController {
