@@ -43,7 +43,7 @@ public class HttpConnectionProxyConfig {
                 .additionalInterceptors((request, body, execution) -> {
                     HttpHeaders headers = request.getHeaders();
                     
-                    log.info("apiKey : " + apiKey);
+                    log.info("apiKey : " + chatGptApiKey);
 
                     // Add the Authorization header only for requests to the OpenAI API
                     if (request.getURI().getHost().equals("api.openai.com")) {
