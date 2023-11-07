@@ -1,6 +1,5 @@
 package com.ktc.matgpt.review;
 
-import com.ktc.matgpt.aws.FileValidator;
 import com.ktc.matgpt.exception.CustomException;
 import com.ktc.matgpt.exception.ErrorCode;
 import com.ktc.matgpt.food.Food;
@@ -71,8 +70,6 @@ public class ReviewService {
         Store storeRef = storeService.getReferenceById(storeId);
         Review review = findReviewByIdOrThrow(reviewId);
 
-        // TODO: 리뷰 생성 시 Store의 리뷰 개수와 평점 업데이트 구현 - Store 프록시 객체를 사용하고 있어 보류
-
         for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
             Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
             saveTagsForImage(image, imageDTO, storeRef); // 태그 저장
@@ -88,10 +85,16 @@ public class ReviewService {
 
     // 리뷰 생성 메서드
     public Review createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
-        //Store 프록시객체
-        Store storeRef = storeService.getReferenceById(storeId);
+        //Store 리뷰 개수 및 평점 업데이트
+        Store store = storeService.findById(storeId);
+        if (simpleDTO.getPeopleCount() == 0) {
+            throw new IllegalArgumentException("방문인원수는 0명일 수 없습니다.");
+        }
+        int costPerPerson = simpleDTO.getTotalPrice() / simpleDTO.getPeopleCount();
+        store.addReview(simpleDTO.getRating(), simpleDTO.getPeopleCount(), costPerPerson);
+
         // 리뷰 데이터 저장
-        Review review = Review.create(userId, storeRef, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
+        Review review = Review.create(userId, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
         return review;
@@ -224,7 +227,7 @@ public class ReviewService {
 
         // Store 리뷰 개수, 평점 필드 업데이트
         Store store = storeService.findById(review.getStore().getId());
-        store.removeReview(review.getRating());
+        store.removeReview(review.getRating(), review.getPeopleCount(), review.getCostPerPerson());
 
         // 리뷰 삭제
         likeReviewService.deleteAllByReviewId(reviewId);

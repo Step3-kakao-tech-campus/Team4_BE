@@ -27,7 +27,7 @@ INSERT INTO sub_category_tb (id, name, category_id) VALUES
 
 
 INSERT INTO store_tb
-(id, name, PHONE_NUMBER, address, business_Hours, latitude, longitude, avg_Cost_Per_Person, avg_Visit_Count, nums_Of_Review, rating_Avg,sub_category_id)
+(id, name, PHONE_NUMBER, address, business_Hours, latitude, longitude, avg_Cost_Per_Person, avg_Visit_Count, nums_Of_Review, avg_Rating, sub_category_id)
 VALUES
     (1, '미성옥', '02-776-8929', '서울 중구 명동길 25-11', '06:00 - 21:00', 37.5640065, 126.983556, 11000, 3, 16, 3.5,1),
     (2, '딘타이펑 명동점', '02-3789-2778', '서울 중구 명동7길 13 명동증권빌딩', '11:00 - 21:00', 37.5643309, 126.984133, 18000, 4, 8, 3.8,2),

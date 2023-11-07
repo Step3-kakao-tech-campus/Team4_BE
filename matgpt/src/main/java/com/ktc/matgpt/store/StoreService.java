@@ -105,7 +105,7 @@ public class StoreService {
             }
             case "rating" -> { // 높을수록 우선순위
                 stores = storeJPARepository.findAllBySearchAndRatingLessThanCursor(search, cursor, lastId, pageable);
-                return extractCursorAndGetPageResponse(Store::getRatingAvg, stores);
+                return extractCursorAndGetPageResponse(Store::getAvgRating, stores);
             }
             case "review" -> { // 높을수록 우선순위
                 stores = getStoreListByReviews(search, Math.toIntExact(cursor), lastId, pageable);

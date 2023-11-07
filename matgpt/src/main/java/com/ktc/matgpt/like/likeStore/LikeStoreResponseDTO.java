@@ -34,7 +34,7 @@ public class LikeStoreResponseDTO {
             public StoreDTO(Store store){
                 this.storeId = store.getId();
                 this.storeName = store.getName();
-                this.ratingAvg = store.getRatingAvg();
+                this.ratingAvg = store.getAvgRating();
                 this.numsOfReview = store.getNumsOfReview();
             }
         }
