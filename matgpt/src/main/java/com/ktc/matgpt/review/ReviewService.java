@@ -35,6 +35,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -176,22 +177,19 @@ public class ReviewService {
         }
 
         Paging<Integer> paging = getPagingInfo(reviews);
+        reviews = reviews.subList(0, paging.size());
+
         List<ReviewResponse.FindPageByStoreIdDTO> reviewDTOs = new ArrayList<>();
 
-        int count = 0;
         for (Review review : reviews) {
-            if (++count > DEFAULT_PAGE_SIZE) break;
-
             List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
+
             if (imageUrls.isEmpty()) {
                 log.info("review-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
             }
-
             String relativeTime = getRelativeTime(review.getCreatedAt());
             reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO(review, relativeTime, imageUrls));
         }
-
-
         return new PageResponse<>(paging, reviewDTOs);
     }
 
@@ -222,17 +220,11 @@ public class ReviewService {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
         Paging<Integer> paging = getPagingInfo(reviews);
+        reviews = reviews.subList(0, paging.size());
 
-        List<ReviewResponse.FindPageByUserIdDTO> reviewDTOs = new ArrayList<>();
-        int count = 0;
-
-        for (Review review : reviews) {
-            if (++count > DEFAULT_PAGE_SIZE) break;
-            String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO(review, relativeTime));
-        }
-        return new PageResponse<>(paging, reviewDTOs);
-
+        return new PageResponse<>(paging, reviews.stream().map(
+                review -> new ReviewResponse.FindPageByUserIdDTO(review, getRelativeTime(review.getCreatedAt()))
+                ).collect(Collectors.toList()));
     }
 
 
