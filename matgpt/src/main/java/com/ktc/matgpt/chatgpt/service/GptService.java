@@ -58,11 +58,6 @@ public class GptService {
     public GptResponse generateReviewSummary(Long storeId, String summaryType) {
         List<Review> reviews = reviewService.findByStoreIdAndSummaryType(storeId, summaryType, REVIEW_COUNT);
 
-        // TODO : 현재는 FakeDB로 연결되어 있어서 이 문장이 필요함. 추후 삭제 필요
-        if (reviews.size() < 10) {
-            return null;
-        }
-
         GptApiRequest requestBody = GptRequestConverter.convertFromReviewsAndSummaryType(reviews, summaryType);
         CompletableFuture<GptApiResponse> gptApiResponse = callChatGptApi(requestBody);
         return new GptResponse(storeId, summaryType, gptApiResponse);

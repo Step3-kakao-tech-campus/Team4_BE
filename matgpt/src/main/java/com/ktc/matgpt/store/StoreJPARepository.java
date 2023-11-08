@@ -20,7 +20,7 @@ public interface StoreJPARepository extends JpaRepository<Store, Long> {
     @Query(value ="SELECT * FROM store_tb WHERE latitude < :maxLat AND latitude > :minLat AND longitude < :maxLon AND longitude > :minLon", nativeQuery = true)
     List<Store> findAllWithinLatLonBoundaries(@Param("maxLat")double maxLat, @Param("maxLon")double maxLon, @Param("minLat")double minLat, @Param("minLon")double minLon);
 
-    // mysql에서는 st_distance_sphere 함수를 사용가능하지만, 배포환경인 mariadb와 h2에서는 사용 불가하므로, 공식을 통해 거리 가져오기
+    // mysql에서는 st_distance_sphere 함수를 사용가능하지만, h2에서는 사용 불가하므로, 공식을 통해 거리 가져오기
     // 사용자의 위치와 음식점 거리가 가까운 순으로 음식점 불러오기 - 커서 기반
     @Query(value = "WITH DistanceCTE AS (" +
             "SELECT s.*, " +

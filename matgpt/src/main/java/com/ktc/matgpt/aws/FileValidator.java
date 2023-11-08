@@ -1,6 +1,5 @@
 package com.ktc.matgpt.aws;
 
-
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
 import java.util.List;
