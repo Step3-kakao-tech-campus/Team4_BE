@@ -61,26 +61,24 @@ public class LikeReviewUseCase {
             if (++count > DEFAULT_PAGE_SIZE) break;
             Review review = likeReview.getReview();
             String relativeTime = reviewService.getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new LikeReviewResponse.FindLikeReviewPageDTO(review, likeReview.getUser(), relativeTime));
+            reviewDTOs.add(new LikeReviewResponse.FindLikeReviewPageDTO(review, relativeTime));
         }
 
         return new PageResponse<>(paging, reviewDTOs);
     }
 
-    private Paging<Long> getPagingInfo(List<LikeReview> reviews) {
+    private Paging<Long> getPagingInfo(List<LikeReview> likeReviews) {
         boolean hasNext = false;
         int numsOfReviews = 0;
 
-        if (reviews.size() == DEFAULT_PAGE_SIZE+1) {
+        if (likeReviews.size() == DEFAULT_PAGE_SIZE+1) {
             hasNext = true;
             numsOfReviews = DEFAULT_PAGE_SIZE;
         } else {
-            numsOfReviews = reviews.size();
+            numsOfReviews = likeReviews.size();
         }
 
-        Review lastReview = reviews.get(numsOfReviews-1).getReview();
-        Long nextCursorId = lastReview.getId();
-
+        Long nextCursorId = likeReviews.get(numsOfReviews-1).getId();
         return new Paging<Long>(hasNext, numsOfReviews, nextCursorId, nextCursorId);
     }
 }

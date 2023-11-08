@@ -22,7 +22,7 @@ public class LikeReviewResponse {
         private String reviewerName;
         private String reviewerImage;
 
-        public FindLikeReviewPageDTO(Review review, User reviewer, String relativeTime) {
+        public FindLikeReviewPageDTO(Review review, String relativeTime) {
             this.id = review.getId();
             this.rating = review.getRating();
             this.content = review.getContent();
@@ -31,8 +31,8 @@ public class LikeReviewResponse {
             this.storeImage = review.getStore().getStoreImageUrl();
             this.storeName = review.getStore().getName();
             this.peopleCount = review.getPeopleCount();
-            this.reviewerName = reviewer.getName();
-            this.reviewerImage = reviewer.getProfileImageUrl();
+            this.reviewerName = review.getUser().getName();
+            this.reviewerImage = review.getUser().getProfileImageUrl();
         }
     }
 
