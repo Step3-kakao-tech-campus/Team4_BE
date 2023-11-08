@@ -35,6 +35,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -64,8 +65,6 @@ public class ReviewService {
     public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO, String userEmail) {
         // 이미지 업로드 완료 후 리뷰, 이미지, 태그 정보 저장 로직
         // 이 로직은 이미지 업로드가 완료된 후 호출됩니다.
-        // User 프록시객체
-        User user = userService.getReferenceByEmail(userEmail);
 
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
@@ -89,7 +88,7 @@ public class ReviewService {
 
     // 리뷰 생성 메서드
     public Review createTemporaryReview(String userEmail, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
-        User user = userService.getReferenceByEmail(userEmail);
+        User userRef = userService.getReferenceByEmail(userEmail);
 
         //Store 리뷰 개수 및 평점 업데이트
         Store store = storeService.findById(storeId);
@@ -100,7 +99,7 @@ public class ReviewService {
         store.addReview(simpleDTO.getRating(), simpleDTO.getPeopleCount(), costPerPerson);
 
         // 리뷰 데이터 저장
-        Review review = Review.create(user, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
+        Review review = Review.create(userRef, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
         return review;
@@ -162,7 +161,7 @@ public class ReviewService {
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime, isOwner);
     }
 
-    public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
+    public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findPageByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
         Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
@@ -178,22 +177,19 @@ public class ReviewService {
         }
 
         Paging<Integer> paging = getPagingInfo(reviews);
+        reviews = reviews.subList(0, paging.size());
+
         List<ReviewResponse.FindPageByStoreIdDTO> reviewDTOs = new ArrayList<>();
 
-        int count = 0;
         for (Review review : reviews) {
-            if (++count > DEFAULT_PAGE_SIZE) break;
-
             List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
+
             if (imageUrls.isEmpty()) {
                 log.info("review-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
             }
-
             String relativeTime = getRelativeTime(review.getCreatedAt());
             reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO(review, relativeTime, imageUrls));
         }
-
-
         return new PageResponse<>(paging, reviewDTOs);
     }
 
@@ -207,7 +203,7 @@ public class ReviewService {
         return reviewJPARepository.findByStoreId(storeId, pageable);
     }
 
-    public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findAllByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
+    public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findPageByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
         User userRef = userService.getReferenceByEmail(userEmail);
         Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
 
@@ -224,17 +220,11 @@ public class ReviewService {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
         Paging<Integer> paging = getPagingInfo(reviews);
+        reviews = reviews.subList(0, paging.size());
 
-        List<ReviewResponse.FindPageByUserIdDTO> reviewDTOs = new ArrayList<>();
-        int count = 0;
-
-        for (Review review : reviews) {
-            if (++count > DEFAULT_PAGE_SIZE) break;
-            String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO(review, relativeTime));
-        }
-        return new PageResponse<>(paging, reviewDTOs);
-
+        return new PageResponse<>(paging, reviews.stream().map(
+                review -> new ReviewResponse.FindPageByUserIdDTO(review, getRelativeTime(review.getCreatedAt()))
+                ).collect(Collectors.toList()));
     }
 
 
