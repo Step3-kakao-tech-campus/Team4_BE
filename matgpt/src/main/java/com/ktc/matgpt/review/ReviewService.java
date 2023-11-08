@@ -11,6 +11,7 @@ import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.aws.S3Service;
+import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.tag.Tag;
 import com.ktc.matgpt.tag.TagService;
 import com.ktc.matgpt.store.Store;
@@ -54,14 +55,15 @@ public class ReviewService {
 
     private static final int DEFAULT_PAGE_SIZE = 8;
     private static final int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
-    final static Long MIN = 60L;
-    final static Long HOUR = MIN*60;
-    final static Long DAY = HOUR*24;
-    final static Long WEEK = DAY*7;
-    final static Long MONTH = WEEK*4;
-    final static Long YEAR = MONTH*12;
+//    private static final Long MIN = 60L;
+//    private static final Long HOUR = MIN*60;
+//    private static final Long DAY = HOUR*24;
+//    private static final Long WEEK = DAY*7;
+//    private static final Long MONTH = WEEK*4;
+//    private static final Long YEAR = MONTH*12;
 
 
+    @Transactional
     public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO, String userEmail) {
         // 이미지 업로드 완료 후 리뷰, 이미지, 태그 정보 저장 로직
         // 이 로직은 이미지 업로드가 완료된 후 호출됩니다.
@@ -70,19 +72,12 @@ public class ReviewService {
         Store storeRef = storeService.getReferenceById(storeId);
         Review review = findReviewByIdOrThrow(reviewId);
         if (!userEmail.equals(review.getUser().getEmail())) {
-            throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 추가 정보를 저장할 수 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_UNAUTHORIZED_ACCESS);
         }
 
         for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
             Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
             saveTagsForImage(image, imageDTO, storeRef); // 태그 저장
-        }
-    }
-
-    private void saveTagsForImage(Image image, ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO, Store store) {
-        for (ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
-            Food food = foodService.saveOrUpdateFoodByTagName(tagDTO, store.getId()); //TODO: 태그에 들어갈 음식 검색하고 추가하는 로직
-            tagService.saveTag(image, food, tagDTO);
         }
     }
 
@@ -93,7 +88,7 @@ public class ReviewService {
         //Store 리뷰 개수 및 평점 업데이트
         Store store = storeService.findById(storeId);
         if (simpleDTO.getPeopleCount() == 0) {
-            throw new IllegalArgumentException("방문인원수는 0명일 수 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_INVALID_PEOPLE_COUNT);
         }
         int costPerPerson = simpleDTO.getTotalPrice() / simpleDTO.getPeopleCount();
         store.addReview(simpleDTO.getRating(), simpleDTO.getPeopleCount(), costPerPerson);
@@ -134,42 +129,36 @@ public class ReviewService {
     public void updateContent(Long reviewId, String userEmail, ReviewRequest.UpdateDTO requestDTO) {
         Review review = findReviewByIdOrThrow(reviewId);
         if (!userEmail.equals(review.getUser().getEmail())) {
-            throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_UNAUTHORIZED_ACCESS);
         }
         review.updateContent(requestDTO.getContent());
     }
 
-    public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId, String userEmail) {
-
+    @Transactional(readOnly = true)
+    public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId, UserPrincipal userPrincipal) {
         Review review = findReviewByIdOrThrow(reviewId);
+        boolean isOwner = userPrincipal != null && userPrincipal.getEmail().equals(review.getUser().getEmail());
+
         ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO = getReviewerDTO(review);
 
-        List<Image> images = imageService.getImagesByReviewId(reviewId);
-        if (images.isEmpty()) log.info("review-" + review.getId() + "리뷰에 등록된 이미지가 없습니다.");
+        List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = imageService.getImagesByReviewId(reviewId).stream()
+                .map(image -> new ReviewResponse.FindByReviewIdDTO.ImageDTO(
+                        image, tagService.getTagsByImageId(image.getId())))
+                .toList();
 
-        List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = new ArrayList<>();
-
-        for (Image image : images) {
-            List<Tag> tags = tagService.getTagsByImageId(image.getId());
-            if (tags.isEmpty()) log.info("image-" + image.getId() + ": 이미지에 등록된 태그가 없습니다.");
-
-            imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
-        }
         String relativeTime = getRelativeTime(review.getCreatedAt());
-        boolean isOwner = (userEmail.equals(review.getUser().getEmail()) ? true : false);
-
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime, isOwner);
     }
 
     public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findPageByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE_PLUS_ONE);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
 
         List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, page);
             case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursor, page);
-            default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
+            default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE, sortBy);
         };
 
         if (reviews.isEmpty()) {
@@ -183,10 +172,6 @@ public class ReviewService {
 
         for (Review review : reviews) {
             List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
-
-            if (imageUrls.isEmpty()) {
-                log.info("review-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
-            }
             String relativeTime = getRelativeTime(review.getCreatedAt());
             reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO(review, relativeTime, imageUrls));
         }
@@ -197,7 +182,7 @@ public class ReviewService {
         Pageable pageable = switch (summaryType) {
             case "best" -> PageRequest.of(0, limit, Sort.by(Sort.Order.desc("rating")));
             case "worst" -> PageRequest.of(0, limit, Sort.by(Sort.Order.asc("rating")));
-            default -> throw new IllegalArgumentException("Invalid summaryType: " + summaryType);
+            default -> throw new CustomException(ErrorCode.REVIEW_INVALID_SUMMARY_TYPE, summaryType);
         };
 
         return reviewJPARepository.findByStoreId(storeId, pageable);
@@ -205,7 +190,7 @@ public class ReviewService {
 
     public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findPageByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
         User userRef = userService.getReferenceByEmail(userEmail);
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE_PLUS_ONE);
 
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
@@ -213,12 +198,13 @@ public class ReviewService {
         List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userRef.getId(), cursorId, page);
             case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursor, page);
-            default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
+            default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE, sortBy);
         };
 
         if (reviews.isEmpty()) {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
+
         Paging<Integer> paging = getPagingInfo(reviews);
         reviews = reviews.subList(0, paging.size());
 
@@ -232,7 +218,7 @@ public class ReviewService {
     public void delete(Long reviewId, String userEmail) {
         Review review = findReviewByIdOrThrow(reviewId);
         if (!userEmail.equals(review.getUser().getEmail())) {
-            throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
+            throw new CustomException(ErrorCode.REVIEW_UNAUTHORIZED_ACCESS);
         }
         // 이미지(+태그) 삭제
         imageService.deleteImagesByReviewId(reviewId);
@@ -247,6 +233,7 @@ public class ReviewService {
         log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
     }
 
+    @Transactional(readOnly = true)
     public PageResponse<LocalDateTime, ReviewResponse.RecentReviewDTO> getRecentlyReviewedStores(Long cursorId, LocalDateTime cursor) {
         Pageable page = Pageable.ofSize(DEFAULT_PAGE_SIZE_PLUS_ONE);
         List<Review> reviews = reviewJPARepository.findAllLessThanCursorOrderByCreatedAtDesc(cursorId, cursor, page);
@@ -273,6 +260,12 @@ public class ReviewService {
         return new PageResponse<>(new Paging<>(hasNext, size, lastReview.getCreatedAt(), lastReview.getId()), reviewDTOs);
     }
 
+    private void saveTagsForImage(Image image, ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO, Store store) {
+        for (ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
+            Food food = foodService.saveOrUpdateFoodByTagName(tagDTO, store.getId()); //TODO: 태그에 들어갈 음식 검색하고 추가하는 로직
+            tagService.saveTag(image, food, tagDTO);
+        }
+    }
 
     private Paging<Integer> getPagingInfo(List<Review> reviews) {
         boolean hasNext = false;
