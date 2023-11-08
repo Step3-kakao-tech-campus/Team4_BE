@@ -30,7 +30,7 @@ public class MyPageController {
                                              @RequestParam(required = false) Integer cursor,
                                              @AuthenticationPrincipal UserPrincipal userPrincipal) {
         PageResponse<?, ReviewResponse.FindPageByUserIdDTO> responseDTOs =
-                reviewService.findAllByUserId(userPrincipal.getEmail(), sortBy, cursorId, cursor);
+                reviewService.findPageByUserId(userPrincipal.getEmail(), sortBy, cursorId, cursor);
 
         return ResponseEntity.ok(ApiUtils.success(responseDTOs));
     }

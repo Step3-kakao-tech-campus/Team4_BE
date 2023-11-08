@@ -64,8 +64,6 @@ public class ReviewService {
     public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO, String userEmail) {
         // 이미지 업로드 완료 후 리뷰, 이미지, 태그 정보 저장 로직
         // 이 로직은 이미지 업로드가 완료된 후 호출됩니다.
-        // User 프록시객체
-        User user = userService.getReferenceByEmail(userEmail);
 
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
@@ -89,7 +87,7 @@ public class ReviewService {
 
     // 리뷰 생성 메서드
     public Review createTemporaryReview(String userEmail, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
-        User user = userService.getReferenceByEmail(userEmail);
+        User userRef = userService.getReferenceByEmail(userEmail);
 
         //Store 리뷰 개수 및 평점 업데이트
         Store store = storeService.findById(storeId);
@@ -100,7 +98,7 @@ public class ReviewService {
         store.addReview(simpleDTO.getRating(), simpleDTO.getPeopleCount(), costPerPerson);
 
         // 리뷰 데이터 저장
-        Review review = Review.create(user, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
+        Review review = Review.create(userRef, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
         return review;
@@ -162,7 +160,7 @@ public class ReviewService {
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime, isOwner);
     }
 
-    public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
+    public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findPageByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
         Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
@@ -207,7 +205,7 @@ public class ReviewService {
         return reviewJPARepository.findByStoreId(storeId, pageable);
     }
 
-    public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findAllByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
+    public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findPageByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
         User userRef = userService.getReferenceByEmail(userEmail);
         Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
 
