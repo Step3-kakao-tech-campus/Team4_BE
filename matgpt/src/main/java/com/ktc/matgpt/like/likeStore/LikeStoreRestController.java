@@ -4,6 +4,7 @@ package com.ktc.matgpt.like.likeStore;
 import com.ktc.matgpt.like.usecase.CreateLikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
+import com.ktc.matgpt.utils.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("")
+@RequestMapping(value = "", produces = {"application/json; charset=UTF-8"})
 public class LikeStoreRestController {
 
     private final LikeStoreService likeStoreService;
@@ -31,10 +32,11 @@ public class LikeStoreRestController {
     }
 
     @GetMapping("/stores/like")
-    public ResponseEntity<?> findAllStores(@AuthenticationPrincipal UserPrincipal userPrincipal){
-        LikeStoreResponseDTO.FindAllLikeStoresDTO heartResponseDTO = likeStoreService.findStoresByUserEmail(userPrincipal.getEmail());
-        ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(heartResponseDTO);
-        return ResponseEntity.ok(apiResult);
+    public ResponseEntity<?> findAllStores(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                           @RequestParam(required = false) Long cursorId) {
+        PageResponse<Long, LikeStoreResponseDTO.FindAllLikeStoresDTO> heartResponseDTO
+                                            = likeStoreService.findLikeStoresByUserEmail(userPrincipal.getEmail(), cursorId);
+        return ResponseEntity.ok(ApiUtils.success(heartResponseDTO));
 
     }
 
