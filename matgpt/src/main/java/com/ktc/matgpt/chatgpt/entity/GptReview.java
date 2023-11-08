@@ -1,6 +1,6 @@
 package com.ktc.matgpt.chatgpt.entity;
 
-import com.ktc.matgpt.utils.BaseTimeEntity;
+import com.ktc.matgpt.store.Store;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,8 +18,8 @@ public class GptReview {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Store store;
 
     @Column(nullable = false, length = 1000)
     private String content;
@@ -33,9 +33,9 @@ public class GptReview {
     private LocalDateTime updatedAt;
 
     @Builder
-    public GptReview(String content, Long storeId, String summaryType, int lastNumsOfReview, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public GptReview(String content, Store store, String summaryType, int lastNumsOfReview, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.content = content;
-        this.storeId = storeId;
+        this.store = store;
         this.summaryType = summaryType;
         this.lastNumsOfReview = lastNumsOfReview;
         this.createdAt = createdAt;

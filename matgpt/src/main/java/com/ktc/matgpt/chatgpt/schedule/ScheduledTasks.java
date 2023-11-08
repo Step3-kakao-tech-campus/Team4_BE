@@ -52,8 +52,8 @@ public class ScheduledTasks {
                 return;
             }
 
-            String reviewSummary = gptApiResponse.getContent();
             LocalDateTime createdAt = UnixTimeConverter.toLocalDateTime(gptApiResponse.created());
+            String reviewSummary = gptApiResponse.getContent();
 
             if (reviewSummary == null) {
                 log.error("[ChatGPT API] : storeId-{} 리뷰 요약을 생성하는데 실패했습니다.", gptResponse.storeId());
