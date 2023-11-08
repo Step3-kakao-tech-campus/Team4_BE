@@ -72,46 +72,6 @@ public class ReviewRequest {
     }
 
     @Getter
-    @ToString
-    public static class CreateDTO {
-        private List<ImageDTO> reviewImages;
-        private String content;
-        private int rating;
-        @Min(1)
-        private int peopleCount;
-        @Min(0)
-        private int totalPrice;
-
-        public CreateDTO(List<ImageDTO> reviewImages, String content,
-                         int rating, int peopleCount, int totalPrice) {
-            this.reviewImages = reviewImages;
-            this.content = content;
-            this.rating = rating;
-            this.peopleCount = peopleCount;
-            this.totalPrice = totalPrice;
-        }
-
-        @Getter
-        @ToString
-        @NoArgsConstructor(force = true)
-        public static class ImageDTO {
-            private MultipartFile image;
-            private String imageUrl;
-            private List<TagDTO> tags;
-
-            @Getter
-            @ToString
-            public static class TagDTO {
-                private String name;
-                private int locationX;
-                private int locationY;
-                private int rating;
-            }
-        }
-    }
-
-
-    @Getter
     @Setter
     @ToString
     @NoArgsConstructor

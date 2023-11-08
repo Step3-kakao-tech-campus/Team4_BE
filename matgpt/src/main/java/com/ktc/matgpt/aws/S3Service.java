@@ -3,6 +3,8 @@ package com.ktc.matgpt.aws;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.ktc.matgpt.exception.CustomException;
+import com.ktc.matgpt.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,12 @@ public class S3Service {
         return amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
     }
 
-    public void deleteImage(String originalFilename) {
-        amazonS3.deleteObject(s3BucketName, originalFilename);
+    public void deleteImage(String filename) {
+        // TODO: 삭제 실패 시 예외처리
+        String keyName = filename;
+        boolean isObjectExist = amazonS3.doesObjectExist(s3BucketName, keyName);
+        if (isObjectExist) {
+            amazonS3.deleteObject(s3BucketName, keyName);
+        }
     }
 }

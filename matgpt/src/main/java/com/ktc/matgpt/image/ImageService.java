@@ -40,6 +40,7 @@ public class ImageService {
     private void deleteImagesAndAssociatedTags(List<Image> images) {
         for (Image image : images) {
             tagService.deleteTagsByImageId(image.getId());
+            s3Service.deleteImage(image.getUrl());
             imageJPARepository.delete(image);
             log.info("image-%d: 이미지를 삭제했습니다.", image.getId());
         }
