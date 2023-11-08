@@ -25,7 +25,6 @@ public class ApiUtils {
     @Setter
     @AllArgsConstructor
     public static class ApiFail {
-        // TODO: define body format
         private final int errorCode;
         private final String message;
     }

@@ -6,12 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "category_tb")
+@Entity
 public class Category {
 
     @Id

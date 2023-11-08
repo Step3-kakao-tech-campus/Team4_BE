@@ -8,13 +8,22 @@ import org.springframework.http.HttpStatus;
 public class CustomException extends RuntimeException {
 
     private final ErrorCode errorCode;
+    private String causedBy = "";
 
     public CustomException(ErrorCode errorCode) {
         this.errorCode = errorCode;
     }
 
+    public CustomException(ErrorCode errorCode, String causedBy) {
+        this.errorCode = errorCode;
+        this.causedBy = causedBy;
+    }
+
     public ApiUtils.ApiFail body() {
-        return ApiUtils.fail(errorCode.getCode(), errorCode.getMessage());
+        if (this.causedBy.isEmpty()) {
+           return ApiUtils.fail(errorCode.getCode(), errorCode.getMessage());
+        }
+        return ApiUtils.fail(errorCode.getCode(), errorCode.getMessage() + ": " + causedBy);
     }
 
     public HttpStatus status() {

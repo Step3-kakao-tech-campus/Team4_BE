@@ -4,6 +4,7 @@ import com.ktc.matgpt.utils.ApiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,6 +18,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleCustomException(CustomException e) {
         log.error(e.getMessage());
         return new ResponseEntity<>(e.body(), e.status());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException e) {
+        CustomException customException = new CustomException(ErrorCode.UNAUTHORIZED_EXCEPTION);
+        return handleCustomException(customException);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

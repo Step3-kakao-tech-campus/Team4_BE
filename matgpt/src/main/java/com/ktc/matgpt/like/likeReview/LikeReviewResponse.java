@@ -1,7 +1,6 @@
 package com.ktc.matgpt.like.likeReview;
 
 import com.ktc.matgpt.review.entity.Review;
-import com.ktc.matgpt.user.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 

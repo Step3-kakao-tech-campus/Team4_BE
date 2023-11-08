@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class LikeStoreResponseDTO {
+
     @Getter
     @Setter
     public static class FindAllLikeStoresDTO{

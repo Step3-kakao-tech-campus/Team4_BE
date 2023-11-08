@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.function.Function;
 
-
 @RequiredArgsConstructor
 @Service
 public class StoreService {
@@ -111,7 +110,7 @@ public class StoreService {
                 stores = getStoreListByReviews(search, Math.toIntExact(cursor), lastId, pageable);
                 return extractCursorAndGetPageResponse(Store::getNumsOfReview, stores);
             }
-            default -> throw new IllegalArgumentException(String.format("sort : %s 지원하지 않는 정렬 기준입니다.", sort));
+            default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE, sort);
         }
     }
 

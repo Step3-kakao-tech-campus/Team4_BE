@@ -25,7 +25,7 @@ public class GptRequestConverter {
     }
 
     public static GptApiRequest convertFromReviewsAndSummaryType(List<Review> reviews, String summaryType) {
-        String content = "내가 제공해주는 음식점에 대한 모든 리뷰들을 합쳐서 50글자 이내로 한 문장으로 요약하고, '모든 리뷰들을 종합하면' 같은 문장은 생략하고, 요약한 문장만 말해줘. 반드시 문장을 완성해서 말해줘야 해.";
+        String content = "음식점에 대한 모든 리뷰들을 한 문장으로 요약해줘. 음식점에 대한 요약만 말해줘.";
         content += switch (summaryType) {
             case "BEST" -> "긍정적인 리뷰를 강조해서 말해줘.\n```\n";
             case "WORST" -> "부정적인 리뷰를 강조해서 말해줘.\n```\n";

@@ -18,7 +18,6 @@ public class GetRecentlyReviewedStoresUseCase {
     public PageResponse<LocalDateTime, ReviewResponse.RecentReviewDTO> execute(Long cursorId, LocalDateTime cursor) {
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
         cursor = Paging.convertNullCursorToMaxValue(cursor);
-        System.out.println(cursor);
         return reviewService.getRecentlyReviewedStores(cursorId, cursor);
     }
 }
