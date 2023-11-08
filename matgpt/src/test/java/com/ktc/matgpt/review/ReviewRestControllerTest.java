@@ -73,11 +73,14 @@ public class ReviewRestControllerTest {
         //given
         String reviewId = "1";
         String storeId = "1";
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when
         ResultActions resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
 
         //console
@@ -88,8 +91,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewId").value("1"));
         resultActions.andExpect(jsonPath("$.data.storeId").value("1"));
         resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic3@gmail.com"));
-        // TODO: createdAt 검증
-//        resultActions.andExpect(jsonPath("$.data.createdAt").value());
+        resultActions.andExpect(jsonPath("$.data.createdAt").exists());
         resultActions.andExpect(jsonPath("$.data.averageCostPerPerson").value(25000));
         resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
         resultActions.andExpect(jsonPath("$.data.rating").value(5));
@@ -101,6 +103,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3));
         resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
         resultActions.andExpect(jsonPath("$.data.updated").value(true));
+        resultActions.andExpect(jsonPath("$.data.owner").value(true));
     }
 
 
@@ -240,11 +243,10 @@ public class ReviewRestControllerTest {
         // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
         String sortBy = "latest";
-        String cursorId = "";
 
-        //when - 최초 조회 요청 (cursorId 없을 경우 default:10000)
+        //when - 최초 조회 요청 (cursorId 없을 경우 default -> 자동으로 max값)
         ResultActions resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -265,11 +267,10 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[7].reviewId").value("4"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
 
         //given
-        cursorId = "4";
+        Long cursorId = 4L;
 
         //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id)
         resultActions = mvc.perform(
@@ -283,7 +284,6 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 
@@ -294,12 +294,11 @@ public class ReviewRestControllerTest {
         // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
         String sortBy = "likes";
-        String cursorId = "";
-        String cursorLikes = "";
 
-        //when - 최초 요청 (cursorId, cursorLikes 없을 경우 default:1000)
+
+        //when - 최초 요청 (cursorId, cursorLikes 없을 경우 default -> 자동으로 max값)
         ResultActions resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -328,16 +327,15 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[7].numOfLikes").value(0));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(8));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
 
         //given - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id, numOfLikes)
-        cursorId = "8";
-        cursorLikes = "0";
+        Long cursorId = 8L;
+        Integer cursor = 0;
         //when
         resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursor="+ cursor)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -354,9 +352,8 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[2].numOfLikes").value(0));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
     }
 
     @DisplayName("리뷰 수정")

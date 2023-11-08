@@ -24,7 +24,7 @@ public class FoodService {
                     food.addReview(tagDTO.getRating());
                     return food;
                 })
-                .orElseGet(() -> addFoodToStore(storeId,new FoodDTO.CreateDTO(tagDTO.getName(),tagDTO.getName(), tagDTO.getRating())));
+                .orElseGet(() -> addFoodToStore(storeId,new FoodDTO.CreateDTO(tagDTO.getName(), tagDTO.getRating())));
     }
 
     public void removeRatingByTagName(Tag tag) {
@@ -45,6 +45,6 @@ public class FoodService {
 
     public Food addFoodToStore(Long storeId,FoodDTO.CreateDTO dto) {
         Store store = storeService.findById(storeId);
-        return foodJPARepository.save(Food.create(dto.getFoodName(),dto.getFoodDescription(), dto.getFirstRating(), store));
+        return foodJPARepository.save(Food.create(dto.getFoodName(), dto.getFirstRating(), store));
     }
 }
