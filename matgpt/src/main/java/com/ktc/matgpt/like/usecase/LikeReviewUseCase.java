@@ -9,10 +9,8 @@ import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
 import com.ktc.matgpt.utils.PageResponse;
 import com.ktc.matgpt.utils.Paging;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,17 +51,15 @@ public class LikeReviewUseCase {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
 
-        Paging<Long> paging = getPagingInfo(likeReviews);
-        List<LikeReviewResponse.FindLikeReviewPageDTO> reviewDTOs = new ArrayList<>();
-        int count = 0;
+        Paging paging = getPagingInfo(likeReviews);
+        likeReviews = likeReviews.subList(0, paging.size());
 
+        List<LikeReviewResponse.FindLikeReviewPageDTO> reviewDTOs = new ArrayList<>();
         for (LikeReview likeReview : likeReviews) {
-            if (++count > DEFAULT_PAGE_SIZE) break;
             Review review = likeReview.getReview();
             String relativeTime = reviewService.getRelativeTime(review.getCreatedAt());
             reviewDTOs.add(new LikeReviewResponse.FindLikeReviewPageDTO(review, relativeTime));
         }
-
         return new PageResponse<>(paging, reviewDTOs);
     }
 
