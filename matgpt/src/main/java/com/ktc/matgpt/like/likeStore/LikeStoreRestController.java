@@ -7,6 +7,7 @@ import com.ktc.matgpt.utils.ApiUtils;
 import com.ktc.matgpt.utils.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class LikeStoreRestController {
     private final CreateLikeStoreUseCase createLikeStoreUsecase;
 
     //특정 Store 즐겨찾기 추가하기
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/stores/{storeId}/like")
     public ResponseEntity<?> toggleHeart(@PathVariable Long storeId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         boolean isHeartAdded = createLikeStoreUsecase.execute(storeId, userPrincipal.getEmail());
@@ -31,6 +33,7 @@ public class LikeStoreRestController {
         return ResponseEntity.ok(apiResult);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/stores/like")
     public ResponseEntity<?> findAllStores(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                            @RequestParam(required = false) Long cursorId) {

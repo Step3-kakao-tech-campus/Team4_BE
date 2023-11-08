@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,12 +40,14 @@ public class GptRestController {
     }
 
     @Timer
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/order")
     public ResponseEntity<?> generateOrderGuidance(@AuthenticationPrincipal UserPrincipal userPrincipal) throws ExecutionException, InterruptedException {
         String content = gptService.generateOrderGuidance(userPrincipal.getId());
         return ResponseEntity.ok().body(ApiUtils.success(content));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/order")
     public ResponseEntity<?> getOrderGuidance(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<GptGuidance> gptGuidances = gptService.getOrderGuidances(userPrincipal.getId());
