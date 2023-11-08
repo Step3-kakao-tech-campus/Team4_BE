@@ -2,7 +2,6 @@ package com.ktc.matgpt.like.likeReview;
 
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.user.entity.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,5 +25,5 @@ public interface LikeReviewJPARepository extends JpaRepository<LikeReview, Long>
             "JOIN FETCH lr.user " +
             "WHERE lr.user.id = :userId AND lr.id < :cursorId " +
             "ORDER BY lr.id DESC")
-    Page<LikeReview> findAllByUserIdAndOrderByIdDesc(Long userId, Long cursorId, Pageable page);
+    List<LikeReview> findAllByUserIdAndOrderByIdDesc(Long userId, Long cursorId, Pageable page);
 }

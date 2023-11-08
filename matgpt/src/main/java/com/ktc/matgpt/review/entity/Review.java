@@ -1,6 +1,7 @@
 package com.ktc.matgpt.review.entity;
 
 import com.ktc.matgpt.store.Store;
+import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,8 +25,10 @@ public class Review extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;//
 
-    @Column(nullable = false)
-    private Long userId;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id")
+    private User user;
 
     @Column(nullable = false, length = 1000)
     private String content;
@@ -48,10 +51,10 @@ public class Review extends BaseEntity {
     @Column
     private int recommendCount;
 
-    public Review(Store store, Long userId, String content, int rating,
+    public Review(Store store, User user, String content, int rating,
                   int peopleCount, int totalPrice) {
         this.store = store;
-        this.userId = userId;
+        this.user = user;
         this.content = content;
         this.rating = rating;
         this.reviewUuid = UUID.randomUUID().toString();
@@ -60,8 +63,8 @@ public class Review extends BaseEntity {
         this.costPerPerson = totalPrice / peopleCount;
     }
 
-    public static Review create(Long userId, Store store, String content, int rating, int peopleCount, int totalPrice) {
-        return new Review(store, userId, content, rating, peopleCount, totalPrice);
+    public static Review create(User user, Store store, String content, int rating, int peopleCount, int totalPrice) {
+        return new Review(store, user, content, rating, peopleCount, totalPrice);
     }
 
 

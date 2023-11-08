@@ -25,7 +25,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -62,13 +61,18 @@ public class ReviewService {
     final static Long YEAR = MONTH*12;
 
 
-    public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO) {
+    public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO, String userEmail) {
         // 이미지 업로드 완료 후 리뷰, 이미지, 태그 정보 저장 로직
         // 이 로직은 이미지 업로드가 완료된 후 호출됩니다.
+        // User 프록시객체
+        User user = userService.getReferenceByEmail(userEmail);
 
         //Store 프록시객체
         Store storeRef = storeService.getReferenceById(storeId);
         Review review = findReviewByIdOrThrow(reviewId);
+        if (!userEmail.equals(review.getUser().getEmail())) {
+            throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 추가 정보를 저장할 수 없습니다.");
+        }
 
         for (ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO : requestDTO.getReviewImages()) {
             Image image = imageService.saveImageForReview(review, imageDTO.getImageUrl()); // 이미지 생성 및 리뷰에 매핑하여 저장
@@ -84,7 +88,9 @@ public class ReviewService {
     }
 
     // 리뷰 생성 메서드
-    public Review createTemporaryReview(Long userId, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
+    public Review createTemporaryReview(String userEmail, Long storeId, ReviewRequest.SimpleCreateDTO simpleDTO) {
+        User user = userService.getReferenceByEmail(userEmail);
+
         //Store 리뷰 개수 및 평점 업데이트
         Store store = storeService.findById(storeId);
         if (simpleDTO.getPeopleCount() == 0) {
@@ -94,7 +100,7 @@ public class ReviewService {
         store.addReview(simpleDTO.getRating(), simpleDTO.getPeopleCount(), costPerPerson);
 
         // 리뷰 데이터 저장
-        Review review = Review.create(userId, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
+        Review review = Review.create(user, store, simpleDTO.getContent(), simpleDTO.getRating(), simpleDTO.getPeopleCount(), simpleDTO.getTotalPrice());
         reviewJPARepository.save(review);
 
         return review;
@@ -126,23 +132,21 @@ public class ReviewService {
 
 
     @Transactional
-    public void updateContent(Long reviewId, Long userId, ReviewRequest.UpdateDTO requestDTO) {
+    public void updateContent(Long reviewId, String userEmail, ReviewRequest.UpdateDTO requestDTO) {
         Review review = findReviewByIdOrThrow(reviewId);
-        if (review.getUserId() != userId) {
+        if (!userEmail.equals(review.getUser().getEmail())) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 수정할 수 없습니다.");
         }
         review.updateContent(requestDTO.getContent());
     }
 
-    public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId) {
+    public ReviewResponse.FindByReviewIdDTO findDetailByReviewId(Long reviewId, String userEmail) {
 
         Review review = findReviewByIdOrThrow(reviewId);
-
         ReviewResponse.FindByReviewIdDTO.ReviewerDTO reviewerDTO = getReviewerDTO(review);
 
         List<Image> images = imageService.getImagesByReviewId(reviewId);
         if (images.isEmpty()) log.info("review-" + review.getId() + "리뷰에 등록된 이미지가 없습니다.");
-
 
         List<ReviewResponse.FindByReviewIdDTO.ImageDTO> imageDTOs = new ArrayList<>();
 
@@ -153,34 +157,44 @@ public class ReviewService {
             imageDTOs.add(new ReviewResponse.FindByReviewIdDTO.ImageDTO(image, tags));
         }
         String relativeTime = getRelativeTime(review.getCreatedAt());
+        boolean isOwner = (userEmail.equals(review.getUser().getEmail()) ? true : false);
 
-        return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime);
+        return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime, isOwner);
     }
 
-    public ReviewResponse.FindPageByStoreIdDTO findAllByStoreId(Long storeId, String sortBy, Long cursorId, int cursorLikes) {
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
-        Page<Review> reviews = switch (sortBy) {
+    public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findAllByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
+        cursor = Paging.convertNullCursorToMaxValue(cursor);
+        cursorId = Paging.convertNullCursorToMaxValue(cursorId);
+
+        List<Review> reviews = switch (sortBy) {
             case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, page);
-            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursorLikes, page);
+            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursor, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
         if (reviews.isEmpty()) {
-            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
+            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
 
-        List<ReviewResponse.FindPageByStoreIdDTO.StoreReviewDTO> reviewDTOs = new ArrayList<>();
-        for (Review review : reviews) {
-            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
+        Paging<Integer> paging = getPagingInfo(reviews);
+        List<ReviewResponse.FindPageByStoreIdDTO> reviewDTOs = new ArrayList<>();
 
+        int count = 0;
+        for (Review review : reviews) {
+            if (++count > DEFAULT_PAGE_SIZE) break;
+
+            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
             if (imageUrls.isEmpty()) {
                 log.info("review-" + review.getId() + ": 리뷰에 등록된 이미지가 없습니다.");
             }
 
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO.StoreReviewDTO(review, relativeTime, imageUrls));
+            reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO(review, relativeTime, imageUrls));
         }
-        return new ReviewResponse.FindPageByStoreIdDTO(reviews, reviewDTOs);
+
+
+        return new PageResponse<>(paging, reviewDTOs);
     }
 
     public List<Review> findByStoreIdAndSummaryType(Long storeId, String summaryType, int limit) {
@@ -193,33 +207,41 @@ public class ReviewService {
         return reviewJPARepository.findByStoreId(storeId, pageable);
     }
 
-    public ReviewResponse.FindPageByUserIdDTO findAllByUserId(Long userId, String sortBy, Long cursorId, int cursorLikes) {
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE);
-        Page<Review> reviews = switch (sortBy) {
-            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, cursorId, page);
-            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userId, cursorId, cursorLikes, page);
+    public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findAllByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
+        User userRef = userService.getReferenceByEmail(userEmail);
+        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE+1);
+
+        cursorId = Paging.convertNullCursorToMaxValue(cursorId);
+        cursor = Paging.convertNullCursorToMaxValue(cursor);
+
+        List<Review> reviews = switch (sortBy) {
+            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userRef.getId(), cursorId, page);
+            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursor, page);
             default -> throw new IllegalArgumentException("Invalid sorting: " + sortBy);
         };
 
-
         if (reviews.isEmpty()) {
-            throw new CustomException(ErrorCode.REVIEW_LIST_NOT_FOUND);
+            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
         }
+        Paging<Integer> paging = getPagingInfo(reviews);
 
-        List<ReviewResponse.FindPageByUserIdDTO.UserReviewDTO> reviewDTOs = new ArrayList<>();
+        List<ReviewResponse.FindPageByUserIdDTO> reviewDTOs = new ArrayList<>();
+        int count = 0;
 
         for (Review review : reviews) {
+            if (++count > DEFAULT_PAGE_SIZE) break;
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO.UserReviewDTO(review, relativeTime));
+            reviewDTOs.add(new ReviewResponse.FindPageByUserIdDTO(review, relativeTime));
         }
-        return new ReviewResponse.FindPageByUserIdDTO(reviews, reviewDTOs);
+        return new PageResponse<>(paging, reviewDTOs);
+
     }
 
 
     @Transactional
-    public void delete(Long reviewId, Long userId) {
+    public void delete(Long reviewId, String userEmail) {
         Review review = findReviewByIdOrThrow(reviewId);
-        if (review.getUserId() != userId) {
+        if (!userEmail.equals(review.getUser().getEmail())) {
             throw new IllegalArgumentException("review-" + review + ": 본인이 작성한 리뷰가 아닙니다. 삭제할 수 없습니다.");
         }
         // 이미지(+태그) 삭제
@@ -262,9 +284,27 @@ public class ReviewService {
     }
 
 
+    private Paging<Integer> getPagingInfo(List<Review> reviews) {
+        boolean hasNext = false;
+        int numsOfReviews = 0;
+
+        if (reviews.size() == DEFAULT_PAGE_SIZE+1) {
+            hasNext = true;
+            numsOfReviews = DEFAULT_PAGE_SIZE;
+        } else {
+            numsOfReviews = reviews.size();
+        }
+
+        Review lastReview = reviews.get(numsOfReviews-1);
+        Integer nextCursor = lastReview.getRecommendCount();
+        Long nextCursorId = lastReview.getId();
+
+        return new Paging<Integer>(hasNext, numsOfReviews, nextCursor, nextCursorId);
+    }
+
 
     private ReviewResponse.FindByReviewIdDTO.ReviewerDTO getReviewerDTO(Review review) {
-        User user = userService.findById(review.getUserId());
+        User user = userService.findByEmail(review.getUser().getEmail());
 
         return ReviewResponse.FindByReviewIdDTO.ReviewerDTO.builder()
                         .userName(user.getName())
