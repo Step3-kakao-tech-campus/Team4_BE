@@ -9,12 +9,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "likestore_tb")
+@Entity
 public class LikeStore {
 
 

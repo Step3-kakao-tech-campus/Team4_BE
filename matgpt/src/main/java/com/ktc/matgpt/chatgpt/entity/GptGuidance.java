@@ -2,7 +2,6 @@ package com.ktc.matgpt.chatgpt.entity;
 
 import com.ktc.matgpt.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

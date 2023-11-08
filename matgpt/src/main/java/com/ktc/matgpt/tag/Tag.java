@@ -8,10 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "tag_tb")
+@Entity
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

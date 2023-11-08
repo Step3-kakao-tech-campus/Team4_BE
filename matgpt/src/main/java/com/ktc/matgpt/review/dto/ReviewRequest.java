@@ -1,8 +1,9 @@
 package com.ktc.matgpt.review.dto;
 
-import jakarta.validation.constraints.Min;
-import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 

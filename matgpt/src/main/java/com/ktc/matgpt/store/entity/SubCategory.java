@@ -6,12 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "sub_category_tb", indexes = @Index(columnList = "categoryId"))
+@Entity
 public class SubCategory {
 
     @Id

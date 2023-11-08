@@ -1,6 +1,5 @@
 package com.ktc.matgpt.coin.dto;
 
-
 import com.ktc.matgpt.coin.entity.CoinEarningHistory;
 import com.ktc.matgpt.coin.entity.CoinUsageHistory;
 import lombok.AllArgsConstructor;

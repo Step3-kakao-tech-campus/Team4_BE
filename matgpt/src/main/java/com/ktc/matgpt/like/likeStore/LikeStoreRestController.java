@@ -1,6 +1,5 @@
 package com.ktc.matgpt.like.likeStore;
 
-
 import com.ktc.matgpt.like.usecase.CreateLikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
@@ -10,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-
 
 @RestController
 @RequiredArgsConstructor

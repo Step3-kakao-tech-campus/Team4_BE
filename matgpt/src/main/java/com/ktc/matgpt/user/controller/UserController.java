@@ -1,6 +1,5 @@
 package com.ktc.matgpt.user.controller;
 
-
 import com.ktc.matgpt.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

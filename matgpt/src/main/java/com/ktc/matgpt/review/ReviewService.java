@@ -55,13 +55,6 @@ public class ReviewService {
 
     private static final int DEFAULT_PAGE_SIZE = 8;
     private static final int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
-//    private static final Long MIN = 60L;
-//    private static final Long HOUR = MIN*60;
-//    private static final Long DAY = HOUR*24;
-//    private static final Long WEEK = DAY*7;
-//    private static final Long MONTH = WEEK*4;
-//    private static final Long YEAR = MONTH*12;
-
 
     @Transactional
     public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO, String userEmail) {
