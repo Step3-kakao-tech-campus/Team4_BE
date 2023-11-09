@@ -13,14 +13,19 @@ import java.util.Optional;
 @Repository
 public interface LikeStoreJPARepository extends JpaRepository<LikeStore, Long> {
 
-    @Query("select h from LikeStore h where h.user.id = :userId")
+    @Query("select h from LikeStore h " +
+            "where h.user.id = :userId")
     Optional<LikeStore> findHeartByUserId(Long userId);
 
-    @Query( "select h.store from LikeStore h where h.user.id = :userId")
+    @Query( "select h.store from LikeStore h " +
+            "where h.user.id = :userId")
     List<Store> findLikedStoresByUserId(Long userId);
 
-    @Query( "select h from LikeStore h join fetch h.user join fetch h.store " +
-            "where h.user.id = :userId and h.id < :cursorId order by h.id desc")
+    @Query( "select h from LikeStore h " +
+            "join fetch h.user " +
+            "join fetch h.store " +
+            "where h.user.id = :userId and h.id < :cursorId " +
+            "order by h.id desc")
     List<LikeStore> findLikedStoresByUserId(Long userId, Long cursorId, Pageable page);
     boolean existsByUserAndStore(User userRef, Store storeRef);
     void deleteByUserAndStore(User user, Store store);

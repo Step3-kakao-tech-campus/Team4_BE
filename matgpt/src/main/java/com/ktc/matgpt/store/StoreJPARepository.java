@@ -12,11 +12,16 @@ import java.util.Optional;
 @Repository
 public interface StoreJPARepository extends JpaRepository<Store, Long> {
 
-    @Query(value = "SELECT s FROM Store s JOIN FETCH s.subCategory sc JOIN FETCH sc.category c WHERE s.id = :id")
+    @Query(value = "SELECT s FROM Store s " +
+            "JOIN FETCH s.subCategory sc " +
+            "JOIN FETCH sc.category c " +
+            "WHERE s.id = :id")
     Optional<Store> findById(@Param("id")Long id);
 
     // 거리안의 음식점 marker 가져오기
-    @Query(value ="SELECT * FROM store_tb WHERE latitude < :maxLat AND latitude > :minLat AND longitude < :maxLon AND longitude > :minLon", nativeQuery = true)
+    @Query(value ="SELECT * FROM store_tb " +
+            "WHERE latitude < :maxLat AND latitude > :minLat AND longitude < :maxLon AND longitude > :minLon"
+            , nativeQuery = true)
     List<Store> findAllWithinLatLonBoundaries(@Param("maxLat")double maxLat, @Param("maxLon")double maxLon, @Param("minLat")double minLat, @Param("minLon")double minLon);
 
     // mysql에서는 st_distance_sphere 함수를 사용가능하지만, h2에서는 사용 불가하므로, 공식을 통해 거리 가져오기
@@ -41,12 +46,13 @@ public interface StoreJPARepository extends JpaRepository<Store, Long> {
     List<Store> findAllBySearchAndRatingLessThanCursor(@Param("search")String search, @Param("cursor")Long cursor, @Param("lastid")Long lastId, Pageable pageable);
 
     // id 내림차순으로 가게 불러오기 - 커서 기반
-    @Query("SELECT s FROM Store s WHERE s.id < :cursor AND s.name LIKE %:search% ORDER by s.id DESC")
+    @Query("SELECT s FROM Store s " +
+            "WHERE s.id < :cursor AND s.name LIKE %:search% " +
+            "ORDER by s.id DESC")
     List<Store> findAllBySearchAndIdLessThanCursor(@Param("search")String search, @Param("cursor")Long cursor, Pageable pageable);
 
     // 리뷰 많은 순으로 가게 불러오기 - 커서 기반
-    @Query("SELECT s " +
-            "FROM Store s " +
+    @Query("SELECT s FROM Store s " +
             "WHERE s.name LIKE %:search% AND (s.numsOfReview < :cursor OR (s.numsOfReview = :cursor AND s.id < :lastId))" +
             "ORDER BY s.numsOfReview DESC, s.id DESC")
     List<Store> findAllBySearchAndNumsOfReviewLessThanCursor(@Param("search")String search, @Param("cursor")int cursor, @Param("lastId")Long lastId, Pageable pageable);

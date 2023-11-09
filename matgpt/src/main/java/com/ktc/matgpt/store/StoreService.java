@@ -50,7 +50,7 @@ public class StoreService {
         return extractCursorAndGetPageResponse(store -> store.calculateDistanceFromLatLon(latitude, longitude), stores);
     }
 
-    // 리뷰 많은 순으로 음식점 보기
+    // 리뷰 많은 순으로 음식점 보기 + 커서 기반 페이지네이션
     @Transactional(readOnly = true)
     public PageResponse<Integer, StoreResponse.FindAllStoreDTO> findByHighestReviewCount(Integer cursor, Long lastId) {
         cursor = Paging.convertNullCursorToMaxValue(cursor);
@@ -91,7 +91,7 @@ public class StoreService {
                 .toList();
     }
 
-    // 음식점 검색
+    // 음식점 검색 + 커서 기반 페이지네이션
     @Transactional(readOnly = true)
     public PageResponse<? extends Comparable<?>, StoreResponse.FindAllStoreDTO> findBySearch(String search, Long cursor, Long lastId, String sort) {
         cursor = Paging.convertNullCursorToMaxValue(cursor);

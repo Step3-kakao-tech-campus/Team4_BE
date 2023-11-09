@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LikeStoreService {
 
-    private static final int DEFAULT_PAGE_SIZE = 8;
+    private static final int DEFAULT_PAGE_SIZE = 6 ;
 
     private final UserService userService;
     private final LikeStoreJPARepository likeStoreJPARepository;
@@ -74,16 +74,16 @@ public class LikeStoreService {
 
     private Paging<Long> getPagingInfo(List<LikeStore> likeStoreList) {
         boolean hasNext = false;
-        int numsOfReviews = 0;
+        int numsOfStores = 0;
 
         if (likeStoreList.size() == DEFAULT_PAGE_SIZE+1) {
             hasNext = true;
-            numsOfReviews = DEFAULT_PAGE_SIZE;
+            numsOfStores = DEFAULT_PAGE_SIZE;
         } else {
-            numsOfReviews = likeStoreList.size();
+            numsOfStores = likeStoreList.size();
         }
 
-        Long nextCursorId = likeStoreList.get(numsOfReviews-1).getId();
-        return new Paging<Long>(hasNext, numsOfReviews, nextCursorId, nextCursorId);
+        Long nextCursorId = likeStoreList.get(numsOfStores-1).getId();
+        return new Paging<Long>(hasNext, numsOfStores, nextCursorId, nextCursorId);
     }
 }
