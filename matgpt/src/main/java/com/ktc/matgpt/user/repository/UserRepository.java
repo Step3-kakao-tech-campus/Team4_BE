@@ -22,7 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE User u SET u.isFirstLogin = false WHERE u.id = :userId")
+    @Query("UPDATE User u " +
+            "SET u.isFirstLogin = false " +
+            "WHERE u.id = :userId")
     void updateFirstLoginStatus(Long userId);
 
 
