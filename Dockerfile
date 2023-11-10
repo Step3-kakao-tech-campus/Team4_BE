@@ -27,4 +27,4 @@ ENV DATABASE_PASSWORD=${DATABASE_PASSWORD}
 
 
 # 빌드 결과 jar 파일을 실행
-CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/gradle/project/build/libs/matgpt-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/gradle/project/matgpt/build/libs/matgpt-0.0.1-SNAPSHOT.jar"]
