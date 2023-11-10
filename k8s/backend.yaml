@@ -40,26 +40,6 @@ spec:
                 secretKeyRef: 
                   name: secret
                   key: GPTAPIKEY
-            - name: GOOGLECLIENTID
-              valueFrom: 
-                secretKeyRef: 
-                  name: secret
-                  key: GOOGLECLIENTID
-            - name: GOOGLECLIENTSECRET
-              valueFrom: 
-                secretKeyRef: 
-                  name: secret
-                  key: GOOGLECLIENTSECRET
-            - name: KAKAOCLIENTID
-              valueFrom: 
-                secretKeyRef:
-                  name: secret
-                  key: KAKAOCLIENTID
-            - name: KAKAOCLIENTSECRET
-              valueFrom: 
-                secretKeyRef: 
-                  name: secret
-                  key: KAKAOCLIENTSECRET 
             - name: AWSACCESSKEY
               valueFrom: 
                 secretKeyRef: 
