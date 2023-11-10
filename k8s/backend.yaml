@@ -1,0 +1,104 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  # labels:
+  #   app: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # 여러분의 backend image 주소를 입력해주세요. -> 빌드 후 빌드 이미지 경로 새로 넣기
+          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_c0cfe9213c09
+          # imagePullPolicy: IfNotPresent
+          env:
+            - name: USERNAME
+              valueFrom: 
+                secretKeyRef:
+                  name: secret
+                  key: USERNAME
+            - name: PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: secret
+                  key: PASSWORD
+            - name: JWTSECRET
+              valueFrom: 
+                secretKeyRef:
+                  name: secret
+                  key: JWTSECRET
+            - name: GPTAPIKEY 
+              valueFrom: 
+                secretKeyRef: 
+                  name: secret
+                  key: GPTAPIKEY
+            - name: GOOGLECLIENTID
+              valueFrom: 
+                secretKeyRef: 
+                  name: secret
+                  key: GOOGLECLIENTID
+            - name: GOOGLECLIENTSECRET
+              valueFrom: 
+                secretKeyRef: 
+                  name: secret
+                  key: GOOGLECLIENTSECRET
+            - name: KAKAOCLIENTID
+              valueFrom: 
+                secretKeyRef:
+                  name: secret
+                  key: KAKAOCLIENTID
+            - name: KAKAOCLIENTSECRET
+              valueFrom: 
+                secretKeyRef: 
+                  name: secret
+                  key: KAKAOCLIENTSECRET 
+            - name: AWSACCESSKEY
+              valueFrom: 
+                secretKeyRef: 
+                  name: secret
+                  key: AWSACCESSKEY 
+            - name: AWSSECRETKEY
+              valueFrom: 
+                secretKeyRef: 
+                  name: secret
+                  key: AWSSECRETKEY 
+            - name: MYSQLUSERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: MYSQLUSERNAME
+            - name: MYSQLPASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: secret
+                  key: MYSQLPASSWORD 
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: MYSQL_ROOT_PASSWORD
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080
