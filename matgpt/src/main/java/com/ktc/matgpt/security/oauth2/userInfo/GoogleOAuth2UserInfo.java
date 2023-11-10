@@ -25,10 +25,10 @@ public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
     @Override
     public Gender getGender() {
         return null;
-    }// TODO : 구글 형식으로 변환
+    }
     @Override
     public AgeGroup getAgeGroup(){
         return null;
-    }// TODO : 구글 형식으로 변환
+    }
 
 }

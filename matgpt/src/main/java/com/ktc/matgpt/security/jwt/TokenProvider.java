@@ -57,7 +57,7 @@ public class TokenProvider {
         UserPrincipal userPrincipal = (UserPrincipal)authentication.getPrincipal();
 
         Claims claims = Jwts.claims();
-        // TODO: principal -> claims 다 넣기
+
         claims.put(AUTHORITIES_KEY, authorities);
         claims.put(USER_ID, userPrincipal.getId());
         claims.put(USER_EMAIL, userPrincipal.getEmail());

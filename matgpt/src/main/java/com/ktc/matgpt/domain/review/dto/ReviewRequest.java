@@ -16,7 +16,7 @@ public class ReviewRequest {
         private int rating;
         private int peopleCount;
         private int totalPrice;
-        private int imageCount; //TODO: enum PriceRange 타입 변환 메서드 만들어야할 것
+        private int imageCount;
 
 
         public SimpleCreateDTO(String content, int rating, int peopleCount, int totalPrice, int imageCount) {

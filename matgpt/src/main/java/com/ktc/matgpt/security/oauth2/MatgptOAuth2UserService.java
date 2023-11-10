@@ -82,13 +82,10 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
      * @return
      */
     private boolean requiresUpdateUser(User user, OAuth2UserInfo oauth2UserInfo, String registrationId) {
-        // TODO : 유저 정보 업데이트 필요 로직
         return false;
-
     }
 
     private User updateUser(User existingUser, OAuth2UserInfo oauth2UserInfo) {
-        // TODO: requiresUpdateUser에서 요청될 업데이트 로직
         return userRepository.save(existingUser);
     }
 
@@ -96,7 +93,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
         MatgptOAuth2Provider provider = MatgptOAuth2Provider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
 
         User user = User.builder()
-                .name(UUID.randomUUID().toString()) // TODO: 자동으로 생성할 닉네임 구현
+                .name(UUID.randomUUID().toString())
                 .email(oauth2UserInfo.getEmail())
                 .gender(oauth2UserInfo.getGender())
                 .ageGroup(oauth2UserInfo.getAgeGroup())
