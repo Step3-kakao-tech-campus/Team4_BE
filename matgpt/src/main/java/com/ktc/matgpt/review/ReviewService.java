@@ -49,7 +49,6 @@ public class ReviewService {
     private final StoreService storeService;
     private final LikeReviewService likeReviewService;
     private final MessageSourceAccessor messageSourceAccessor;
-    private final EntityManager entityManager;
 
     private static final int DEFAULT_PAGE_SIZE = 8;
     private static final int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
