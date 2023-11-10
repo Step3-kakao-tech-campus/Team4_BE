@@ -1,7 +1,9 @@
 package com.ktc.matgpt.domain.user.service;
 
+import com.ktc.matgpt.domain.user.dto.UserDto;
 import com.ktc.matgpt.domain.user.entity.AgeGroup;
 import com.ktc.matgpt.domain.user.entity.Gender;
+import com.ktc.matgpt.domain.user.entity.LocaleEnum;
 import com.ktc.matgpt.domain.user.entity.User;
 import com.ktc.matgpt.domain.user.repository.UserRepository;
 import com.ktc.matgpt.exception.ErrorMessage;
@@ -19,14 +21,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final EntityManager entityManager;
 
-    public boolean existsById(Long id) {
-        return userRepository.existsById(id);
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException(ErrorMessage.USER_NOT_FOUND));
     }
+
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(
@@ -42,10 +45,21 @@ public class UserService {
         return userRepository.findAllByAgeGroupAndGender(ageGroup, gender);
     }
 
-    public void completeRegistration(Long userId) {
-        userRepository.updateFirstLoginStatus(userId);
+    public void updateUserAdditionalInfo(String email, UserDto.Request userDto) {
+        User user = findByEmail(email);
+        user.setName(userDto.getNickname());
+        user.setGender(Gender.fromString(userDto.getGender()));
+        user.setAgeGroup(AgeGroup.fromInt(userDto.getAge()));
+
+        LocaleEnum localeEnum = LocaleEnum.fromString(userDto.getLocale());
+        if (localeEnum != null) {
+            user.setLocale(localeEnum);
+        } else {
+            throw new NoSuchElementException(ErrorMessage.LOCALE_NOT_FOUND);
+        }
+
+        userRepository.save(user);
     }
 
-
-
+    public void updateUserProfileImage(String email){return;} // TODO
 }

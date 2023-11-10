@@ -1,4 +1,4 @@
-package com.ktc.matgpt.security.jwt;
+package com.ktc.matgpt.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
