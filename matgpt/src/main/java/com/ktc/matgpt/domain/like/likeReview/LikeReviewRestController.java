@@ -21,7 +21,7 @@ public class LikeReviewRestController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("reviews/{reviewId}/like")
     public ResponseEntity<?> toggleLikeForReview(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        boolean isLikeAdded = createLikeReviewUseCase.executeToggleLike(reviewId, userPrincipal.getEmail());
+        boolean isLikeAdded = createLikeReviewUseCase.toggleLike(reviewId, userPrincipal.getEmail());
 
         String message = isLikeAdded ? "리뷰 좋아요 등록" : "리뷰 좋아요 취소";
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(message);

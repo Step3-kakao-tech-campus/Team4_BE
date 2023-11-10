@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class CreateLikeStoreUseCase {
+public class LikeStoreUseCase {
 
     private final UserService userService;
     private final LikeStoreService likeStoreService;
     private final StoreService storeService;
 
-    public boolean execute(Long storeId, String userEmail) {
+    public boolean create(Long storeId, String userEmail) {
         User userRef = userService.getReferenceByEmail(userEmail);
         Store storeRef = storeService.getReferenceById(storeId);
         return likeStoreService.toggleHeartForStore(userRef, storeRef);

@@ -34,7 +34,7 @@ public class LikeReviewUseCase {
 
 
     @Transactional
-    public boolean executeToggleLike(Long reviewId, String userEmail) {
+    public boolean toggleLike(Long reviewId, String userEmail) {
         User userRef = userService.getReferenceByEmail(userEmail);
         Review review = reviewService.findReviewByIdOrThrow(reviewId);
 
@@ -46,7 +46,7 @@ public class LikeReviewUseCase {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<?, LikeReviewResponse.LikeReviewDTO> executeFindLikeReviews(String userEmail, Long cursorId) {
+    public PageResponse<?, LikeReviewResponse.LikeReviewDTO> findLikeReviews(String userEmail, Long cursorId) {
         User userRef = userService.getReferenceByEmail(userEmail);
         CursorRequest<Long> page = new CursorRequest<>(DEFAULT_PAGE_SIZE_PLUS_ONE, cursorId, Long.class, cursorId);
         List<LikeReview> likeReviews = likeReviewService.findLikeReviewsByUserId(userRef.getId(), page);

@@ -2,7 +2,7 @@ package com.ktc.matgpt.likeStore;
 
 
 import com.ktc.matgpt.domain.like.likeStore.LikeStoreService;
-import com.ktc.matgpt.domain.like.usecase.CreateLikeStoreUseCase;
+import com.ktc.matgpt.domain.like.usecase.LikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ public class LikeStoreRestControllerTest {
     private LikeStoreService likeStoreService;
 
     @MockBean
-    private CreateLikeStoreUseCase createLikeStoreUsecase;
+    private LikeStoreUseCase likeStoreUsecase;
 
     @DisplayName("즐겨찾기한 음식점 모두 불러오기")
     @Test
@@ -91,7 +91,7 @@ public class LikeStoreRestControllerTest {
         Long mockStoreId = 1L;
         String mockEmail = "nstgic3@gmail.com";
 
-        when(createLikeStoreUsecase.execute(mockStoreId, mockEmail)).thenReturn(false);
+        when(likeStoreUsecase.create(mockStoreId, mockEmail)).thenReturn(false);
 
         UserPrincipal userPrincipal = new UserPrincipal(null, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
