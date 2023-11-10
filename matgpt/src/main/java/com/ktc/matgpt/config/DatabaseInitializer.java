@@ -1,6 +1,7 @@
 package com.ktc.matgpt.config;
 
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
+@Profile({"dev", "test"})
 @Component
 public class DatabaseInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
