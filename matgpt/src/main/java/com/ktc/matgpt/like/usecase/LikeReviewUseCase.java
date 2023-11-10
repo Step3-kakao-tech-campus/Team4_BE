@@ -35,12 +35,9 @@ public class LikeReviewUseCase {
         Review review = reviewService.findReviewByIdOrThrow(reviewId);
 
         boolean isLikeAdded = likeReviewService.toggleLikeForReview(userRef, review);
-        if (isLikeAdded) {
-            review.plusRecommendCount();
-        }
-        else {
-            review.minusRecommendCount();
-        }
+        if (isLikeAdded) review.plusRecommendCount();
+        else review.minusRecommendCount();
+
         return isLikeAdded;
     }
 
