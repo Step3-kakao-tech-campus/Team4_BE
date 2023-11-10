@@ -67,7 +67,6 @@ public class LikeReviewUseCase {
         }).collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public boolean isLikeAlreadyExists(Long reviewId, String userEmail) {
         User userRef = userService.getReferenceByEmail(userEmail);
         Review reviewRef = reviewService.getReferenceById(reviewId);
