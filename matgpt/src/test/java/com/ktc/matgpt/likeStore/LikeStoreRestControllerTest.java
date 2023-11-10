@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -100,6 +101,39 @@ public class LikeStoreRestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value("즐겨찾기 취소 성공"));
+    }
+
+
+    @DisplayName("음식점 즐겨찾기 여부 확인 테스트 - 참")
+    @Test
+    public void testCheckIfAlreadyLiked_true() throws Exception {
+        Long storeId = 1L;
+        Long userId = 1L;
+        String mockEmail = "nstgic3@gmail.com";
+
+        UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+
+        mockMvc.perform(get("/stores/" + storeId + "/liked")
+                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.hasLiked").value(true));
+    }
+
+    @DisplayName("음식점 즐겨찾기 여부 확인 테스트 - 거짓")
+    @Test
+    public void testCheckIfAlreadyLiked_false() throws Exception {
+        Long storeId = 10L;
+        Long userId = 1L;
+        String mockEmail = "nstgic3@gmail.com";
+
+        UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+
+        mockMvc.perform(get("/stores/" + storeId + "/liked")
+                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.hasLiked").value(false));
     }
 
 

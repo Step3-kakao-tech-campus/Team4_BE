@@ -1,5 +1,6 @@
 package com.ktc.matgpt.domain.like.likeStore;
 
+import com.ktc.matgpt.domain.like.likeReview.LikeReviewResponse;
 import com.ktc.matgpt.domain.like.usecase.CreateLikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
@@ -38,5 +39,13 @@ public class LikeStoreRestController {
                                             = likeStoreService.findLikeStoresByUserEmail(userPrincipal.getEmail(), cursorId);
         return ResponseEntity.ok(ApiUtils.success(heartResponseDTO));
 
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stores/{storeId}/liked")
+    public ResponseEntity<?> checkIfLikedAlready(@PathVariable Long storeId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        boolean hasLikedAlready = createLikeStoreUsecase.isHeartAlreadyExists(userPrincipal.getEmail(), storeId);
+
+        return ResponseEntity.ok(ApiUtils.success(new LikeStoreResponseDTO.HasLikedDTO(hasLikedAlready)));
     }
 }

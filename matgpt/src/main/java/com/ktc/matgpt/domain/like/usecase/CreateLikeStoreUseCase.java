@@ -21,4 +21,10 @@ public class CreateLikeStoreUseCase {
         Store storeRef = storeService.getReferenceById(storeId);
         return likeStoreService.toggleHeartForStore(userRef, storeRef);
     }
+
+    public boolean isHeartAlreadyExists(String userEmail, Long storeId) {
+        User userRef = userService.getReferenceByEmail(userEmail);
+        Store storeRef = storeService.getReferenceById(storeId);
+        return likeStoreService.isHeartAlreadyExists(userRef, storeRef);
+    }
 }
