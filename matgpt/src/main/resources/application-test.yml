@@ -14,7 +14,6 @@ spring:
         show_sql: true
 
 springdoc:
-  enable-data-rest: false
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
 
