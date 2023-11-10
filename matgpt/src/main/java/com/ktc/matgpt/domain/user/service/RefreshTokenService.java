@@ -4,7 +4,7 @@ import com.ktc.matgpt.domain.user.entity.RefreshToken;
 import com.ktc.matgpt.domain.user.repository.RefreshTokenRepository;
 import com.ktc.matgpt.exception.ErrorMessage;
 import com.ktc.matgpt.exception.auth.InvalidTokenException;
-import com.ktc.matgpt.security.jwt.TokenDto;
+import com.ktc.matgpt.security.dto.TokenDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

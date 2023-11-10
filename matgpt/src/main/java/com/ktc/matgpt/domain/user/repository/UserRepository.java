@@ -18,14 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByAgeGroupAndGender(AgeGroup ageGroup, Gender gender);
     Optional<User> findByEmail(String email);
-    Boolean existsByEmail(String email);
-
-    @Transactional
-    @Modifying
-    @Query("UPDATE User u " +
-            "SET u.isFirstLogin = false " +
-            "WHERE u.id = :userId")
-    void updateFirstLoginStatus(Long userId);
-
+    boolean existsByEmail(String email);
 
 }
