@@ -21,6 +21,8 @@ import com.ktc.matgpt.utils.paging.CursorRequest;
 import com.ktc.matgpt.utils.paging.PageResponse;
 import com.ktc.matgpt.utils.paging.Paging;
 import com.ktc.matgpt.utils.TimeUnit;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -49,6 +51,7 @@ public class ReviewService {
     private final StoreService storeService;
     private final LikeReviewService likeReviewService;
     private final MessageSourceAccessor messageSourceAccessor;
+    private final EntityManager entityManager;
 
     private static final int DEFAULT_PAGE_SIZE = 8;
     private static final int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
@@ -286,5 +289,13 @@ public class ReviewService {
         return value + " " + unitKey + " ago";
         //        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
         //        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
+    }
+
+    public Review getReferenceById(Long reviewId) {
+        try {
+            return entityManager.getReference(Review.class, reviewId);
+        } catch (EntityNotFoundException e) {
+            throw new NoSuchElementException(ErrorMessage.REVIEW_NOT_FOUND);
+        }
     }
 }

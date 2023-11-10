@@ -51,7 +51,7 @@ public class LikeReviewService {
         likeReviewJPARepository.deleteByUserAndReview(userRef, review);
     }
 
-    private boolean isLikeAlreadyExists(User userRef, Review review) {
+    public boolean isLikeAlreadyExists(User userRef, Review review) {
         return likeReviewJPARepository.existsByUserAndReview(userRef, review);
     }
 }

@@ -67,6 +67,13 @@ public class LikeReviewUseCase {
         }).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public boolean isLikeAlreadyExists(Long reviewId, String userEmail) {
+        User userRef = userService.getReferenceByEmail(userEmail);
+        Review reviewRef = reviewService.getReferenceById(reviewId);
+        return likeReviewService.isLikeAlreadyExists(userRef, reviewRef);
+    }
+
 
     private Paging<Long> getPagingInfo(List<LikeReview> likeReviews) {
         boolean hasNext = false;
