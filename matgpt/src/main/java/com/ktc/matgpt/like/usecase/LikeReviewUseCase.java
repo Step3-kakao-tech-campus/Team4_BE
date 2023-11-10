@@ -25,6 +25,9 @@ public class LikeReviewUseCase {
     private final ReviewService reviewService;
 
     private final static int DEFAULT_PAGE_SIZE = 8;
+    private final static int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
+    private final static PageResponse EMPTY_PAGE_RESPONSE = new PageResponse<>(new Paging<>(false, 0, null, null), null);
+
 
     @Transactional
     public boolean executeToggleLike(Long reviewId, String userEmail) {
@@ -46,9 +49,7 @@ public class LikeReviewUseCase {
         cursorId = Paging.convertNullCursorToMaxValue(cursorId);
         List<LikeReview> likeReviews = likeReviewService.findReviewsByUserId(userRef.getId(), cursorId, DEFAULT_PAGE_SIZE+1);
 
-        if (likeReviews.isEmpty()) {
-            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
-        }
+        if (likeReviews.isEmpty()) return EMPTY_PAGE_RESPONSE;
 
         Paging paging = getPagingInfo(likeReviews);
         likeReviews = likeReviews.subList(0, paging.size());

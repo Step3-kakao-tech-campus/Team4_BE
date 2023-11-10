@@ -52,6 +52,7 @@ public class ReviewService {
 
     private static final int DEFAULT_PAGE_SIZE = 8;
     private static final int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
+    private static final PageResponse EMPTY_PAGE_RESPONSE = new PageResponse<>(new Paging<>(false, 0, null, null), null);
 
     @Transactional
     public void completeReviewUpload(Long storeId, Long reviewId, ReviewRequest.CreateCompleteDTO requestDTO, String userEmail) {
@@ -147,10 +148,7 @@ public class ReviewService {
             case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursor, page);
             default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE, sortBy);
         };
-
-        if (reviews.isEmpty()) {
-            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
-        }
+        if (reviews.isEmpty()) return EMPTY_PAGE_RESPONSE;
 
         Paging<Integer> paging = getPagingInfo(reviews);
         reviews = reviews.subList(0, paging.size());
@@ -187,6 +185,7 @@ public class ReviewService {
             case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursor, page);
             default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE, sortBy);
         };
+        if (reviewList.isEmpty()) return EMPTY_PAGE_RESPONSE;
 
         if (reviews.isEmpty()) {
             return new PageResponse<>(new Paging<>(false, 0, null, null), null);
