@@ -65,13 +65,11 @@ public class LikeReviewUseCase {
 
     private Paging<Long> getPagingInfo(List<LikeReview> likeReviews) {
         boolean hasNext = false;
-        int numsOfReviews = 0;
+        int numsOfReviews = likeReviews.size();
 
-        if (likeReviews.size() == DEFAULT_PAGE_SIZE+1) {
+        if (numsOfReviews == DEFAULT_PAGE_SIZE_PLUS_ONE) {
+            numsOfReviews--;
             hasNext = true;
-            numsOfReviews = DEFAULT_PAGE_SIZE;
-        } else {
-            numsOfReviews = likeReviews.size();
         }
 
         Long nextCursorId = likeReviews.get(numsOfReviews-1).getId();

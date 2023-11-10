@@ -252,13 +252,11 @@ public class ReviewService {
 
     private Paging<Integer> getPagingInfo(List<Review> reviews) {
         boolean hasNext = false;
-        int numsOfReviews = 0;
+        int numsOfReviews = reviews.size();
 
-        if (reviews.size() == DEFAULT_PAGE_SIZE+1) {
+        if (numsOfReviews == DEFAULT_PAGE_SIZE_PLUS_ONE) {
+            numsOfReviews -= 1;
             hasNext = true;
-            numsOfReviews = DEFAULT_PAGE_SIZE;
-        } else {
-            numsOfReviews = reviews.size();
         }
 
         Review lastReview = reviews.get(numsOfReviews-1);
