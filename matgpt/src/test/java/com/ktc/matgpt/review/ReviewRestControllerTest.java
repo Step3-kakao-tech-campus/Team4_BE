@@ -2,9 +2,10 @@ package com.ktc.matgpt.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.TestHelper;
-import com.ktc.matgpt.exception.ErrorCode;
-import com.ktc.matgpt.review.dto.ReviewRequest;
-import com.ktc.matgpt.review.dto.ReviewResponse;
+import com.ktc.matgpt.domain.review.ReviewService;
+import com.ktc.matgpt.exception.ErrorMessage;
+import com.ktc.matgpt.domain.review.dto.ReviewRequest;
+import com.ktc.matgpt.domain.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -441,7 +442,7 @@ public class ReviewRestControllerTest {
         responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
         // verify
-        resultActions.andExpect(jsonPath("$.errorCode").value(404));
-        resultActions.andExpect(jsonPath("$.message").value(ErrorCode.REVIEW_NOT_FOUND.getMessage()));
+        resultActions.andExpect(jsonPath("$.errorCode").value(400));
+        resultActions.andExpect(jsonPath("$.message").value(ErrorMessage.REVIEW_NOT_FOUND));
     }
 }

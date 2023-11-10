@@ -1,14 +1,13 @@
 package com.ktc.matgpt.security.oauth2;
 
 
-import com.ktc.matgpt.coin.service.CoinService;
-import com.ktc.matgpt.exception.CustomException;
-import com.ktc.matgpt.exception.ErrorCode;
+import com.ktc.matgpt.domain.coin.service.CoinService;
+import com.ktc.matgpt.exception.auth.Oauth2ProcessingException;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfo;
 import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfoFactory;
-import com.ktc.matgpt.user.entity.User;
-import com.ktc.matgpt.user.repository.UserRepository;
+import com.ktc.matgpt.domain.user.entity.User;
+import com.ktc.matgpt.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 
@@ -49,7 +48,7 @@ public class MatgptOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oauth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, userAttributes);
 
         if (isInvalidUserInfo(oauth2UserInfo)) {
-            throw new CustomException(ErrorCode.OAUTH2_PROCESSING_EXCEPTION);
+            throw new Oauth2ProcessingException();
         }
 
         Optional<User> userOptional = userRepository.findByEmail(oauth2UserInfo.getEmail());

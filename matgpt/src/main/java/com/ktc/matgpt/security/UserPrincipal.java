@@ -1,7 +1,7 @@
 package com.ktc.matgpt.security;
 
+import com.ktc.matgpt.domain.user.entity.User;
 import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfo;
-import com.ktc.matgpt.user.entity.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

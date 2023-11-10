@@ -29,7 +29,7 @@ public class UserControllerTest {
     @DisplayName("Oauth2 Principle 적재 테스트")
     @Test()
     public void getUserInfo_ShouldReturnUserInfo() throws Exception {
-        Long mockUserId = 2L;
+        Long mockUserId = 10L;
         String mockUsername = "test@example.com";
 
         UserPrincipal userPrincipal = new UserPrincipal(mockUserId,mockUsername, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));

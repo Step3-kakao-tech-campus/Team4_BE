@@ -1,10 +1,9 @@
 package com.ktc.matgpt.likeStore;
 
 
-import com.ktc.matgpt.like.likeStore.LikeStoreService;
-import com.ktc.matgpt.like.usecase.CreateLikeStoreUseCase;
+import com.ktc.matgpt.domain.like.likeStore.LikeStoreService;
+import com.ktc.matgpt.domain.like.usecase.CreateLikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

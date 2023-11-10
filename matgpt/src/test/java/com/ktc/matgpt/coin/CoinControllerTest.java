@@ -1,9 +1,9 @@
 package com.ktc.matgpt.coin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ktc.matgpt.coin.dto.CoinRequest;
-import com.ktc.matgpt.coin.entity.Coin;
-import com.ktc.matgpt.coin.repository.CoinRepository;
+import com.ktc.matgpt.domain.coin.dto.CoinRequest;
+import com.ktc.matgpt.domain.coin.entity.Coin;
+import com.ktc.matgpt.domain.coin.repository.CoinRepository;
 import com.ktc.matgpt.security.UserPrincipal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ class CoinControllerTest {
 
         // given
         Long userId = 1L;
-        int lastBalance = 0;
+        int lastBalance = 10;
         UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", false, Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
