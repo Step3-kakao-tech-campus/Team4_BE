@@ -4,7 +4,6 @@ import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

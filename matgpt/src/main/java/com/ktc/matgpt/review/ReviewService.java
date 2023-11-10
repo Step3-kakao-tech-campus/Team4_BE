@@ -12,7 +12,6 @@ import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.aws.S3Service;
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.tag.Tag;
 import com.ktc.matgpt.tag.TagService;
 import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
@@ -21,8 +20,6 @@ import com.ktc.matgpt.user.service.UserService;
 import com.ktc.matgpt.utils.PageResponse;
 import com.ktc.matgpt.utils.Paging;
 import com.ktc.matgpt.utils.TimeUnit;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -114,9 +111,6 @@ public class ReviewService {
         // 리뷰 UUID와 순서를 조합하여 객체 키 생성
         return String.format("reviews/%s/%d", reviewUuid, imageIndex);
     }
-
-    //태그에 음식, 이미지 매핑해서 저장
-
 
     @Transactional
     public void updateContent(Long reviewId, String userEmail, ReviewRequest.UpdateDTO requestDTO) {
@@ -213,14 +207,11 @@ public class ReviewService {
         if (!userEmail.equals(review.getUser().getEmail())) {
             throw new CustomException(ErrorCode.REVIEW_UNAUTHORIZED_ACCESS);
         }
-        // 이미지(+태그) 삭제
         imageService.deleteImagesByReviewId(reviewId);
 
-        // Store 리뷰 개수, 평점 필드 업데이트
         Store store = storeService.findById(review.getStore().getId());
         store.removeReview(review.getRating(), review.getPeopleCount(), review.getCostPerPerson());
 
-        // 리뷰 삭제
         likeReviewService.deleteAllByReviewId(reviewId);
         reviewJPARepository.deleteById(reviewId);
         log.info("review-%d: 리뷰가 삭제되었습니다.", review.getId());
@@ -304,13 +295,5 @@ public class ReviewService {
         return value + " " + unitKey + "ago";
         //        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
         //        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
-    }
-
-    public Review getReferenceById(Long reviewId) {
-        try {
-            return entityManager.getReference(Review.class, reviewId);
-        } catch (EntityNotFoundException e) {
-            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
-        }
     }
 }
