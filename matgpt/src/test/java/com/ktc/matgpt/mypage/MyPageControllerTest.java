@@ -178,10 +178,10 @@ public class MyPageControllerTest {
         // verify
         // 리뷰 데이터 응답 검증 - 리뷰 최신순 x, 리뷰에 좋아요를 누른 최신순으로 정렬된다.
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.body[0].id").value("3"));
-        resultActions.andExpect(jsonPath("$.data.body[1].id").value("7"));
-        resultActions.andExpect(jsonPath("$.data.body[2].id").value("2"));
-        resultActions.andExpect(jsonPath("$.data.body[3].id").value("1"));
+        resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value("3"));
+        resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value("7"));
+        resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value("2"));
+        resultActions.andExpect(jsonPath("$.data.body[3].reviewId").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));

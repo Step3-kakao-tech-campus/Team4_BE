@@ -345,6 +345,25 @@ INSERT INTO likereview_tb (review_id, user_id) VALUES (18, 10);
 INSERT INTO likereview_tb (review_id, user_id) VALUES (13, 11);
 INSERT INTO likereview_tb (review_id, user_id) VALUES (15, 11);
 
+
 INSERT INTO image_tb (review_id, url) VALUES (1, 'image1.png');
+-- reviewId: 8에 image 1~3 등록
+INSERT INTO image_tb (review_id, url) VALUES (8, 'image1_review8.png');
+INSERT INTO image_tb (review_id, url) VALUES (8, 'image2_review8.png');
+INSERT INTO image_tb (review_id, url) VALUES (8, 'image3_review8.png');
+-- reviewId: 9에 image 1~2 등록
+INSERT INTO image_tb (review_id, url) VALUES (9, 'image1_review9.png');
+INSERT INTO image_tb (review_id, url) VALUES (9, 'image2_review9.png');
+
+
+
 INSERT INTO food_tb (store_id, food_name, nums_of_review, avg_rating, created_at, updated_at) VALUES (1, 'food1', 3, 2.5, now(), now());
-INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (1, 1, '볶음밥', 3, 25.08, 36.74);
+
+
+
+INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (1, 1, 'food1', 3, 25.08, 36.74);
+INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (2, 1, 'food1', 3, 25.08, 36.74);
+INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (3, 1, 'food1', 3, 25.08, 36.74);
+INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (4, 1, 'food1', 3, 25.08, 36.74);
+INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (5, 1, 'food1', 3, 25.08, 36.74);
+INSERT INTO tag_tb (image_id, food_id, tag_name, menu_rating, locationx, locationy) VALUES (6, 1, 'food1', 3, 25.08, 36.74);

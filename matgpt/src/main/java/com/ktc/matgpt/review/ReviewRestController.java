@@ -53,7 +53,7 @@ public class ReviewRestController {
                                               @RequestParam(required = false) Long cursorId,
                                               @RequestParam(required = false) Integer cursor
     ) {
-        PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> responseDTO = reviewService.findPageByStoreId(storeId, sortBy, cursorId, cursor);
+        PageResponse<?, ReviewResponse.StoreReviewDTO> responseDTO = reviewService.findPageByStoreId(storeId, sortBy, cursorId, cursor);
         return ResponseEntity.ok(com.ktc.matgpt.utils.ApiUtils.success(responseDTO));
     }
 

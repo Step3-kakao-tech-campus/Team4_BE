@@ -6,6 +6,7 @@ import com.ktc.matgpt.aws.S3Service;
 import com.ktc.matgpt.tag.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +53,11 @@ public class ImageService {
 
     public List<String> getImageUrlsByReviewId(Long reviewId){
         return imageJPARepository.findAllImagesByReviewId(reviewId);
+    }
+
+    public String getFirstImageByReviewId(Long reviewId){
+        List<String> image = imageJPARepository.findFirstImageByReviewId(reviewId, PageRequest.ofSize(1));
+        return (image.isEmpty()) ? null : image.get(0);
     }
 
     @Deprecated

@@ -117,19 +117,19 @@ public class ReviewResponse {
 
     @Getter
     @ToString
-    public static class FindPageByStoreIdDTO {
+    public static class StoreReviewDTO {
         private Long reviewId;
         private int rating;
         private String content;
         private LocalDateTime createdAt;
-        private List<String> imageUrls;
+        private String imageUrl;
         private boolean updated = false;
         private String relativeTime;
         private int numOfLikes;
 
-        public FindPageByStoreIdDTO(Review review, String relativeTime, List<String> imageUrls) {
+        public StoreReviewDTO(Review review, String relativeTime, String imageUrl) {
             this.reviewId = review.getId();
-            this.imageUrls = imageUrls;
+            this.imageUrl = imageUrl;
             this.content = review.getContent();
             this.rating = review.getRating();
             this.createdAt = review.getCreatedAt();
@@ -145,7 +145,7 @@ public class ReviewResponse {
 
     @Getter
     @ToString
-    public static class FindPageByUserIdDTO {
+    public static class UserReviewDTO {
             private Long id;
             private int rating;
             private String content;
@@ -157,7 +157,7 @@ public class ReviewResponse {
             private int numOfLikes;
             private int peopleCount;
 
-            public FindPageByUserIdDTO(Review review, String relativeTime) {
+            public UserReviewDTO(Review review, String relativeTime) {
                 this.id = review.getId();
                 this.rating = review.getRating();
                 this.content = review.getContent();
