@@ -2,10 +2,12 @@
 FROM krmp-d2hub-idock.9rum.cc/goorm/gradle:8.2.1-jdk17
 
 # 작업 디렉토리 설정
-WORKDIR /home/gradle/project/matgpt
+WORKDIR /home/gradle/project
 
 # Spring 소스 코드를 이미지에 복사
-COPY matgpt .
+COPY . .
+
+WORKDIR /home/gradle/project/matgpt
 
 # gradle 빌드 시 proxy 설정을 gradle.properties에 추가
 RUN echo "systemProp.http.proxyHost=krmp-proxy.9rum.cc\nsystemProp.http.proxyPort=3128\nsystemProp.https.proxyHost=krmp-proxy.9rum.cc\nsystemProp.https.proxyPort=3128" > /root/.gradle/gradle.properties
@@ -25,4 +27,4 @@ ENV DATABASE_PASSWORD=${DATABASE_PASSWORD}
 
 
 # 빌드 결과 jar 파일을 실행
-CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/gradle/project/build/libs/matgpt-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/gradle/project/matgpt/build/libs/matgpt-0.0.1-SNAPSHOT.jar"]
