@@ -3,6 +3,7 @@ package com.ktc.matgpt.domain.aws;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.ktc.matgpt.exception.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,4 +40,11 @@ public class S3Service {
             amazonS3.deleteObject(s3BucketName, keyName);
         }
     }
+
+    private void verifyValidUrl(String s3Url) {
+        if (!amazonS3.doesObjectExist(s3BucketName, getKeyFromS3Url(s3Url))) {
+            throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
+        }
+    }
+
 }
