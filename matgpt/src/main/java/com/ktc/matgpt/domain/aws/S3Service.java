@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
@@ -18,6 +21,8 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String s3BucketName;
+    private static Pattern urlPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/reviews/[\\w-]+/\\d+");
+    private static Pattern keyPatten = Pattern.compile("reviews/[\\w-]+/\\d+");
 
     public URL getPresignedUrl(String objectKey) {
         Date expiration = new Date();
@@ -32,13 +37,27 @@ public class S3Service {
         return amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
     }
 
-    public void deleteImage(String filename) {
-        // TODO: 삭제 실패 시 예외처리
-        String keyName = filename;
-        boolean isObjectExist = amazonS3.doesObjectExist(s3BucketName, keyName);
-        if (isObjectExist) {
-            amazonS3.deleteObject(s3BucketName, keyName);
-        }
+    public String getS3Url(String presignedUrl) {
+        Matcher matcher = urlPattern.matcher(presignedUrl);
+        if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
+
+        String s3Url = matcher.group();
+        verifyValidUrl(s3Url);
+        return s3Url;
+    }
+
+    public void deleteImage(String s3Url) {
+        verifyValidUrl(s3Url);
+        String s3Key = getKeyFromS3Url(s3Url);
+        amazonS3.deleteObject(s3BucketName, s3Key);
+    }
+
+    private String getKeyFromS3Url(String s3Url) {
+        Matcher matcher = keyPatten.matcher(s3Url);
+        if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
+
+        String s3Key = matcher.group();
+        return s3Key;
     }
 
     private void verifyValidUrl(String s3Url) {

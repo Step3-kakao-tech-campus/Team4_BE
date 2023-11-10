@@ -25,10 +25,10 @@ public class ImageService {
     private final S3Service s3Service;
 
     @Transactional
-    public Image saveImageForReview(Review review, String imageUrl) {
-        String imageKey = extractImageKey(imageUrl);
+    public Image saveImageForReview(Review review, String presignedUrl) {
+        String s3Url = s3Service.getS3Url(presignedUrl);
 
-        Image image = Image.create(review, imageKey);
+        Image image = Image.create(review, s3Url);
         imageJPARepository.save(image);
         log.info("image-{}: 이미지가 저장되었습니다.", image.getId());
         return image;
@@ -43,15 +43,6 @@ public class ImageService {
         }
         deleteImagesAndAssociatedTags(images);
     }
-
-    private String extractImageKey(String imageUrl) {
-        Pattern pattern = Pattern.compile("reviews/[\\w-]+/\\d+");
-        Matcher matcher = pattern.matcher(imageUrl);
-
-        if (matcher.find()) return matcher.group();
-        else throw new NoSuchElementException("이미지 url에 올바른 key가 존재하지 않습니다.");
-    }
-
 
     private void deleteImagesAndAssociatedTags(List<Image> images) {
         for (Image image : images) {
