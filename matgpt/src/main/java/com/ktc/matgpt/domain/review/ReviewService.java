@@ -21,6 +21,8 @@ import com.ktc.matgpt.utils.paging.CursorRequest;
 import com.ktc.matgpt.utils.paging.PageResponse;
 import com.ktc.matgpt.utils.paging.Paging;
 import com.ktc.matgpt.utils.TimeUnit;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -49,6 +51,7 @@ public class ReviewService {
     private final StoreService storeService;
     private final LikeReviewService likeReviewService;
     private final MessageSourceAccessor messageSourceAccessor;
+    private final EntityManager entityManager;
 
     private static final int DEFAULT_PAGE_SIZE = 8;
     private static final int DEFAULT_PAGE_SIZE_PLUS_ONE = DEFAULT_PAGE_SIZE + 1;
@@ -239,7 +242,7 @@ public class ReviewService {
 
     private void saveTagsForImage(Image image, ReviewRequest.CreateCompleteDTO.ImageDTO imageDTO, Store store) {
         for (ReviewRequest.CreateCompleteDTO.ImageDTO.TagDTO tagDTO : imageDTO.getTags()) {
-            Food food = foodService.saveOrUpdateFoodByTagName(tagDTO, store.getId()); //TODO: 태그에 들어갈 음식 검색하고 추가하는 로직
+            Food food = foodService.saveOrUpdateFoodByTagName(tagDTO, store.getId());
             tagService.saveTag(image, food, tagDTO);
         }
     }
@@ -271,7 +274,7 @@ public class ReviewService {
                         .build();
     }
 
-    //TODO: Locale 이슈
+
     public String getRelativeTime(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
         long seconds = duration.getSeconds();
@@ -286,5 +289,13 @@ public class ReviewService {
         return value + " " + unitKey + " ago";
         //        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
         //        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
+    }
+
+    public Review getReferenceById(Long reviewId) {
+        try {
+            return entityManager.getReference(Review.class, reviewId);
+        } catch (EntityNotFoundException e) {
+            throw new NoSuchElementException(ErrorMessage.REVIEW_NOT_FOUND);
+        }
     }
 }

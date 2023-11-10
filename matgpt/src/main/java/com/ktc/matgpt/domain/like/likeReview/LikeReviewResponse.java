@@ -39,5 +39,14 @@ public class LikeReviewResponse {
         }
     }
 
+    @Getter
+    @Setter
+    public static class HasLikedDTO {
+        boolean hasLiked;
+        public HasLikedDTO(boolean hasLiked) {
+            this.hasLiked = hasLiked;
+        }
+    }
+
 }
 

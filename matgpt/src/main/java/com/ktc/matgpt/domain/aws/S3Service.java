@@ -42,12 +42,10 @@ public class S3Service {
         if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
 
         String s3Url = matcher.group();
-//        verifyValidUrl(s3Url);
         return s3Url;
     }
 
     public void deleteImage(String s3Url) {
-//        verifyValidUrl(s3Url);
         String s3Key = getKeyFromS3Url(s3Url);
         amazonS3.deleteObject(s3BucketName, s3Key);
     }
@@ -59,11 +57,4 @@ public class S3Service {
         String s3Key = matcher.group();
         return s3Key;
     }
-
-//    private void verifyValidUrl(String s3Url) {
-//        if (!amazonS3.doesObjectExist(s3BucketName, getKeyFromS3Url(s3Url))) {
-//            throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
-//        }
-//    }
-
 }
