@@ -31,7 +31,7 @@ public class LikeReviewRestController {
 
     // 좋아요를 누른 리뷰인지 확인
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/reviews/{reviewId}/liked")
+    @GetMapping("/reviews/{reviewId}/if-liked")
     public ResponseEntity<?> checkIfLikedAlready(@PathVariable Long reviewId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         boolean hasLikedAlready = createLikeReviewUseCase.isLikeAlreadyExists(reviewId, userPrincipal.getEmail());
 

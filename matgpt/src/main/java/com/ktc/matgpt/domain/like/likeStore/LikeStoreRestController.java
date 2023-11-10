@@ -41,7 +41,7 @@ public class LikeStoreRestController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/stores/{storeId}/liked")
+    @GetMapping("/stores/{storeId}/if-liked")
     public ResponseEntity<?> checkIfLikedAlready(@PathVariable Long storeId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         boolean hasLikedAlready = createLikeStoreUsecase.isHeartAlreadyExists(userPrincipal.getEmail(), storeId);
 

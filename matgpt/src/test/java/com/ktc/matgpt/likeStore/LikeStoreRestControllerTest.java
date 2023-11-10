@@ -112,7 +112,7 @@ public class LikeStoreRestControllerTest {
 
         UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        mockMvc.perform(get("/stores/" + storeId + "/liked")
+        mockMvc.perform(get("/stores/" + storeId + "/if-liked")
                         .with(oauth2Login().oauth2User(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -128,7 +128,7 @@ public class LikeStoreRestControllerTest {
 
         UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        mockMvc.perform(get("/stores/" + storeId + "/liked")
+        mockMvc.perform(get("/stores/" + storeId + "/if-liked")
                         .with(oauth2Login().oauth2User(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

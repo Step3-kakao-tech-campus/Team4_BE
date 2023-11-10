@@ -72,7 +72,7 @@ public class LikeReviewRestControllerTest {
 
         UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        mvc.perform(get("/reviews/" + reviewId + "/liked")
+        mvc.perform(get("/reviews/" + reviewId + "/if-liked")
                         .with(oauth2Login().oauth2User(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -88,7 +88,7 @@ public class LikeReviewRestControllerTest {
 
         UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        mvc.perform(get("/reviews/" + reviewId + "/liked")
+        mvc.perform(get("/reviews/" + reviewId + "/if-liked")
                         .with(oauth2Login().oauth2User(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
