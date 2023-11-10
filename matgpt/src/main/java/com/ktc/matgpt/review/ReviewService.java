@@ -17,6 +17,7 @@ import com.ktc.matgpt.store.Store;
 import com.ktc.matgpt.store.StoreService;
 import com.ktc.matgpt.user.entity.User;
 import com.ktc.matgpt.user.service.UserService;
+import com.ktc.matgpt.utils.CursorRequest;
 import com.ktc.matgpt.utils.PageResponse;
 import com.ktc.matgpt.utils.Paging;
 import com.ktc.matgpt.utils.TimeUnit;
@@ -138,29 +139,26 @@ public class ReviewService {
         return new ReviewResponse.FindByReviewIdDTO(review, reviewerDTO, imageDTOs, relativeTime, isOwner);
     }
 
-    public PageResponse<?, ReviewResponse.FindPageByStoreIdDTO> findPageByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE_PLUS_ONE);
-        cursor = Paging.convertNullCursorToMaxValue(cursor);
-        cursorId = Paging.convertNullCursorToMaxValue(cursorId);
+    public PageResponse<?, ReviewResponse.StoreReviewDTO> findPageByStoreId(Long storeId, String sortBy, Long cursorId, Integer cursor) {
+        CursorRequest<Integer> page = new CursorRequest(DEFAULT_PAGE_SIZE_PLUS_ONE, cursor, Integer.class, cursorId);
 
         List<Review> reviews = switch (sortBy) {
-            case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, cursorId, page);
-            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, cursorId, cursor, page);
+            case "latest" -> reviewJPARepository.findAllByStoreIdAndOrderByIdDesc(storeId, page.cursorId, page.request);
+            case "likes" -> reviewJPARepository.findAllByStoreIdAndOrderByLikesAndIdDesc(storeId, page.cursorId, page.cursor, page.request);
             default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE, sortBy);
         };
         if (reviews.isEmpty()) return EMPTY_PAGE_RESPONSE;
 
         Paging<Integer> paging = getPagingInfo(reviews);
-        reviews = reviews.subList(0, paging.size());
+        return new PageResponse<>(paging, getStoreReviewDTOs(reviews.subList(0, paging.size())));
+    }
 
-        List<ReviewResponse.FindPageByStoreIdDTO> reviewDTOs = new ArrayList<>();
-
-        for (Review review : reviews) {
-            List<String> imageUrls = imageService.getImageUrlsByReviewId(review.getId());
+    private List<ReviewResponse.StoreReviewDTO> getStoreReviewDTOs(List<Review> reviewList) {
+        return reviewList.stream().map(review -> {
+            String image = imageService.getFirstImageByReviewId(review.getId());
             String relativeTime = getRelativeTime(review.getCreatedAt());
-            reviewDTOs.add(new ReviewResponse.FindPageByStoreIdDTO(review, relativeTime, imageUrls));
-        }
-        return new PageResponse<>(paging, reviewDTOs);
+            return new ReviewResponse.StoreReviewDTO(review, relativeTime, image);
+        }).collect(Collectors.toList());
     }
 
     public List<Review> findByStoreIdAndSummaryType(Long storeId, String summaryType, int limit) {
