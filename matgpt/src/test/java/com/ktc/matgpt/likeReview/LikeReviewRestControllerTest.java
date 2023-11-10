@@ -1,6 +1,5 @@
 package com.ktc.matgpt.likeReview;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.security.UserPrincipal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

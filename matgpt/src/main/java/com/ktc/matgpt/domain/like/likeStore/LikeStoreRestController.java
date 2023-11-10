@@ -1,6 +1,5 @@
 package com.ktc.matgpt.domain.like.likeStore;
 
-import com.ktc.matgpt.domain.like.likeReview.LikeReviewResponse;
 import com.ktc.matgpt.domain.like.usecase.CreateLikeStoreUseCase;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
