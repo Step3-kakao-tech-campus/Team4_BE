@@ -171,30 +171,26 @@ public class ReviewService {
         return reviewJPARepository.findByStoreId(storeId, pageable);
     }
 
-    public PageResponse<?, ReviewResponse.FindPageByUserIdDTO> findPageByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
+    public PageResponse<?, ReviewResponse.UserReviewDTO> findPageByUserId(String userEmail, String sortBy, Long cursorId, Integer cursor) {
         User userRef = userService.getReferenceByEmail(userEmail);
-        Pageable page = PageRequest.ofSize(DEFAULT_PAGE_SIZE_PLUS_ONE);
+        CursorRequest<Integer> page = new CursorRequest(DEFAULT_PAGE_SIZE_PLUS_ONE, cursor, Integer.class, cursorId);
 
-        cursorId = Paging.convertNullCursorToMaxValue(cursorId);
-        cursor = Paging.convertNullCursorToMaxValue(cursor);
-
-        List<Review> reviews = switch (sortBy) {
-            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userRef.getId(), cursorId, page);
-            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), cursorId, cursor, page);
+        List<Review> reviewList = switch (sortBy) {
+            case "latest" -> reviewJPARepository.findAllByUserIdAndOrderByIdDesc(userRef.getId(), page.cursorId, page.request);
+            case "likes" -> reviewJPARepository.findAllByUserIdAndOrderByLikesAndIdDesc(userRef.getId(), page.cursorId, page.cursor, page.request);
             default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE, sortBy);
         };
         if (reviewList.isEmpty()) return EMPTY_PAGE_RESPONSE;
 
-        if (reviews.isEmpty()) {
-            return new PageResponse<>(new Paging<>(false, 0, null, null), null);
-        }
+        Paging<Integer> paging = getPagingInfo(reviewList);
+        return new PageResponse<>(paging, getUserReviewDTOs(reviewList.subList(0, paging.size())));
+    }
 
-        Paging<Integer> paging = getPagingInfo(reviews);
-        reviews = reviews.subList(0, paging.size());
-
-        return new PageResponse<>(paging, reviews.stream().map(
-                review -> new ReviewResponse.FindPageByUserIdDTO(review, getRelativeTime(review.getCreatedAt()))
-                ).collect(Collectors.toList()));
+    private List<ReviewResponse.UserReviewDTO> getUserReviewDTOs(List<Review> reviewList) {
+        return reviewList.stream().map(review -> {
+            String relativeTime = getRelativeTime(review.getCreatedAt());
+            return new ReviewResponse.UserReviewDTO(review, relativeTime);
+        }).collect(Collectors.toList());
     }
 
 
