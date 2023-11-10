@@ -2,6 +2,7 @@ package com.ktc.matgpt.like.likeReview;
 
 import com.ktc.matgpt.review.entity.Review;
 import com.ktc.matgpt.user.entity.User;
+import com.ktc.matgpt.utils.CursorRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,8 @@ public class LikeReviewService {
         }
     }
 
-    public List<LikeReview> findReviewsByUserId(Long userId, Long cursorId, int pageSize) {
-        PageRequest page = PageRequest.ofSize(pageSize);
-        List<LikeReview> likeReviewList = likeReviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, cursorId, page);
-
-        return likeReviewList;
+    public List<LikeReview> findLikeReviewsByUserId(Long userId, CursorRequest page) {
+        return likeReviewJPARepository.findAllByUserIdAndOrderByIdDesc(userId, page.cursorId, page.request);
     }
 
     @Transactional
