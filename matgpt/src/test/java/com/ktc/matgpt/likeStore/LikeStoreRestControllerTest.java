@@ -102,7 +102,7 @@ public class LikeStoreRestControllerTest {
                 .andExpect(jsonPath("$.data").value("즐겨찾기 취소 성공"));
     }
 
-
+    // TODO: 테스트 통과 실패 해결
     @DisplayName("음식점 즐겨찾기 여부 확인 테스트 - 참")
     @Test
     public void testCheckIfAlreadyLiked_true() throws Exception {
