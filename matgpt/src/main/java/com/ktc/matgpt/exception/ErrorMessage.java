@@ -29,14 +29,15 @@ public class ErrorMessage {
     // Auth
     public static final String INVALID_TOKEN_EXCEPTION = "[MatGPT] 유효하지 않은 토큰입니다.";
     public static final String UNAUTHORIZED_EXCEPTION = "[MatGPT] 유효한 인증이 필요합니다.";
-    public static final String OAUTH2_PROCESSING_EXCEPTION = "[MatGPT] OAuth2 인증 처리 중 오류가 발생했습니다.";
     public static final String LOGOUT_USER_NOT_FOUND = "[MatGPT] 로그아웃 된 사용자입니다.";
     public static final String TOKEN_MISMATCH_EXCEPTION = "[MatGPT] 토큰의 유저 정보가 일치하지 않습니다.";
 
     // User
     public static final String USER_LOCALE_NOT_FOUND = "[MatGPT] 사용자에 저장된 Locale 정보가 없습니다.";
     public static final String USER_ALREADY_LOGOUT = "[MatGPT] 이미 로그아웃 된 사용자입니다.";
+    public static final String USER_ALREADY_EXIST = "[MatGPT] 이미 존재하는 아이디입니다.";
     public static final String USER_NOT_FOUND = "[MatGPT] 존재하지 않는 사용자입니다.";
+    public static final String LOCALE_NOT_FOUND = "[MatGPT] 존재하지 않는 로케일입니다.";
 
     // Coin
     public static final String COIN_USAGE_OVER_BALANCE = "[MatGPT] 잔액보다 큰 금액을 사용할 수 없습니다.";

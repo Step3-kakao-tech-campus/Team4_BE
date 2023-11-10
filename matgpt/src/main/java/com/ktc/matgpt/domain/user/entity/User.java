@@ -1,9 +1,8 @@
 package com.ktc.matgpt.domain.user.entity;
 
-import com.ktc.matgpt.security.oauth2.MatgptOAuth2Provider;
+import com.ktc.matgpt.utils.converter.LocaleEnumConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,12 +23,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(nullable = true)
+    private String name; //닉네임
 
-    @Email
     @Column(nullable = false)
-    private String email;
+    private String email; //아이디
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(nullable = true)
     private String profileImageUrl;
@@ -42,23 +43,8 @@ public class User {
     private AgeGroup ageGroup;
 
     @Column(nullable = true)
-    private Boolean emailVerified = false;
-
-    @Column(nullable = true)
-    @Convert(converter = LocaleConverter.class)
-    private Locale locale;
-
-    @Column(nullable = false)
-    private boolean isFirstLogin = true;
-
-    @NotNull
     @Enumerated(EnumType.STRING)
-    private MatgptOAuth2Provider provider;
+    private LocaleEnum locale;
 
-    private String providerId;
-
-    public void completeFirstLogin() {
-        this.isFirstLogin = false;
-    }
 
 }

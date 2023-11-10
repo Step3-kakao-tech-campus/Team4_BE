@@ -2,6 +2,7 @@ package com.ktc.matgpt.security.jwt;
 
 import com.ktc.matgpt.exception.auth.InvalidTokenException;
 import com.ktc.matgpt.security.UserPrincipal;
+import com.ktc.matgpt.security.dto.TokenDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -98,26 +100,25 @@ public class TokenProvider {
             throw new InvalidTokenException();
         }
 
-
         // 클레임에서 권한 정보 가져오기
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
-
-        // 클레임에서 Long 타입 userId 가져오기
-        Long userId = Long.valueOf(claims.get(USER_ID).toString());
-
-
-        // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new UserPrincipal(userId,claims.get(USER_EMAIL).toString(),false, authorities);//첫 가입 이후이므로 false 로 두어도 무방함
+        // UserPrincipal 객체를 만들어서 Authentication 리턴
+        UserPrincipal principal = new UserPrincipal(
+                Long.parseLong(claims.get(USER_ID).toString()),
+                claims.get(USER_EMAIL).toString(),
+                "",
+                authorities
+        );
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, "", authorities);
-
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return authentication;
     }
+
 
     public boolean validateToken(String token) {
         try {
