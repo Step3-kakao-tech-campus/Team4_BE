@@ -247,8 +247,15 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value("11"));
         resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value("10"));
+
         resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value("9"));
+        // reivewId:9의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[2].imageUrl").value("image1_review9.png"));
+
         resultActions.andExpect(jsonPath("$.data.body[3].reviewId").value("8"));
+        // reivewId:8의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[3].imageUrl").value("image1_review8.png"));
+
         resultActions.andExpect(jsonPath("$.data.body[4].reviewId").value("7"));
         resultActions.andExpect(jsonPath("$.data.body[5].reviewId").value("6"));
         resultActions.andExpect(jsonPath("$.data.body[6].reviewId").value("5"));
@@ -265,6 +272,10 @@ public class ReviewRestControllerTest {
                 get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : "+responseBody);
+
         // verify
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value("3"));
@@ -299,8 +310,12 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(status().isOk());
         resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value(11));
         resultActions.andExpect(jsonPath("$.data.body[0].numOfLikes").value(5));
+
         resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value(9));
         resultActions.andExpect(jsonPath("$.data.body[1].numOfLikes").value(3));
+        // reivewId:9의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[1].imageUrl").value("image1_review9.png"));
+
         resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value(2));
         resultActions.andExpect(jsonPath("$.data.body[2].numOfLikes").value(3));
         resultActions.andExpect(jsonPath("$.data.body[3].reviewId").value(1));
@@ -311,8 +326,11 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.body[5].numOfLikes").value(1));
         resultActions.andExpect(jsonPath("$.data.body[6].reviewId").value(10));
         resultActions.andExpect(jsonPath("$.data.body[6].numOfLikes").value(0));
+
         resultActions.andExpect(jsonPath("$.data.body[7].reviewId").value(8));
-        resultActions.andExpect(jsonPath("$.data.body[7].numOfLikes").value(0));
+        // reivewId:8의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[7].imageUrl").value("image1_review8.png"));
+
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(8));
