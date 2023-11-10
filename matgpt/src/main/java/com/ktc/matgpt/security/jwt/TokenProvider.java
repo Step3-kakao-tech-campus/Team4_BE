@@ -1,7 +1,6 @@
 package com.ktc.matgpt.security.jwt;
 
-import com.ktc.matgpt.exception.CustomException;
-import com.ktc.matgpt.exception.ErrorCode;
+import com.ktc.matgpt.exception.auth.InvalidTokenException;
 import com.ktc.matgpt.security.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -96,7 +95,7 @@ public class TokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN_EXCEPTION);
+            throw new InvalidTokenException();
         }
 
 

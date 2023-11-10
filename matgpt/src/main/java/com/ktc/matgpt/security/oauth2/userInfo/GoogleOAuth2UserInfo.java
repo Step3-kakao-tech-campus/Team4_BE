@@ -1,8 +1,8 @@
 package com.ktc.matgpt.security.oauth2.userInfo;
 
 
-import com.ktc.matgpt.user.entity.AgeGroup;
-import com.ktc.matgpt.user.entity.Gender;
+import com.ktc.matgpt.domain.user.entity.AgeGroup;
+import com.ktc.matgpt.domain.user.entity.Gender;
 
 import java.util.Map;
 

@@ -9,6 +9,8 @@ INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, LOCALE,
 VALUES (2, null, 1, 'nstgic@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7','korean',true, 'KAKAO', 3038773712);
 INSERT INTO user_tb (AGE_GROUP, EMAIL_VERIFIED, ID, EMAIL, GENDER, NAME, LOCALE, IS_FIRST_LOGIN, PROVIDER, PROVIDER_ID)
 VALUES (2, null, 2, 'female@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd2','french',true, 'KAKAO', 3038733712);
+INSERT INTO user_tb (AGE_GROUP, EMAIL, ID, EMAIL_VERIFIED, GENDER, IS_FIRST_LOGIN, LOCALE, NAME, PROFILE_IMAGE_URL, PROVIDER, PROVIDER_ID)
+VALUES (2, 'sk980919@kakao.com', 3, null, 'MALE', FALSE, 'korean', '364ea4bc-65b6-4f27-8682-61ce58896898', null, 'KAKAO', 3111484287);
 
 
 -- DetailedCategory Table Initialization
@@ -122,5 +124,6 @@ INSERT INTO likereview_tb(review_id, user_id)VALUES (2, 2);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
 INSERT INTO likereview_tb(review_id, user_id)VALUES (7, 2);
 
-INSERT INTO coin_tb(id, user_id, balance) VALUES (1, 1, 0);
-INSERT INTO coin_tb(id, user_id, balance) VALUES (2, 2, 0);
+INSERT INTO coin_tb(id, user_id, balance) VALUES (1, 1, 10);
+INSERT INTO coin_tb(id, user_id, balance) VALUES (2, 2, 10);
+INSERT INTO coin_tb(id, user_id, balance) VALUES (3, 3, 10);
