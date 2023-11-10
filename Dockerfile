@@ -5,7 +5,7 @@ FROM krmp-d2hub-idock.9rum.cc/goorm/gradle:8.2.1-jdk17
 WORKDIR /home/gradle/project
 
 # Spring 소스 코드를 이미지에 복사
-COPY matgpt .
+COPY . .
 
 WORKDIR /home/gradle/project/matgpt
 
