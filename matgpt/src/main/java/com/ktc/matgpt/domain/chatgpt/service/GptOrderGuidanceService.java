@@ -6,6 +6,7 @@ import com.ktc.matgpt.domain.chatgpt.dto.GptOrderGuidanceResponseDto;
 import com.ktc.matgpt.domain.chatgpt.dto.GptRequestConverter;
 import com.ktc.matgpt.domain.chatgpt.entity.GptOrderGuidance;
 import com.ktc.matgpt.domain.chatgpt.repository.GptOrderGuidanceRepository;
+import com.ktc.matgpt.domain.user.entity.LocaleEnum;
 import com.ktc.matgpt.domain.user.entity.User;
 import com.ktc.matgpt.domain.user.service.UserService;
 import com.ktc.matgpt.exception.ErrorMessage;
@@ -32,8 +33,7 @@ public class GptOrderGuidanceService {
     @Transactional
     public String generateOrderGuidance(Long userId) throws ExecutionException, InterruptedException {
         User user = userService.findById(userId);
-        Locale locale = getLocaleFromUser(user);
-        GptApiRequest requestBody = GptRequestConverter.convertFromLocale(locale);
+        GptApiRequest requestBody = GptRequestConverter.convertFromLocale(user.getLocale().getCountryDescription());
 
         CompletableFuture<GptApiResponse> completableGptApiResponse = gptApiService.callChatGptApi(requestBody);
         GptApiResponse gptApiResponse = completableGptApiResponse.get();
@@ -52,8 +52,8 @@ public class GptOrderGuidanceService {
                 .toList();
     }
 
-    private Locale getLocaleFromUser(User user) {
-        Locale locale = user.getLocale();
+    private LocaleEnum getLocaleFromUser(User user) {
+        LocaleEnum locale = user.getLocale();
         if (locale == null) {
             throw new NoSuchElementException(ErrorMessage.USER_LOCALE_NOT_FOUND);
         }
