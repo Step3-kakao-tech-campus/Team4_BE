@@ -3,12 +3,9 @@ package com.ktc.matgpt.review;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.TestHelper;
 import com.ktc.matgpt.exception.ErrorCode;
-import com.ktc.matgpt.food.FoodService;
-import com.ktc.matgpt.image.ImageService;
 import com.ktc.matgpt.review.dto.ReviewRequest;
 import com.ktc.matgpt.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.store.StoreService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,15 +47,6 @@ public class ReviewRestControllerTest {
 
     @Mock
     private ReviewService reviewService;
-
-    @Mock
-    private ImageService imageService;
-
-    @Mock
-    private FoodService foodService;
-
-    @Mock
-    private StoreService storeService;
 
     @BeforeEach
     public void setUp() {
