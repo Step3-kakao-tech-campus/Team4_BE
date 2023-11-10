@@ -1,7 +1,7 @@
 package com.ktc.matgpt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ktc.matgpt.review.dto.ReviewRequest;
+import com.ktc.matgpt.domain.review.dto.ReviewRequest;
 
 import java.util.Arrays;
 import java.util.List;

@@ -55,7 +55,7 @@ public class StoreRestControllerTest {
 
         // then
         resultActions.andExpect(status().is4xxClientError());
-        resultActions.andExpect(jsonPath("$.errorCode").value(HttpStatus.NOT_FOUND.value()));
+        resultActions.andExpect(jsonPath("$.errorCode").value(HttpStatus.BAD_REQUEST.value()));
     }
 
     @DisplayName("storeId로 음식점 조회 실패 - 잘못된 storeId 형식")

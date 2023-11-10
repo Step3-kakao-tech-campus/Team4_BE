@@ -5,8 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class
-TokenDto {
+public class TokenDto {
 
     @Getter
     @NoArgsConstructor

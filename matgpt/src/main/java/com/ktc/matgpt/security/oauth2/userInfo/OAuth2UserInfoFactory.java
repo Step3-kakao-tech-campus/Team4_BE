@@ -1,8 +1,7 @@
 package com.ktc.matgpt.security.oauth2.userInfo;
 
 
-import com.ktc.matgpt.exception.CustomException;
-import com.ktc.matgpt.exception.ErrorCode;
+import com.ktc.matgpt.exception.auth.Oauth2ProcessingException;
 import com.ktc.matgpt.security.oauth2.MatgptOAuth2Provider;
 
 import java.util.HashMap;
@@ -24,7 +23,7 @@ public class OAuth2UserInfoFactory {
         if (supplier != null) {
             return supplier.apply(attributes);
         } else {
-            throw new CustomException(ErrorCode.OAUTH2_PROCESSING_EXCEPTION);
+            throw new Oauth2ProcessingException();
         }
     }
 }
