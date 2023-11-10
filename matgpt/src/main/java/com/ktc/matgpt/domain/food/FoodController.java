@@ -24,7 +24,7 @@ public class FoodController {
 
     // 새로운 음식 추가
     @PostMapping
-//    @PreAuthorize("hasRole('USER_ADMIN')") // TODO: 우수 회원에 한해서 등록 허용할건지
+//    @PreAuthorize("hasRole('USER_ADMIN')")
     public ResponseEntity<Food> addNewFoodToStore(@PathVariable Long storeId, @RequestBody FoodDTO.CreateDTO foodDTO) {
         Food newFood = foodService.addFoodToStore(storeId, foodDTO);
         return new ResponseEntity<>(newFood, HttpStatus.CREATED);

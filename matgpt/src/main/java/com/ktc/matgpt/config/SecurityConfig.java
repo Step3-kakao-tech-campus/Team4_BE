@@ -44,7 +44,6 @@ public class SecurityConfig {
                 csrfCustomizer -> csrfCustomizer
                         .ignoringRequestMatchers(antMatcher("/h2-console/**"))
                         .disable()
-                // TODO
         );
         // 헤더 설정
         http.headers(
@@ -65,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/store/similar")).authenticated()
                         .requestMatchers(antMatcher("/mypage/**")).authenticated()
                         .requestMatchers(antMatcher("/stores/like")).authenticated()
-                        .anyRequest().permitAll() // TODO
+                        .anyRequest().permitAll()
         );
 //---------------------------------------------
         http.exceptionHandling(
