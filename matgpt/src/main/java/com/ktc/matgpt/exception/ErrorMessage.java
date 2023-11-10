@@ -24,6 +24,7 @@ public class ErrorMessage {
 
     // S3
     public static final String S3_FILE_VALIDATION_ERROR = "[MatGPT] S3파일 검증 중에 오류가 발생했습니다.";
+    public static final String INVALID_S3_URL = "[MatGPT] 유효하지 않은 S3 Url입니다.";
 
     // Auth
     public static final String INVALID_TOKEN_EXCEPTION = "[MatGPT] 유효하지 않은 토큰입니다.";

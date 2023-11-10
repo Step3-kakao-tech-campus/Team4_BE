@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,8 +25,10 @@ public class ImageService {
     private final S3Service s3Service;
 
     @Transactional
-    public Image saveImageForReview(Review review, String imageUrl) {
-        Image image = Image.create(review, imageUrl);
+    public Image saveImageForReview(Review review, String presignedUrl) {
+        String s3Url = s3Service.getS3Url(presignedUrl);
+
+        Image image = Image.create(review, s3Url);
         imageJPARepository.save(image);
         log.info("image-{}: 이미지가 저장되었습니다.", image.getId());
         return image;
