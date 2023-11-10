@@ -80,7 +80,6 @@ public class ReviewRestController {
         return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
 
-    // TODO: s3 삭제 구현
     // 리뷰 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{reviewId}")

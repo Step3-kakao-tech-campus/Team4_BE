@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,7 +25,9 @@ public class ImageService {
     private final S3Service s3Service;
 
     public Image saveImageForReview(Review review, String imageUrl) {
-        Image image = Image.create(review, imageUrl);
+        String imageKey = extractImageKey(imageUrl);
+
+        Image image = Image.create(review, imageKey);
         imageJPARepository.save(image);
         log.info("image-%d: 이미지가 저장되었습니다.", image.getId());
         return image;
@@ -37,6 +42,15 @@ public class ImageService {
         }
         deleteImagesAndAssociatedTags(images);
     }
+
+    private String extractImageKey(String imageUrl) {
+        Pattern pattern = Pattern.compile("reviews/[\\w-]+/\\d+");
+        Matcher matcher = pattern.matcher(imageUrl);
+
+        if (matcher.find()) return matcher.group();
+        else throw new NoSuchElementException("이미지 url에 올바른 key가 존재하지 않습니다.");
+    }
+
 
     private void deleteImagesAndAssociatedTags(List<Image> images) {
         for (Image image : images) {
