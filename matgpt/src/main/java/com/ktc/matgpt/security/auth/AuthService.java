@@ -73,6 +73,8 @@ public class AuthService {
 
     @Transactional
     public void logout(TokenDto.Request tokenRequest, HttpServletRequest request) {
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequest.getAccessToken(),request);
+        refreshTokenRepository.deleteByKey(authentication.getName());
     }
 
     @Transactional
