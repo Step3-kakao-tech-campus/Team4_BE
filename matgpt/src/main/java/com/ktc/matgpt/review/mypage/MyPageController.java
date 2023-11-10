@@ -28,7 +28,7 @@ public class MyPageController {
                                              @RequestParam(required = false) Long cursorId,
                                              @RequestParam(required = false) Integer cursor,
                                              @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        PageResponse<?, ReviewResponse.FindPageByUserIdDTO> responseDTOs =
+        PageResponse<?, ReviewResponse.UserReviewDTO> responseDTOs =
                 reviewService.findPageByUserId(userPrincipal.getEmail(), sortBy, cursorId, cursor);
 
         return ResponseEntity.ok(ApiUtils.success(responseDTOs));
@@ -38,7 +38,7 @@ public class MyPageController {
     @GetMapping("/liked-reviews")
     public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(required = false) Long cursorId,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        PageResponse<?, LikeReviewResponse.FindLikeReviewPageDTO>  responseDTO
+        PageResponse<?, LikeReviewResponse.LikeReviewDTO>  responseDTO
                             = likeReviewUseCase.executeFindLikeReviews(userPrincipal.getEmail(), cursorId);
         return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
