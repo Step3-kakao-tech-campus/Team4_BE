@@ -283,7 +283,7 @@ public class ReviewService {
         if (value != 1) {
             unitKey += "s";
         }
-        return value + " " + unitKey + "ago";
+        return value + " " + unitKey + " ago";
         //        String timeUnitMessage = messageSourceAccessor.getMessage(unitKey, locale);
         //        return value + " " + timeUnitMessage + " " + messageSourceAccessor.getMessage("ago", locale);
     }
