@@ -78,7 +78,8 @@ public class UserService {
     @Transactional
     public void completeImageUpload(UserDto.ImageRequest imageRequest, String userEmail) {
         User user = findByEmail(userEmail);
-        user.setProfileImageUrl(imageRequest.getPresignedUrl());
+        String userImageUrl = s3Service.getUserImageUrl(imageRequest.getPresignedUrl());
+        user.setProfileImageUrl(userImageUrl);
 
         userRepository.save(user);
     }

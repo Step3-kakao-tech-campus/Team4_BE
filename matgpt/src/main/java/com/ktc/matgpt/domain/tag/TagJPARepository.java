@@ -10,4 +10,5 @@ public interface TagJPARepository extends JpaRepository<Tag, Long> {
             "where t.image.id = :imageId")
     List<Tag> findAllByImageId(Long imageId);
 
+    void deleteAllByImageId(Long imageId);
 }

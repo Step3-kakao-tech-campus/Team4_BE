@@ -21,7 +21,8 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String s3BucketName;
-    private static Pattern urlPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/reviews/[\\w-]+/\\d+");
+    private static Pattern reviewPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/reviews/[\\w-]+/\\d+");
+    private static Pattern userPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/users/\\d+");
     private static Pattern keyPatten = Pattern.compile("reviews/[\\w-]+/\\d+");
 
     public URL getPresignedUrl(String objectKey) {
@@ -37,8 +38,16 @@ public class S3Service {
         return amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
     }
 
-    public String getS3Url(String presignedUrl) {
-        Matcher matcher = urlPattern.matcher(presignedUrl);
+    public String getReviewImageUrl(String presignedUrl) {
+        Matcher matcher = reviewPattern.matcher(presignedUrl);
+        if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
+
+        String s3Url = matcher.group();
+        return s3Url;
+    }
+
+    public String getUserImageUrl(String presignedUrl) {
+        Matcher matcher = userPattern.matcher(presignedUrl);
         if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
 
         String s3Url = matcher.group();
