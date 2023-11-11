@@ -6,6 +6,7 @@ import com.ktc.matgpt.domain.user.repository.UserRepository;
 import com.ktc.matgpt.domain.user.service.UserService;
 import com.ktc.matgpt.exception.ErrorMessage;
 import com.ktc.matgpt.exception.auth.InvalidTokenException;
+import com.ktc.matgpt.exception.auth.UserAlreadyExistsException;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.security.dto.AuthDto;
 import com.ktc.matgpt.security.dto.TokenDto;
@@ -38,7 +39,7 @@ public class AuthService {
     @Transactional
     public AuthDto.DefaultRequest signup(AuthDto.DefaultRequest defaultRequest) {
         if (userService.existsByEmail(defaultRequest.getEmail())) {
-            throw new RuntimeException(ErrorMessage.USER_ALREADY_EXIST);
+            throw new UserAlreadyExistsException(ErrorMessage.USER_ALREADY_EXIST);
         }
 
         User user = defaultRequest.toEntity(passwordEncoder);
