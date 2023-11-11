@@ -2,6 +2,7 @@ package com.ktc.matgpt.domain.aws;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.ktc.matgpt.exception.ErrorMessage;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class S3Service {
 
     public void deleteImage(String s3Url) {
         String s3Key = getKeyFromS3Url(s3Url);
-        amazonS3.deleteObject(s3BucketName, s3Key);
+        amazonS3.deleteObject(new DeleteObjectRequest(s3BucketName, s3Key));
     }
 
     private String getKeyFromS3Url(String s3Url) {
