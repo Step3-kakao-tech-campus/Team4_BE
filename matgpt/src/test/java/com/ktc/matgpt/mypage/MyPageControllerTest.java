@@ -38,7 +38,7 @@ public class MyPageControllerTest {
         //given
         // userId 1이 작성한 리뷰는 총 10개
         String sortBy = "latest";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when - cursor 없으면 default -> 자동으로 max값
@@ -90,7 +90,7 @@ public class MyPageControllerTest {
     public void findReviewsByUserIdSortByRating_test() throws Exception{
         //given
         String sortBy = "likes";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when - cursor 없으면 default -> 자동으로 max값
@@ -161,7 +161,7 @@ public class MyPageControllerTest {
         //given
         // userId 1이 좋아요 누른 리뷰: 총 4개(reviewId: 1, 2, 3, 7)
         // 좋아요 누른 순서: 1 -> 2 -> 7 -> 3
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when
