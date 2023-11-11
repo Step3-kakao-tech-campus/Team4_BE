@@ -35,7 +35,7 @@ chatgpt:
 cloud:
   aws:
     s3:
-      bucket: matgpt-prod
+      bucket: matgpt-dev
     credentials:
       access-key: ${AWSACCESSKEY}
       secret-key: ${AWSSECRETKEY}
