@@ -44,6 +44,7 @@ public class S3Service {
         if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
 
         String s3Url = matcher.group();
+        System.out.println(s3Url);
         return s3Url;
     }
 
