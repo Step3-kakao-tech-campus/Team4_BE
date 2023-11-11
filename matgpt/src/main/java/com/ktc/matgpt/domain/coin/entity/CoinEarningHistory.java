@@ -1,6 +1,7 @@
 package com.ktc.matgpt.domain.coin.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,26 +11,18 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Table(name = "coin_earning_history_tb")
 @Entity
-public class CoinEarningHistory {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Coin coin;
-
-    private int balance;
-
-    private int amount;
+public class CoinEarningHistory extends CoinHistory {
 
     private LocalDateTime earnedAt;
 
     public CoinEarningHistory(Coin coin, int amount) {
-        this.coin = coin;
-        this.balance = coin.getBalance();
-        this.amount = amount;
+        super(coin, amount);
         this.earnedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public LocalDateTime getTransactionTime() {
+        return this.earnedAt;
     }
 
     public static CoinEarningHistory create(Coin coin, int amount) {

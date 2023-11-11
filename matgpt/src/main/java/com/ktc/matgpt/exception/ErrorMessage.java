@@ -41,5 +41,5 @@ public class ErrorMessage {
 
     // Coin
     public static final String COIN_USAGE_OVER_BALANCE = "[MatGPT] 잔액보다 큰 금액을 사용할 수 없습니다.";
-
+    public static final String COIN_OUT_OF_RANGE = "[MatGPT] 최대 보유 가능 코인 범위를 벗어났습니다.";
 }
