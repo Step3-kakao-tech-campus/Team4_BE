@@ -22,8 +22,8 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String s3BucketName;
-    private static Pattern reviewPattern = Pattern.compile("https://matgpt-prod\\.s3\\.ap-northeast-2\\.amazonaws\\.com/reviews/[\\w-]+/\\d+");
-    private static Pattern userPattern = Pattern.compile("https://matgpt-prod\\.s3\\.ap-northeast-2\\.amazonaws\\.com/users/[^?]+");
+    private static Pattern reviewPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/reviews/[\\w-]+/\\d+");
+    private static Pattern userPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/users/[^?]+");
     private static Pattern keyPatten = Pattern.compile("reviews/[\\w-]+/\\d+");
 
     public URL getPresignedUrl(String objectKey) {
