@@ -24,6 +24,14 @@ public class UserDto {
         private int age;
         private String locale;
     }
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ImageRequest {
+        private String email;
+        private String presignedUrl;
+    }
 
     @Getter
     @NoArgsConstructor
@@ -32,6 +40,7 @@ public class UserDto {
     public static class Response {
         private String email;
         private String nickname;
+        private String profileImageUrl;
         private String gender;
         private String age;
         private String locale;
@@ -39,11 +48,13 @@ public class UserDto {
             return new UserDto.Response(
                     user.getEmail(),
                     user.getName(),
+                    user.getProfileImageUrl(),
                     Optional.ofNullable(user.getGender()).map(Enum::toString).orElse(null),
                     Optional.ofNullable(user.getAgeGroup()).map(Enum::toString).orElse(null),
                     Optional.ofNullable(user.getLocale()).map(Enum::name).orElse(null)
             );
         }
+
     }
 
 
