@@ -37,7 +37,8 @@ public class TagService {
         }
 
         updateFoodBeforeDelete(tags); // 필요한 업데이트를 먼저 처리
-        bulkDeleteTags(tags); // 태그들을 Bulk Delete를 통해 삭제
+//        bulkDeleteTags(tags); // 태그들을 Bulk Delete를 통해 삭제
+        tagJPARepository.deleteAllByImageId(imageId);
     }
 
     public List<Tag> getTagsByImageId(Long imageId) {
@@ -49,8 +50,8 @@ public class TagService {
         tags.forEach(foodService::removeRatingByTagName);
     }
 
-    private void bulkDeleteTags(List<Tag> tags) {
-        tagJPARepository.deleteAllInBatch(tags); // Spring Data JPA의 Bulk Delete를 수행
-        tags.forEach(tag -> log.info("tag-{}: 태그를 삭제했습니다.", tag.getId()));
-    }
+//    private void bulkDeleteTags(List<Tag> tags) {
+//        tagJPARepository.deleteAllInBatch(tags); // Spring Data JPA의 Bulk Delete를 수행
+//        tags.forEach(tag -> log.info("tag-{}: 태그를 삭제했습니다.", tag.getId()));
+//    }
 }
