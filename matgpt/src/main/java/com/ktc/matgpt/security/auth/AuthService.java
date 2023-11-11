@@ -1,5 +1,6 @@
 package com.ktc.matgpt.security.auth;
 
+import com.ktc.matgpt.domain.coin.service.CoinService;
 import com.ktc.matgpt.domain.user.entity.User;
 import com.ktc.matgpt.domain.user.repository.UserRepository;
 import com.ktc.matgpt.domain.user.service.UserService;
@@ -29,6 +30,7 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final CoinService coinService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -42,6 +44,7 @@ public class AuthService {
         User user = defaultRequest.toEntity(passwordEncoder);
 
         UserPrincipal.create(user);
+        coinService.createCoin(user); //기본 코인 할당
 
         return AuthDto.DefaultRequest.toDto(userRepository.save(user));
 
