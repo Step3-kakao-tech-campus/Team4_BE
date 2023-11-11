@@ -5,12 +5,12 @@ INSERT INTO category_tb (id, name) VALUES
                                        (3, 'DESSERT'),
                                        (4, 'JAPANESE');
 -- User Table Initalization
-INSERT INTO user_tb (AGE_GROUP, ID, EMAIL, GENDER, NAME, LOCALE, PASSWORD)
-VALUES (2, 1, 'nstgic@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KOREA', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7');
-INSERT INTO user_tb (AGE_GROUP, ID, EMAIL, GENDER, NAME, LOCALE, PASSWORD)
-VALUES (2, 2, 'female@gmail.com', 'FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd2','FRANCE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7');
-INSERT INTO user_tb (AGE_GROUP, ID, EMAIL, GENDER, NAME, LOCALE, PASSWORD)
-VALUES (2 ,3,  'sk980919@kakao.com','MALE', '364ea4bc-65b6-4f27-8682-61ce58896898', 'KOREA', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7');
+INSERT INTO user_tb (AGE_GROUP, ID, EMAIL, profile_image_url,GENDER, NAME, LOCALE, PASSWORD)
+VALUES (2, 1, 'nstgic@gmail.com', '','FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7', 'KOREA', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7');
+INSERT INTO user_tb (AGE_GROUP, ID, EMAIL, profile_image_url, GENDER, NAME, LOCALE, PASSWORD)
+VALUES (2, 2, 'female@gmail.com', '','FEMALE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd2','FRANCE', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7');
+INSERT INTO user_tb (AGE_GROUP, ID, EMAIL, profile_image_url, GENDER, NAME, LOCALE, PASSWORD)
+VALUES (2 ,3,  'sk980919@kakao.com','','MALE', '364ea4bc-65b6-4f27-8682-61ce58896898', 'KOREA', 'ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7');
 
 
 -- DetailedCategory Table Initialization

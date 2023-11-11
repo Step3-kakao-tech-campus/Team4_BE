@@ -6,6 +6,8 @@ import com.ktc.matgpt.domain.chatgpt.dto.GptOrderGuidanceResponseDto;
 import com.ktc.matgpt.domain.chatgpt.dto.GptRequestConverter;
 import com.ktc.matgpt.domain.chatgpt.entity.GptOrderGuidance;
 import com.ktc.matgpt.domain.chatgpt.repository.GptOrderGuidanceRepository;
+import com.ktc.matgpt.domain.coin.dto.CoinRequest;
+import com.ktc.matgpt.domain.coin.service.CoinService;
 import com.ktc.matgpt.domain.user.entity.LocaleEnum;
 import com.ktc.matgpt.domain.user.entity.User;
 import com.ktc.matgpt.domain.user.service.UserService;
@@ -28,11 +30,16 @@ public class GptOrderGuidanceService {
 
     private final GptOrderGuidanceRepository gptOrderGuidanceRepository;
     private final UserService userService;
+    private final CoinService coinService;
     private final GptApiService gptApiService;
+
+    private static final int DEFAULT_COIN_USAGE = 20;
 
     @Transactional
     public String generateOrderGuidance(Long userId) throws ExecutionException, InterruptedException {
         User user = userService.findById(userId);
+        coinService.useCoin(userId,new CoinRequest.UseCoinDto(DEFAULT_COIN_USAGE));
+
         GptApiRequest requestBody = GptRequestConverter.convertFromLocale(user.getLocale().getCountryDescription());
 
         CompletableFuture<GptApiResponse> completableGptApiResponse = gptApiService.callChatGptApi(requestBody);
