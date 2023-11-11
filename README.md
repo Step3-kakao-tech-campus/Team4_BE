@@ -18,6 +18,16 @@
 
 2023.09 ~ 2023.11
 
+## 배포 주소
+
+### 백엔드
+
+https://kf3c002a226dca.user-app.krampoline.com
+
+### 프론트엔드
+
+https://k4cd71a7a9c51a.user-app.krampoline.com/
+
 ## 팀원
 
 공희찬  
