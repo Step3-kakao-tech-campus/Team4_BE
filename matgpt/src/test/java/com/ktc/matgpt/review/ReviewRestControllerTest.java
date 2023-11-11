@@ -2,11 +2,13 @@ package com.ktc.matgpt.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.TestHelper;
+import com.ktc.matgpt.domain.aws.S3Service;
 import com.ktc.matgpt.domain.review.ReviewService;
 import com.ktc.matgpt.exception.ErrorMessage;
 import com.ktc.matgpt.domain.review.dto.ReviewRequest;
 import com.ktc.matgpt.domain.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
+import com.ktc.matgpt.utils.ApiUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -49,6 +52,9 @@ public class ReviewRestControllerTest {
     @Mock
     private ReviewService reviewService;
 
+    @MockBean
+    private S3Service s3Service;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -62,7 +68,7 @@ public class ReviewRestControllerTest {
         //given
         String reviewId = "1";
         String storeId = "1";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when
@@ -79,7 +85,7 @@ public class ReviewRestControllerTest {
         // verify
         resultActions.andExpect(jsonPath("$.data.reviewId").value("1"));
         resultActions.andExpect(jsonPath("$.data.storeId").value("1"));
-        resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic3@gmail.com"));
+        resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic@gmail.com"));
         resultActions.andExpect(jsonPath("$.data.createdAt").exists());
         resultActions.andExpect(jsonPath("$.data.averageCostPerPerson").value(25000));
         resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
@@ -101,7 +107,7 @@ public class ReviewRestControllerTest {
     public void createTemporaryReview_test() throws Exception {
         //given
         String storeId = "1";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
         String reviewUuid = "uuiduuiduuiduuid111";
         List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = new ArrayList<>();
@@ -173,10 +179,13 @@ public class ReviewRestControllerTest {
         Long storeId = 1L;
         Long reviewId = 2L;
         String requestDTOJson = TestHelper.constructCompleteDTO();
-        UserPrincipal mockUserPrincipal = new UserPrincipal(2L, "female@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(2L, "female@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
         String url = String.format("/stores/%d/reviews/%d", storeId, reviewId);
         String successMsg = "리뷰가 성공적으로 완료되었습니다.";
+
+        when(s3Service.getReviewImageUrl("https://example.com/image1.jpg"))
+                .thenReturn("https://matgpt-dev.s3.ap-northeast-2.amazonaws.com/reviews/1418c0de-9aaa-43e1-9ba8-160595de6ba6/1");
 
         //when - 1. 전체 리뷰 저장
         ResultActions resultActions = mvc.perform(
@@ -210,7 +219,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewId").value(2));
         resultActions.andExpect(jsonPath("$.data.storeId").value(1));
         // TestHelper의 Image, Tag 데이터 기반 검증
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("https://example.com/image1.jpg"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("https://matgpt-dev.s3.ap-northeast-2.amazonaws.com/reviews/1418c0de-9aaa-43e1-9ba8-160595de6ba6/1"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("짜장면"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(50));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(100));
@@ -373,7 +382,7 @@ public class ReviewRestControllerTest {
         String content = "리뷰-1의 내용이 수정된 결과입니다.";
         String successMsg = "리뷰 내용이 수정되었습니다.";
 
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         String requestBody = ob.writeValueAsString(new ReviewRequest.UpdateDTO(content));
@@ -414,7 +423,7 @@ public class ReviewRestControllerTest {
         String reviewId = "1";
         String successMsg = "리뷰가 삭제되었습니다.";
 
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when - 1. 리뷰 삭제 수행
