@@ -27,7 +27,7 @@ public class ImageService {
     @Transactional
     public Image saveImageForReview(Review review, String presignedUrl) {
         log.info("presignedUrl : {}", presignedUrl);
-        String s3Url = s3Service.getS3Url(presignedUrl);
+        String s3Url = s3Service.getReviewImageUrl(presignedUrl);
 
         Image image = Image.create(review, s3Url);
         imageJPARepository.save(image);
