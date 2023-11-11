@@ -2,14 +2,13 @@ package com.ktc.matgpt.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktc.matgpt.TestHelper;
-import com.ktc.matgpt.exception.ErrorCode;
-import com.ktc.matgpt.food.FoodService;
-import com.ktc.matgpt.image.ImageService;
-import com.ktc.matgpt.review.dto.ReviewRequest;
-import com.ktc.matgpt.review.dto.ReviewResponse;
-import com.ktc.matgpt.review.entity.Review;
+import com.ktc.matgpt.domain.aws.S3Service;
+import com.ktc.matgpt.domain.review.ReviewService;
+import com.ktc.matgpt.exception.ErrorMessage;
+import com.ktc.matgpt.domain.review.dto.ReviewRequest;
+import com.ktc.matgpt.domain.review.dto.ReviewResponse;
 import com.ktc.matgpt.security.UserPrincipal;
-import com.ktc.matgpt.store.StoreService;
+import com.ktc.matgpt.utils.ApiUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,15 +17,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URL;
 import java.util.*;
@@ -54,14 +52,8 @@ public class ReviewRestControllerTest {
     @Mock
     private ReviewService reviewService;
 
-    @Mock
-    private ImageService imageService;
-
-    @Mock
-    private FoodService foodService;
-
-    @Mock
-    private StoreService storeService;
+    @MockBean
+    private S3Service s3Service;
 
     @BeforeEach
     public void setUp() {
@@ -76,11 +68,14 @@ public class ReviewRestControllerTest {
         //given
         String reviewId = "1";
         String storeId = "1";
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when
         ResultActions resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews/"+reviewId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
         );
 
         //console
@@ -90,9 +85,8 @@ public class ReviewRestControllerTest {
         // verify
         resultActions.andExpect(jsonPath("$.data.reviewId").value("1"));
         resultActions.andExpect(jsonPath("$.data.storeId").value("1"));
-        resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic3@gmail.com"));
-        // TODO: createdAt 검증
-//        resultActions.andExpect(jsonPath("$.data.createdAt").value());
+        resultActions.andExpect(jsonPath("$.data.reviewer.email").value("nstgic@gmail.com"));
+        resultActions.andExpect(jsonPath("$.data.createdAt").exists());
         resultActions.andExpect(jsonPath("$.data.averageCostPerPerson").value(25000));
         resultActions.andExpect(jsonPath("$.data.peopleCount").value(2));
         resultActions.andExpect(jsonPath("$.data.rating").value(5));
@@ -104,6 +98,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].rating").value(3));
         resultActions.andExpect(jsonPath("$.data.totalPrice").value(50000));
         resultActions.andExpect(jsonPath("$.data.updated").value(true));
+        resultActions.andExpect(jsonPath("$.data.owner").value(true));
     }
 
 
@@ -112,7 +107,7 @@ public class ReviewRestControllerTest {
     public void createTemporaryReview_test() throws Exception {
         //given
         String storeId = "1";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
         String reviewUuid = "uuiduuiduuiduuid111";
         List<ReviewResponse.UploadS3DTO.PresignedUrlDTO> presignedUrls = new ArrayList<>();
@@ -131,12 +126,12 @@ public class ReviewRestControllerTest {
         // 가상의 이미지 파일을 준비합니다.
         // 리뷰 데이터 DTO를 준비합니다.
         String requestDTOJson = TestHelper.constructTempReviewCreateDTO();
-        MockMultipartFile dataPart = new MockMultipartFile("data", "", "application/json", requestDTOJson.getBytes());
 
         //when - 임시 리뷰 저장을 수행합니다.
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/stores/{storeId}/reviews/temp", 1)
-                        .file(dataPart)
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
+        ResultActions resultActions = mvc.perform(
+                post("/stores/"+ storeId +"/reviews/temp")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestDTOJson)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal)))
                         .andExpect(status().isOk());
 
@@ -184,10 +179,13 @@ public class ReviewRestControllerTest {
         Long storeId = 1L;
         Long reviewId = 2L;
         String requestDTOJson = TestHelper.constructCompleteDTO();
-        UserPrincipal mockUserPrincipal = new UserPrincipal(2L, "female@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(2L, "female@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
         String url = String.format("/stores/%d/reviews/%d", storeId, reviewId);
         String successMsg = "리뷰가 성공적으로 완료되었습니다.";
+
+        when(s3Service.getReviewImageUrl("https://example.com/image1.jpg"))
+                .thenReturn("https://matgpt-dev.s3.ap-northeast-2.amazonaws.com/reviews/1418c0de-9aaa-43e1-9ba8-160595de6ba6/1");
 
         //when - 1. 전체 리뷰 저장
         ResultActions resultActions = mvc.perform(
@@ -221,7 +219,7 @@ public class ReviewRestControllerTest {
         resultActions.andExpect(jsonPath("$.data.reviewId").value(2));
         resultActions.andExpect(jsonPath("$.data.storeId").value(1));
         // TestHelper의 Image, Tag 데이터 기반 검증
-        resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("https://example.com/image1.jpg"));
+        resultActions.andExpect(jsonPath("$.data.reviewImages[0].image").value("https://matgpt-dev.s3.ap-northeast-2.amazonaws.com/reviews/1418c0de-9aaa-43e1-9ba8-160595de6ba6/1"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].name").value("짜장면"));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_x").value(50));
         resultActions.andExpect(jsonPath("$.data.reviewImages[0].tags[0].location_y").value(100));
@@ -243,11 +241,10 @@ public class ReviewRestControllerTest {
         // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
         String sortBy = "latest";
-        String cursorId = "";
 
-        //when - 최초 조회 요청 (cursorId 없을 경우 default:10000)
+        //when - 최초 조회 요청 (cursorId 없을 경우 default -> 자동으로 max값)
         ResultActions resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -258,35 +255,44 @@ public class ReviewRestControllerTest {
         // verify
         // 리뷰 데이터 응답 검증
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value("11"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value("10"));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value("9"));
-        resultActions.andExpect(jsonPath("$.data.reviews[3].reviewId").value("8"));
-        resultActions.andExpect(jsonPath("$.data.reviews[4].reviewId").value("7"));
-        resultActions.andExpect(jsonPath("$.data.reviews[5].reviewId").value("6"));
-        resultActions.andExpect(jsonPath("$.data.reviews[6].reviewId").value("5"));
-        resultActions.andExpect(jsonPath("$.data.reviews[7].reviewId").value("4"));
+        resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value("11"));
+        resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value("10"));
+
+        resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value("9"));
+        // reivewId:9의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[2].imageUrl").value("image1_review9.png"));
+
+        resultActions.andExpect(jsonPath("$.data.body[3].reviewId").value("8"));
+        // reivewId:8의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[3].imageUrl").value("image1_review8.png"));
+
+        resultActions.andExpect(jsonPath("$.data.body[4].reviewId").value("7"));
+        resultActions.andExpect(jsonPath("$.data.body[5].reviewId").value("6"));
+        resultActions.andExpect(jsonPath("$.data.body[6].reviewId").value("5"));
+        resultActions.andExpect(jsonPath("$.data.body[7].reviewId").value("4"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
 
         //given
-        cursorId = "4";
+        Long cursorId = 4L;
 
         //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id)
         resultActions = mvc.perform(
                 get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
+        //console
+        responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : "+responseBody);
+
         // verify
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value("3"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value("2"));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value("1"));
+        resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value("3"));
+        resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value("2"));
+        resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 
@@ -297,12 +303,11 @@ public class ReviewRestControllerTest {
         // storeId 1에 등록된 리뷰는 총 11개(custom_modified.sql)
         String storeId = "1";
         String sortBy = "likes";
-        String cursorId = "";
-        String cursorLikes = "";
 
-        //when - 최초 요청 (cursorId, cursorLikes 없을 경우 default:1000)
+
+        //when - 최초 요청 (cursorId, cursorLikes 없을 경우 default -> 자동으로 max값)
         ResultActions resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -313,34 +318,40 @@ public class ReviewRestControllerTest {
         // verify
         // 리뷰 데이터 응답 검증
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value(11));
-        resultActions.andExpect(jsonPath("$.data.reviews[0].numOfLikes").value(5));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value(9));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].numOfLikes").value(3));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value(2));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].numOfLikes").value(3));
-        resultActions.andExpect(jsonPath("$.data.reviews[3].reviewId").value(1));
-        resultActions.andExpect(jsonPath("$.data.reviews[3].numOfLikes").value(2));
-        resultActions.andExpect(jsonPath("$.data.reviews[4].reviewId").value(7));
-        resultActions.andExpect(jsonPath("$.data.reviews[4].numOfLikes").value(1));
-        resultActions.andExpect(jsonPath("$.data.reviews[5].reviewId").value(3));
-        resultActions.andExpect(jsonPath("$.data.reviews[5].numOfLikes").value(1));
-        resultActions.andExpect(jsonPath("$.data.reviews[6].reviewId").value(10));
-        resultActions.andExpect(jsonPath("$.data.reviews[6].numOfLikes").value(0));
-        resultActions.andExpect(jsonPath("$.data.reviews[7].reviewId").value(8));
-        resultActions.andExpect(jsonPath("$.data.reviews[7].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value(11));
+        resultActions.andExpect(jsonPath("$.data.body[0].numOfLikes").value(5));
+
+        resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value(9));
+        resultActions.andExpect(jsonPath("$.data.body[1].numOfLikes").value(3));
+        // reivewId:9의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[1].imageUrl").value("image1_review9.png"));
+
+        resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value(2));
+        resultActions.andExpect(jsonPath("$.data.body[2].numOfLikes").value(3));
+        resultActions.andExpect(jsonPath("$.data.body[3].reviewId").value(1));
+        resultActions.andExpect(jsonPath("$.data.body[3].numOfLikes").value(2));
+        resultActions.andExpect(jsonPath("$.data.body[4].reviewId").value(7));
+        resultActions.andExpect(jsonPath("$.data.body[4].numOfLikes").value(1));
+        resultActions.andExpect(jsonPath("$.data.body[5].reviewId").value(3));
+        resultActions.andExpect(jsonPath("$.data.body[5].numOfLikes").value(1));
+        resultActions.andExpect(jsonPath("$.data.body[6].reviewId").value(10));
+        resultActions.andExpect(jsonPath("$.data.body[6].numOfLikes").value(0));
+
+        resultActions.andExpect(jsonPath("$.data.body[7].reviewId").value(8));
+        // reivewId:8의 대표 이미지 검증
+        resultActions.andExpect(jsonPath("$.data.body[7].imageUrl").value("image1_review8.png"));
+
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(8));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
 
         //given - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id, numOfLikes)
-        cursorId = "8";
-        cursorLikes = "0";
+        Long cursorId = 8L;
+        Integer cursor = 0;
         //when
         resultActions = mvc.perform(
-                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/stores/"+ storeId +"/reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursor="+ cursor)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
         //console
@@ -349,17 +360,16 @@ public class ReviewRestControllerTest {
 
         // verify
         // 리뷰 데이터 응답 검증
-        resultActions.andExpect(jsonPath("$.data.reviews[0].reviewId").value(6));
-        resultActions.andExpect(jsonPath("$.data.reviews[0].numOfLikes").value(0));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].reviewId").value(5));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].numOfLikes").value(0));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].reviewId").value(4));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value(6));
+        resultActions.andExpect(jsonPath("$.data.body[0].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value(5));
+        resultActions.andExpect(jsonPath("$.data.body[1].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value(4));
+        resultActions.andExpect(jsonPath("$.data.body[2].numOfLikes").value(0));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(3));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(4));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
     }
 
     @DisplayName("리뷰 수정")
@@ -372,7 +382,7 @@ public class ReviewRestControllerTest {
         String content = "리뷰-1의 내용이 수정된 결과입니다.";
         String successMsg = "리뷰 내용이 수정되었습니다.";
 
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         String requestBody = ob.writeValueAsString(new ReviewRequest.UpdateDTO(content));
@@ -413,7 +423,7 @@ public class ReviewRestControllerTest {
         String reviewId = "1";
         String successMsg = "리뷰가 삭제되었습니다.";
 
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when - 1. 리뷰 삭제 수행
@@ -441,7 +451,7 @@ public class ReviewRestControllerTest {
         responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
         // verify
-        resultActions.andExpect(jsonPath("$.errorCode").value(404));
-        resultActions.andExpect(jsonPath("$.message").value(ErrorCode.REVIEW_NOT_FOUND.getMessage()));
+        resultActions.andExpect(jsonPath("$.errorCode").value(400));
+        resultActions.andExpect(jsonPath("$.message").value(ErrorMessage.REVIEW_NOT_FOUND));
     }
 }

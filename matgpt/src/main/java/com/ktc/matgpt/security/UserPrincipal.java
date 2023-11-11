@@ -1,27 +1,24 @@
 package com.ktc.matgpt.security;
 
-import com.ktc.matgpt.security.oauth2.userInfo.OAuth2UserInfo;
-import com.ktc.matgpt.user.entity.*;
+import com.ktc.matgpt.domain.user.entity.User;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.*;
 
 @Getter
-public class UserPrincipal implements OAuth2User, UserDetails {
-    //name은 여기서 생성
+public class UserPrincipal implements UserDetails {
     private final Long id;
     private final String email;
-    private final boolean isFirstLogin;
+    private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, boolean isFirstLogin, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
-        this.isFirstLogin = isFirstLogin;
+        this.password = password;
         this.authorities = authorities;
     }
 
@@ -33,14 +30,9 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
-                user.isFirstLogin(),
+                user.getPassword(),
                 authorities
         );
-    }
-
-    public static UserPrincipal create(User user, OAuth2UserInfo oAuth2UserInfo) {
-        UserPrincipal userPrincipal = UserPrincipal.create(user);
-        return userPrincipal;
     }
 
 
@@ -48,11 +40,6 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     @Override
     public String getUsername() {
         return email;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
     }
 
     @Override
@@ -75,14 +62,5 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         return true;
     }
 
-    //For AuthenticatedPrincipal
-    @Override
-    public String getName() {
-        return email;}
-
-    @Override
-    public Map<String, Object> getAttributes() {
-        return new HashMap<>();
-    }
 
 }

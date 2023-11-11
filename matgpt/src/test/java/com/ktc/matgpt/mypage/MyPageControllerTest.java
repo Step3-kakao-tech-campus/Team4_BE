@@ -38,13 +38,12 @@ public class MyPageControllerTest {
         //given
         // userId 1이 작성한 리뷰는 총 10개
         String sortBy = "latest";
-        String cursorId = "";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        //when
+        //when - cursor 없으면 default -> 자동으로 max값
         ResultActions resultActions = mvc.perform(
-                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId)
+                get("/mypage/my-reviews?sortBy="+ sortBy)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
@@ -56,21 +55,20 @@ public class MyPageControllerTest {
         // verify
         // 리뷰 데이터 응답 검증
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviews[0].id").value("19"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].id").value("18"));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].id").value("17"));
-        resultActions.andExpect(jsonPath("$.data.reviews[3].id").value("16"));
-        resultActions.andExpect(jsonPath("$.data.reviews[4].id").value("15"));
-        resultActions.andExpect(jsonPath("$.data.reviews[5].id").value("14"));
-        resultActions.andExpect(jsonPath("$.data.reviews[6].id").value("13"));
-        resultActions.andExpect(jsonPath("$.data.reviews[7].id").value("12"));
+        resultActions.andExpect(jsonPath("$.data.body[0].id").value("19"));
+        resultActions.andExpect(jsonPath("$.data.body[1].id").value("18"));
+        resultActions.andExpect(jsonPath("$.data.body[2].id").value("17"));
+        resultActions.andExpect(jsonPath("$.data.body[3].id").value("16"));
+        resultActions.andExpect(jsonPath("$.data.body[4].id").value("15"));
+        resultActions.andExpect(jsonPath("$.data.body[5].id").value("14"));
+        resultActions.andExpect(jsonPath("$.data.body[6].id").value("13"));
+        resultActions.andExpect(jsonPath("$.data.body[7].id").value("12"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(12));
 
         //given
-        cursorId = "12";
+        Long cursorId = 12L;
 
         //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id)
         resultActions = mvc.perform(
@@ -80,11 +78,10 @@ public class MyPageControllerTest {
         );
         // verify
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviews[0].id").value("11"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].id").value("1"));
+        resultActions.andExpect(jsonPath("$.data.body[0].id").value("11"));
+        resultActions.andExpect(jsonPath("$.data.body[1].id").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(2));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 
@@ -93,14 +90,12 @@ public class MyPageControllerTest {
     public void findReviewsByUserIdSortByRating_test() throws Exception{
         //given
         String sortBy = "likes";
-        String cursorId = "";
-        String cursorLikes = "";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
-        //when
+        //when - cursor 없으면 default -> 자동으로 max값
         ResultActions resultActions = mvc.perform(
-                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/mypage/my-reviews?sortBy="+ sortBy)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
@@ -112,35 +107,34 @@ public class MyPageControllerTest {
         // verify
         // 리뷰 데이터 응답 검증
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviews[0].id").value("12"));
-        resultActions.andExpect(jsonPath("$.data.reviews[0].numOfLikes").value("5"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].id").value("11"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].numOfLikes").value("5"));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].id").value("13"));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].numOfLikes").value("4"));
-        resultActions.andExpect(jsonPath("$.data.reviews[3].id").value("15"));
-        resultActions.andExpect(jsonPath("$.data.reviews[3].numOfLikes").value("3"));
-        resultActions.andExpect(jsonPath("$.data.reviews[4].id").value("1"));
-        resultActions.andExpect(jsonPath("$.data.reviews[4].numOfLikes").value("2"));
-        resultActions.andExpect(jsonPath("$.data.reviews[5].id").value("18"));
-        resultActions.andExpect(jsonPath("$.data.reviews[5].numOfLikes").value("1"));
-        resultActions.andExpect(jsonPath("$.data.reviews[6].id").value("17"));
-        resultActions.andExpect(jsonPath("$.data.reviews[6].numOfLikes").value("1"));
-        resultActions.andExpect(jsonPath("$.data.reviews[7].id").value("19"));
-        resultActions.andExpect(jsonPath("$.data.reviews[7].numOfLikes").value("0"));
+        resultActions.andExpect(jsonPath("$.data.body[0].id").value("12"));
+        resultActions.andExpect(jsonPath("$.data.body[0].numOfLikes").value("5"));
+        resultActions.andExpect(jsonPath("$.data.body[1].id").value("11"));
+        resultActions.andExpect(jsonPath("$.data.body[1].numOfLikes").value("5"));
+        resultActions.andExpect(jsonPath("$.data.body[2].id").value("13"));
+        resultActions.andExpect(jsonPath("$.data.body[2].numOfLikes").value("4"));
+        resultActions.andExpect(jsonPath("$.data.body[3].id").value("15"));
+        resultActions.andExpect(jsonPath("$.data.body[3].numOfLikes").value("3"));
+        resultActions.andExpect(jsonPath("$.data.body[4].id").value("1"));
+        resultActions.andExpect(jsonPath("$.data.body[4].numOfLikes").value("2"));
+        resultActions.andExpect(jsonPath("$.data.body[5].id").value("18"));
+        resultActions.andExpect(jsonPath("$.data.body[5].numOfLikes").value("1"));
+        resultActions.andExpect(jsonPath("$.data.body[6].id").value("17"));
+        resultActions.andExpect(jsonPath("$.data.body[6].numOfLikes").value("1"));
+        resultActions.andExpect(jsonPath("$.data.body[7].id").value("19"));
+        resultActions.andExpect(jsonPath("$.data.body[7].numOfLikes").value("0"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(true));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(8));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(19));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
 
         //given
-        cursorId = "19";
-        cursorLikes = "0";
+        Long cursorId = 19L;
+        Integer cursor = 0;
 
         //when - 2차 요청 (cursor는 이전 요청의 마지막 리뷰 id, numOfLikes)
         resultActions = mvc.perform(
-                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursorLikes="+ cursorLikes)
+                get("/mypage/my-reviews?sortBy="+ sortBy +"&cursorId="+ cursorId +"&cursor="+ cursor)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
@@ -151,15 +145,14 @@ public class MyPageControllerTest {
 
         // verify
         // 리뷰 데이터 응답 검증
-        resultActions.andExpect(jsonPath("$.data.reviews[0].id").value("16"));
-        resultActions.andExpect(jsonPath("$.data.reviews[0].numOfLikes").value("0"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].id").value(14));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].numOfLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.body[0].id").value("16"));
+        resultActions.andExpect(jsonPath("$.data.body[0].numOfLikes").value("0"));
+        resultActions.andExpect(jsonPath("$.data.body[1].id").value(14));
+        resultActions.andExpect(jsonPath("$.data.body[1].numOfLikes").value(0));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(2));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(14));
-        resultActions.andExpect(jsonPath("$.data.paging.nextCursorLikes").value(0));
+        resultActions.andExpect(jsonPath("$.data.paging.nextCursor").value(0));
     }
 
     @DisplayName("마이페이지 좋아요한 리뷰 목록(8개 단위) 조회 최신순")
@@ -168,13 +161,12 @@ public class MyPageControllerTest {
         //given
         // userId 1이 좋아요 누른 리뷰: 총 4개(reviewId: 1, 2, 3, 7)
         // 좋아요 누른 순서: 1 -> 2 -> 7 -> 3
-        String cursorId = "";
-        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(1L, "nstgic@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         //when
         ResultActions resultActions = mvc.perform(
-                get("/mypage/liked-reviews?cursorId="+ cursorId)
+                get("/mypage/liked-reviews?")
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUserPrincipal))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
@@ -186,13 +178,12 @@ public class MyPageControllerTest {
         // verify
         // 리뷰 데이터 응답 검증 - 리뷰 최신순 x, 리뷰에 좋아요를 누른 최신순으로 정렬된다.
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.data.reviews[0].id").value("3"));
-        resultActions.andExpect(jsonPath("$.data.reviews[1].id").value("7"));
-        resultActions.andExpect(jsonPath("$.data.reviews[2].id").value("2"));
-        resultActions.andExpect(jsonPath("$.data.reviews[3].id").value("1"));
+        resultActions.andExpect(jsonPath("$.data.body[0].reviewId").value("3"));
+        resultActions.andExpect(jsonPath("$.data.body[1].reviewId").value("7"));
+        resultActions.andExpect(jsonPath("$.data.body[2].reviewId").value("2"));
+        resultActions.andExpect(jsonPath("$.data.body[3].reviewId").value("1"));
         // 페이징 관련 데이터 응답 검증
         resultActions.andExpect(jsonPath("$.data.paging.hasNext").value(false));
-        resultActions.andExpect(jsonPath("$.data.paging.countOfReviews").value(4));
         resultActions.andExpect(jsonPath("$.data.paging.nextCursorId").value(1));
     }
 }

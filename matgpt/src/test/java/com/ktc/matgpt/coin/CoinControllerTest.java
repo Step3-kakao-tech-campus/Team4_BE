@@ -1,9 +1,9 @@
 package com.ktc.matgpt.coin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ktc.matgpt.coin.dto.CoinRequest;
-import com.ktc.matgpt.coin.entity.Coin;
-import com.ktc.matgpt.coin.repository.CoinRepository;
+import com.ktc.matgpt.domain.coin.dto.CoinRequest;
+import com.ktc.matgpt.domain.coin.entity.Coin;
+import com.ktc.matgpt.domain.coin.repository.CoinRepository;
 import com.ktc.matgpt.security.UserPrincipal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,8 +51,8 @@ class CoinControllerTest {
 
         // given
         Long userId = 1L;
-        int lastBalance = 0;
-        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", false, Collections.singletonList(
+        int lastBalance = 10;
+        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         Coin coin = coinRepository.findByUserId(userId).get();
@@ -81,7 +81,7 @@ class CoinControllerTest {
         Long userId = 1L;
         int lastBalance = 1000;
         int amount = 1000;
-        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         Coin coin = coinRepository.findByUserId(userId).get();
@@ -118,7 +118,7 @@ class CoinControllerTest {
         Long userId = 1L;
         int lastBalance = 0;
         int amount = 1000;
-        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         Coin coin = coinRepository.findByUserId(userId).get();
@@ -152,7 +152,7 @@ class CoinControllerTest {
         Long userId = 1L;
         int lastBalance = 1000;
         int amount = 1000;
-        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", false, Collections.singletonList(
+        UserPrincipal mockUserPrincipal = new UserPrincipal(userId, "nstgic3@gmail.com", "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_GUEST")));
 
         Coin coin = coinRepository.findByUserId(userId).get();
