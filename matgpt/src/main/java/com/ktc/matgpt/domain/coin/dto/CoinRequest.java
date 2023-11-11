@@ -1,9 +1,7 @@
 package com.ktc.matgpt.domain.coin.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +14,7 @@ public class CoinRequest {
     @Setter
     @NoArgsConstructor
     public static class UseCoinDto {
-        @Positive @Max(Integer.MAX_VALUE)
+        @Min(1) @Max(Integer.MAX_VALUE)
         private int amount;
 
         public UseCoinDto(int amount) {
@@ -29,7 +27,7 @@ public class CoinRequest {
     @Setter
     @NoArgsConstructor
     public static class EarnCoinDto {
-        @Positive @Max(Integer.MAX_VALUE)
+        @Min(1) @Max(Integer.MAX_VALUE)
         private int amount;
 
         public EarnCoinDto(int amount) {

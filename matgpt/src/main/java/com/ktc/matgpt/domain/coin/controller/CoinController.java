@@ -2,6 +2,7 @@ package com.ktc.matgpt.domain.coin.controller;
 
 import com.ktc.matgpt.domain.coin.dto.CoinRequest;
 import com.ktc.matgpt.domain.coin.dto.CoinResponse;
+import com.ktc.matgpt.domain.coin.service.CoinHistoryService;
 import com.ktc.matgpt.domain.coin.service.CoinService;
 import com.ktc.matgpt.security.UserPrincipal;
 import com.ktc.matgpt.utils.ApiUtils;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 public class CoinController {
 
     private final CoinService coinService;
+    private final CoinHistoryService coinHistoryService;
 
     @GetMapping("")
     public ResponseEntity<?> getCoinBalance(@AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -54,7 +56,7 @@ public class CoinController {
                                                  @RequestParam(required = false) LocalDateTime cursor,
                                                  @RequestParam(required = false, value = "cursorid") Long cursorId) {
 
-        PageResponse<?, CoinResponse.UsageHistoryDto> usageHistoriesDto = coinService.getCoinUsageHistory(userPrincipal.getId(), cursor, cursorId);
+        PageResponse<?, CoinResponse.UsageHistoryDto> usageHistoriesDto = coinHistoryService.getCoinUsageHistory(userPrincipal.getId(), cursor, cursorId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(usageHistoriesDto);
         return ResponseEntity.ok(apiResult);
     }
@@ -64,7 +66,7 @@ public class CoinController {
                                                    @RequestParam(required = false) LocalDateTime cursor,
                                                    @RequestParam(required = false, value = "cursorid") Long cursorId) {
 
-        PageResponse<?, CoinResponse.EarningHistoryDto> earningHistoriesDto = coinService.getCoinEarningHistory(userPrincipal.getId(), cursor, cursorId);
+        PageResponse<?, CoinResponse.EarningHistoryDto> earningHistoriesDto = coinHistoryService.getCoinEarningHistory(userPrincipal.getId(), cursor, cursorId);
         ApiUtils.ApiSuccess<?> apiResult = ApiUtils.success(earningHistoriesDto);
         return ResponseEntity.ok(apiResult);
     }
