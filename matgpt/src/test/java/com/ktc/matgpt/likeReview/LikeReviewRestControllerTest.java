@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,13 +35,13 @@ public class LikeReviewRestControllerTest {
     @Test
     public void testToggleLike_Add() throws Exception {
         Long userId = 1L;
-        String userEmail = "nstgic3@gmail.com";
+        String userEmail = "nstgic@gmail.com";
         Long reviewId = 10L;
 
-        UserPrincipal userPrincipal = new UserPrincipal(userId, userEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(userId, userEmail, "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mvc.perform(post("/reviews/" + reviewId + "/like")
-                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .with(SecurityMockMvcRequestPostProcessors.user(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value("리뷰 좋아요 등록"));
@@ -51,13 +52,13 @@ public class LikeReviewRestControllerTest {
     @Test
     public void testToggleLike_Delete() throws Exception {
         Long userId = 1L;
-        String userEmail = "nstgic3@gmail.com";
+        String userEmail = "nstgic@gmail.com";
         Long reviewId = 1L;
 
-        UserPrincipal userPrincipal = new UserPrincipal(userId, userEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(userId, userEmail, "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mvc.perform(post("/reviews/" + reviewId + "/like")
-                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .with(SecurityMockMvcRequestPostProcessors.user(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value("리뷰 좋아요 취소"));
@@ -68,12 +69,12 @@ public class LikeReviewRestControllerTest {
     public void testCheckIfAlreadyLiked_true() throws Exception {
         Long reviewId = 1L;
         Long userId = 1L;
-        String mockEmail = "nstgic3@gmail.com";
+        String mockEmail = "nstgic@gmail.com";
 
-        UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mvc.perform(get("/reviews/" + reviewId + "/if-liked")
-                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .with(SecurityMockMvcRequestPostProcessors.user(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.hasLiked").value(true));
@@ -84,12 +85,12 @@ public class LikeReviewRestControllerTest {
     public void testCheckIfAlreadyLiked_false() throws Exception {
         Long reviewId = 10L;
         Long userId = 1L;
-        String mockEmail = "nstgic3@gmail.com";
+        String mockEmail = "nstgic@gmail.com";
 
-        UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, false, Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
+        UserPrincipal userPrincipal = new UserPrincipal(userId, mockEmail, "ac98bef6-79c0-4a7b-b9b4-9c3e397dbbd7", Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST")));
 
         mvc.perform(get("/reviews/" + reviewId + "/if-liked")
-                        .with(oauth2Login().oauth2User(userPrincipal))
+                        .with(SecurityMockMvcRequestPostProcessors.user(userPrincipal))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.hasLiked").value(false));
