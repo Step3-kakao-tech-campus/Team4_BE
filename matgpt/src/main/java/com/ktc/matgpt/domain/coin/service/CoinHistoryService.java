@@ -30,7 +30,7 @@ public class CoinHistoryService {
     @Transactional(readOnly = true)
     public PageResponse<?, CoinResponse.EarningHistoryDto> getCoinEarningHistory(Long userId, LocalDateTime cursor, Long cursorId) {
         cursor = Paging.convertNullCursorToMaxValue(cursor);
-        List<CoinEarningHistory> coinEarningHistories = coinEarningHistoryRepository.findAllByCoinIdLessThanCursor(userId, cursor, cursorId, PAGEABLE_DEFAULT);
+        List<CoinEarningHistory> coinEarningHistories = coinEarningHistoryRepository.findAllByUserIdLessThanCursor(userId, cursor, cursorId, PAGEABLE_DEFAULT);
 
         Paging<LocalDateTime> paging = createPaging(coinEarningHistories);
         return new PageResponse<>(paging, coinEarningHistories.stream()
@@ -41,7 +41,7 @@ public class CoinHistoryService {
     @Transactional(readOnly = true)
     public PageResponse<?, CoinResponse.UsageHistoryDto> getCoinUsageHistory(Long userId, LocalDateTime cursor, Long cursorId) {
         cursor = Paging.convertNullCursorToMaxValue(cursor);
-        List<CoinUsageHistory> coinUsageHistories = coinUsageHistoryRepository.findAllByCoinIdLessThanCursor(userId, cursor, cursorId, PAGEABLE_DEFAULT);
+        List<CoinUsageHistory> coinUsageHistories = coinUsageHistoryRepository.findAllByUserIdLessThanCursor(userId, cursor, cursorId, PAGEABLE_DEFAULT);
 
         Paging<LocalDateTime> paging = createPaging(coinUsageHistories);
         return new PageResponse<>(paging, coinUsageHistories.stream()
