@@ -2,6 +2,7 @@ package com.ktc.matgpt.domain.aws;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.ktc.matgpt.exception.ErrorMessage;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,8 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String s3BucketName;
-    private static Pattern urlPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/reviews/[\\w-]+/\\d+");
+    private static Pattern reviewPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/reviews/[\\w-]+/\\d+");
+    private static Pattern userPattern = Pattern.compile("https://matgpt-dev\\.s3\\.ap-northeast-2\\.amazonaws\\.com/users/[^?]+");
     private static Pattern keyPatten = Pattern.compile("reviews/[\\w-]+/\\d+");
 
     public URL getPresignedUrl(String objectKey) {
@@ -37,19 +39,25 @@ public class S3Service {
         return amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
     }
 
-    public String getS3Url(String presignedUrl) {
-        Matcher matcher = urlPattern.matcher(presignedUrl);
+    public String getReviewImageUrl(String presignedUrl) {
+        Matcher matcher = reviewPattern.matcher(presignedUrl);
         if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
 
         String s3Url = matcher.group();
-//        verifyValidUrl(s3Url);
+        return s3Url;
+    }
+
+    public String getUserImageUrl(String presignedUrl) {
+        Matcher matcher = userPattern.matcher(presignedUrl);
+        if (!matcher.find()) throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
+
+        String s3Url = matcher.group();
         return s3Url;
     }
 
     public void deleteImage(String s3Url) {
-//        verifyValidUrl(s3Url);
         String s3Key = getKeyFromS3Url(s3Url);
-        amazonS3.deleteObject(s3BucketName, s3Key);
+        amazonS3.deleteObject(new DeleteObjectRequest(s3BucketName, s3Key));
     }
 
     private String getKeyFromS3Url(String s3Url) {
@@ -59,11 +67,4 @@ public class S3Service {
         String s3Key = matcher.group();
         return s3Key;
     }
-
-//    private void verifyValidUrl(String s3Url) {
-//        if (!amazonS3.doesObjectExist(s3BucketName, getKeyFromS3Url(s3Url))) {
-//            throw new NoSuchElementException(ErrorMessage.INVALID_S3_URL);
-//        }
-//    }
-
 }

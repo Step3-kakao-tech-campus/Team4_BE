@@ -21,17 +21,6 @@ spring:
         show_sql: true
       default_batch_fetch_size: 100
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLECLIENTID}
-            client-secret: ${GOOGLECLIENTSECRET}
-          kakao:
-            client-id: ${KAKAOCLIENTID}
-            client-secret: ${KAKAOCLIENTSECRET}
-
 jwt:
   secret: ${JWTSECRET}
 

@@ -1,5 +1,10 @@
 package com.ktc.matgpt.domain.user.service;
 
+import com.ktc.matgpt.domain.aws.S3Service;
+import com.ktc.matgpt.domain.image.Image;
+import com.ktc.matgpt.domain.review.dto.ReviewRequest;
+import com.ktc.matgpt.domain.review.entity.Review;
+import com.ktc.matgpt.domain.store.Store;
 import com.ktc.matgpt.domain.user.dto.UserDto;
 import com.ktc.matgpt.domain.user.entity.AgeGroup;
 import com.ktc.matgpt.domain.user.entity.Gender;
@@ -7,10 +12,13 @@ import com.ktc.matgpt.domain.user.entity.LocaleEnum;
 import com.ktc.matgpt.domain.user.entity.User;
 import com.ktc.matgpt.domain.user.repository.UserRepository;
 import com.ktc.matgpt.exception.ErrorMessage;
+import com.ktc.matgpt.exception.auth.UnAuthorizedException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URL;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -20,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final EntityManager entityManager;
+    private final S3Service s3Service;
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
@@ -60,6 +69,19 @@ public class UserService {
 
         userRepository.save(user);
     }
+    @Transactional
+    public String generatePresignedUrl(String email) {
+        URL presignedUrl = s3Service.getPresignedUrl(String.format("users/%s", email));
+        return presignedUrl.toString();
+    }
 
-    public void updateUserProfileImage(String email){return;} // TODO
+    @Transactional
+    public void completeImageUpload(UserDto.ImageRequest imageRequest, String userEmail) {
+        User user = findByEmail(userEmail);
+        String userImageUrl = s3Service.getUserImageUrl(imageRequest.getPresignedUrl());
+        user.setProfileImageUrl(userImageUrl);
+
+        userRepository.save(user);
+    }
+
 }

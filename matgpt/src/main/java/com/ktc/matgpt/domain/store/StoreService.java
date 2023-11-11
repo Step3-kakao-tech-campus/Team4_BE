@@ -169,10 +169,11 @@ public class StoreService {
     private void validateLatLonBoundary(List<Double> latlons) {
         for (double latlon: latlons) {
             if (!(0 <= latlon && latlon <= 180)) {
-                throw new IllegalArgumentException("잘못된 위, 경도를 입력했습니다 : " + latlon);
+                throw new IllegalArgumentException(ErrorMessage.STORE_LAT_LON_OUT_OF_RANGE);
             }
         }
     }
+
     private List<Store> getStoreListByReviews(String search, Integer cursor, Long lastId, Pageable pageable) {
         return storeJPARepository.findAllBySearchAndNumsOfReviewLessThanCursor(search, cursor, lastId, pageable);
     }

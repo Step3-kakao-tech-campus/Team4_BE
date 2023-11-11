@@ -148,16 +148,12 @@ CREATE TABLE tag_tb (
 
 CREATE TABLE user_tb (
                          age_group TINYINT CHECK (age_group BETWEEN 0 AND 6),
-                         email_verified BIT,
-                         is_first_login BIT NOT NULL,
                          id BIGINT NOT NULL AUTO_INCREMENT,
                          email VARCHAR(255) NOT NULL,
                          gender ENUM('FEMALE','MALE','UNKNOWN'),
                          locale VARCHAR(255),
                          name VARCHAR(255) NOT NULL,
-                         profile_image_url VARCHAR(255),
-                         provider ENUM('GOOGLE','KAKAO') NOT NULL,
-                         provider_id VARCHAR(255),
+    password VARCHAR(255) NOT NULL,
                          PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 

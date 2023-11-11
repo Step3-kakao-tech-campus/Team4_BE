@@ -10,26 +10,18 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Table(name = "coin_usage_history_tb")
 @Entity
-public class CoinUsageHistory {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Coin coin;
-
-    private int balance;
-
-    private int amount;
+public class CoinUsageHistory extends CoinHistory {
 
     private LocalDateTime usedAt;
 
     public CoinUsageHistory(Coin coin, int amount) {
-        this.coin = coin;
-        this.balance = coin.getBalance();
-        this.amount = amount;
+        super(coin, amount);
         this.usedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public LocalDateTime getTransactionTime() {
+        return this.usedAt;
     }
 
     public static CoinUsageHistory create(Coin coin, int amount) {

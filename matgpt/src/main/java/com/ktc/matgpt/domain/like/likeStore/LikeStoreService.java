@@ -66,9 +66,10 @@ public class LikeStoreService {
         likeStoreJPARepository.deleteByUserAndStore(userRef, storeRef);
     }
 
-    private boolean isHeartAlreadyExists(User userRef, Store storeRef) {
+    public boolean isHeartAlreadyExists(User userRef, Store storeRef) {
         return likeStoreJPARepository.existsByUserAndStore(userRef, storeRef);
     }
+
 
     private Paging<Long> getPagingInfo(List<LikeStore> likeStoreList) {
         boolean hasNext = false;

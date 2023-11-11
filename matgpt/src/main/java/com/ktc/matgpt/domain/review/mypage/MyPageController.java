@@ -39,7 +39,7 @@ public class MyPageController {
     public ResponseEntity<?> findLikedReviewsByUserId(@RequestParam(required = false) Long cursorId,
                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
         PageResponse<?, LikeReviewResponse.LikeReviewDTO>  responseDTO
-                            = likeReviewUseCase.executeFindLikeReviews(userPrincipal.getEmail(), cursorId);
+                            = likeReviewUseCase.findLikeReviews(userPrincipal.getEmail(), cursorId);
         return ResponseEntity.ok(ApiUtils.success(responseDTO));
     }
 }

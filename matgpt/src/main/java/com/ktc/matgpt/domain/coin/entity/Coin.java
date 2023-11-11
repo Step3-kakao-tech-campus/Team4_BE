@@ -1,6 +1,7 @@
 package com.ktc.matgpt.domain.coin.entity;
 
 import com.ktc.matgpt.domain.user.entity.User;
+import com.ktc.matgpt.exception.ErrorMessage;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class Coin {
 
     public Coin(User user) {
         this.user = user;
-        this.balance = 0;
+        this.balance = 100;
     }
 
     public static Coin create(User user) {
@@ -31,10 +32,16 @@ public class Coin {
     }
 
     public void use(int amount) {
+        if (this.balance < amount) {
+            throw new IllegalArgumentException(ErrorMessage.COIN_USAGE_OVER_BALANCE);
+        }
         this.balance -= amount;
     }
 
     public void earn(int amount) {
+        if ((long)this.balance + amount > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(ErrorMessage.COIN_OUT_OF_RANGE);
+        }
         this.balance += amount;
     }
 
