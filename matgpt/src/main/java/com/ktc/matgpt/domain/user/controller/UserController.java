@@ -1,5 +1,8 @@
 package com.ktc.matgpt.domain.user.controller;
 
+import com.ktc.matgpt.domain.review.dto.ReviewRequest;
+import com.ktc.matgpt.domain.review.dto.ReviewResponse;
+import com.ktc.matgpt.domain.review.entity.Review;
 import com.ktc.matgpt.domain.user.dto.UserDto;
 import com.ktc.matgpt.domain.user.entity.User;
 import com.ktc.matgpt.domain.user.repository.UserRepository;
@@ -11,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +34,23 @@ public class UserController {
     public ResponseEntity<?> editUserInfo(@RequestBody UserDto.Request userDto, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         userService.updateUserAdditionalInfo(userPrincipal.getEmail(),userDto);
         return ResponseEntity.ok("업데이트가 완료되었습니다.");
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(value = "/image-temp")
+    public ResponseEntity<?> createTemporaryReview(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(ApiUtils.success(userService.generatePresignedUrl(userPrincipal.getEmail())));
+    }
+
+
+    // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/image-complete")
+    public ResponseEntity<?> completeReview(@RequestBody UserDto.ImageRequest imageRequest,
+                                            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        userService.completeImageUpload(imageRequest, userPrincipal.getEmail());
+        return ResponseEntity.ok(ApiUtils.success("업데이트가 성공적으로 완료되었습니다."));
     }
 
 
