@@ -28,7 +28,7 @@ public class UserController {
     @PostMapping("/info")
     public ResponseEntity<?> editUserInfo(@RequestBody UserDto.Request userDto, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         userService.updateUserAdditionalInfo(userPrincipal.getEmail(),userDto);
-        return ResponseEntity.ok("업데이트가 완료되었습니다.");
+        return ResponseEntity.ok(ApiUtils.success("유저프로필 업데이트 완료"));
     }
 
 
