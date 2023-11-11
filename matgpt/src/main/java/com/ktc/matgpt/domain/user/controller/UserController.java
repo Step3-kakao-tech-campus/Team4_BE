@@ -43,7 +43,6 @@ public class UserController {
     }
 
 
-    // 두 번째 단계: 이미지와 태그 정보를 포함하여 리뷰 완료
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/image-complete")
     public ResponseEntity<?> completeReview(@RequestBody UserDto.ImageRequest imageRequest,
