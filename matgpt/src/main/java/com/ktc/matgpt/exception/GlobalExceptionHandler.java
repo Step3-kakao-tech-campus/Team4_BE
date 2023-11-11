@@ -1,6 +1,7 @@
 package com.ktc.matgpt.exception;
 
 import com.ktc.matgpt.exception.api.ApiException;
+import com.ktc.matgpt.exception.auth.UserAlreadyExistsException;
 import com.ktc.matgpt.utils.ApiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,11 @@ import java.util.NoSuchElementException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<?> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        return createErrorResponse(HttpStatus.BAD_REQUEST,ex.getMessage());
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex){
