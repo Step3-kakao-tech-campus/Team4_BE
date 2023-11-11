@@ -12,8 +12,8 @@ import java.util.List;
 public interface CoinEarningHistoryRepository extends JpaRepository<CoinEarningHistory, Long> {
     @Query("SELECT ceh FROM CoinEarningHistory ceh " +
             "JOIN FETCH ceh.coin c " +
-            "WHERE c.id = :coinId " +
+            "WHERE c.user.id = :userId " +
             "AND ceh.earnedAt < :cursor OR (ceh.earnedAt = :cursor AND ceh.id < :cursorId)" +
             "ORDER BY ceh.earnedAt DESC, ceh.id DESC")
-    List<CoinEarningHistory> findAllByCoinIdLessThanCursor(@Param("coinId") Long coinId, @Param("cursor") LocalDateTime cursor, @Param("cursorId")Long cursorId, Pageable pageable);
+    List<CoinEarningHistory> findAllByUserIdLessThanCursor(@Param("userId") Long userId, @Param("cursor") LocalDateTime cursor, @Param("cursorId")Long cursorId, Pageable pageable);
 }

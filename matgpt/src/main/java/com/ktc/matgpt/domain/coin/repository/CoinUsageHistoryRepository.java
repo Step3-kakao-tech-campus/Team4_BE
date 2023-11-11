@@ -14,5 +14,5 @@ public interface CoinUsageHistoryRepository extends JpaRepository<CoinUsageHisto
             "JOIN FETCH cuh.coin c " +
             "WHERE c.user.id = :userId AND cuh.usedAt < :cursor OR (cuh.usedAt = :cursor AND cuh.id < :cursorId) " +
             "ORDER BY cuh.usedAt DESC, cuh.id DESC")
-    List<CoinUsageHistory> findAllByCoinIdLessThanCursor(@Param("userId") Long userId, @Param("cursor") LocalDateTime cursor, @Param("cursorId") Long cursorId, Pageable pageable);
+    List<CoinUsageHistory> findAllByUserIdLessThanCursor(@Param("userId") Long userId, @Param("cursor") LocalDateTime cursor, @Param("cursorId") Long cursorId, Pageable pageable);
 }
